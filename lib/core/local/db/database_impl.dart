@@ -120,4 +120,99 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
     return delete(DBConstants.messageTable, message.localId,
         fieldName: MessageField.localId);
   }
+
+  @override
+  Future<ContactModel?> getContact(String id) async {
+    final data = await _streamDatabase.query(
+      DBConstants.contactTable,
+      where: "${ContactField.id} = ?",
+      whereArgs: [id],
+      limit: 1,
+    );
+    return data.isEmpty ? null : ContactModel.fromDB(data[0]);
+  }
+
+  @override
+  Future<MessageModel?> getContactLastMessage(ContactModel contact) async {
+    final data = await _streamDatabase.query(
+      DBConstants.messageTable,
+      limit: 1,
+      where: "${MessageField.sender} = ? OR ${MessageField.receiver} = ?",
+      whereArgs: [contact.id, contact.id],
+    );
+    return data.isEmpty ? null : MessageModel.fromDB(data[0]);
+  }
+
+  @override
+  Future<List<MessageModel>> getContactMessages(ContactModel contact) {
+    // TODO: implement getContactMessages
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<ContactModel>> getContacts() {
+    // TODO: implement getContacts
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<MessageModel?> getMessageById(String id) {
+    // TODO: implement getMessageById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<MessageModel?> getMessageByLocalId(String localId) {
+    // TODO: implement getMessageByLocalId
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<MessageModel>> getUnreadMessagesByChatId(
+      {required String chatId, required String contactId}) {
+    // TODO: implement getUnreadMessagesByChatId
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<MessageModel>> getUnsentMessages() {
+    // TODO: implement getUnsentMessages
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<List<MessageModel>> watchMediaMessages(String chatId) {
+    // TODO: implement watchMediaMessages
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<MessageModel>> getMediaMessagesInUploadOrDownloadState() {
+    // TODO: implement getMediaMessagesInUploadOrDownloadState
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<List<MessageModel>> watchContactMessages(ContactModel contact) {
+    // TODO: implement watchContactMessages
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<List<ContactModel>> watchContacts() {
+    // TODO: implement watchContacts
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<List<ContactModel>> watchContactsByPattern(String pattern) {
+    // TODO: implement watchContactsByPattern
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<List<MessageModel>> watchMessages() {
+    // TODO: implement watchMessages
+    throw UnimplementedError();
+  }
 }

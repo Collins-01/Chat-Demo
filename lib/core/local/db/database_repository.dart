@@ -54,4 +54,55 @@ abstract class DatabaseRepository {
 
   /// Deletes a message from the `messages` table, takes in parameters [MessageModel]
   Future<int> deleteMessage(MessageModel message);
+
+  // * * * * * * * * * * * * * * * * * * * * *  QUERIES * * * * * * * * * * * * * * * *
+
+  /// get message with [id]
+  Future<MessageModel?> getMessageById(String id);
+
+  /// get message with [localId]
+  Future<MessageModel?> getMessageByLocalId(String localId);
+
+  /// get user with [id]
+  Future<ContactModel?> getContact(String id);
+
+  /// get list of all user contacts
+  Future<List<ContactModel>> getContacts();
+
+  ///get [contact] last message
+  Future<MessageModel?> getContactLastMessage(ContactModel contact);
+
+  /// get [contact] messages
+  Future<List<MessageModel>> getContactMessages(ContactModel contact);
+
+  /// Emits all  message messages containing a media file in conversation with
+  /// this chat id -> `chatId`.
+  Stream<List<MessageModel>> watchMediaMessages(String chatId);
+
+  /// get unread messages sent by user with id [contactId]
+  /// in chat with [chatId]
+  Future<List<MessageModel>> getUnreadMessagesByChatId({
+    required String chatId,
+    required String contactId,
+  });
+
+  /// getall unsent messages
+  Future<List<MessageModel>> getUnsentMessages();
+
+  //  * * * * * * * * * * * * * * * * STREAMS  * * * * * * * * * * * * * * * * * * * * * * * *
+  /// Emits when the ```contacts``` table is altered
+  Stream<List<ContactModel>> watchContacts();
+
+  /// Emits when the  ```contacts``` table is altered
+  /// Only emits contacts which username match [pattern]
+  Stream<List<ContactModel>> watchContactsByPattern(String pattern);
+
+  /// Emits when the ```message``` table is altered
+  Stream<List<MessageModel>> watchMessages();
+
+  /// Emits when when there is an  with messages sent btw [contact]
+  Stream<List<MessageModel>> watchContactMessages(ContactModel contact);
+
+  /// Get all media messages that have not been completely uploaded/downloaded.
+  Future<List<MessageModel>> getMediaMessagesInUploadOrDownloadState();
 }

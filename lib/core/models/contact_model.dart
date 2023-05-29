@@ -49,6 +49,11 @@ class ContactModel {
 
   factory ContactModel.fromJson(String source) =>
       ContactModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ContactModel.fromDB(Map<String, dynamic> source) => ContactModel(
+      id: '',
+      lastName: 'lastName',
+      firstName: 'firstName',
+      avatarUrl: 'avatarUrl');
 
   Map<String, dynamic> mapToDB() {
     return {};

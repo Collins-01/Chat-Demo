@@ -95,5 +95,8 @@ class MessageModel {
   factory MessageModel.fromJson(String source) =>
       MessageModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
+  factory MessageModel.fromDB(Map<String, dynamic> source) =>
+      MessageModel.fromMap(source);
+
   Map<String, dynamic> mapToDB() => {};
 }
