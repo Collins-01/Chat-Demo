@@ -144,9 +144,9 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Future<List<MessageModel>> getContactMessages(ContactModel contact) {
-    // TODO: implement getContactMessages
-    throw UnimplementedError();
+  Future<List<MessageModel>> getContactMessages(ContactModel contact) async {
+    // final data = await _streamDatabase.query(DBConstants.messageTable);
+    return [];
   }
 
   @override
