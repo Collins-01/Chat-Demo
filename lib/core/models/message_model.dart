@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-enum MessageStatus { sent, delivered, read, unsent }
+import 'package:harmony_chat_demo/core/enums/message_status.dart';
 
 MessageStatus messageStatusToEnum(String value) {
   if (value == 'sent') {
@@ -13,7 +13,7 @@ MessageStatus messageStatusToEnum(String value) {
   if (value == 'read') {
     return MessageStatus.read;
   }
-  return MessageStatus.unsent;
+  return MessageStatus.failed;
 }
 
 class MessageModel {
@@ -95,5 +95,5 @@ class MessageModel {
   factory MessageModel.fromJson(String source) =>
       MessageModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
-  Map<String, dynamic> toDBMap() => {};
+  Map<String, dynamic> mapToDB() => {};
 }

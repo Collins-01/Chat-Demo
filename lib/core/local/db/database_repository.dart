@@ -1,7 +1,7 @@
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 
-abstract class IDatabase {
+abstract class DatabaseRepository {
 // * * * * * * * * * * * * * * * INSERT * * * * * * * * * * *
 
   /// Used to Create an [INSERT] action on the database.
@@ -33,10 +33,10 @@ abstract class IDatabase {
   });
 
   ///Updates a contact on the `contacts` table.
-  Future<void> updatContact(ContactModel contact);
+  Future<int> updateContact(ContactModel contact);
 
   /// Updates a  Message on the `messages` table.
-  Future<void> updateMessage(MessageModel message);
+  Future<int> updateMessage(MessageModel message);
 
   ///Updates a list of contacts on the `contacts` table.
   Future<void> updateAllContacts(List<ContactModel> contacts);

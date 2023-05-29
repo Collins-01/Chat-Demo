@@ -50,6 +50,10 @@ class ContactModel {
   factory ContactModel.fromJson(String source) =>
       ContactModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
+  Map<String, dynamic> mapToDB() {
+    return {};
+  }
+
   @override
   String toString() {
     return 'ContactModel(id: $id, lastName: $lastName, firstName: $firstName, avatarUrl: $avatarUrl)';
