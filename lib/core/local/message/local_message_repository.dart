@@ -7,7 +7,7 @@ abstract class LocalMessageRepository {
 
   Future<void> updateMessage(MessageModel message);
 
-  Future<void> updateAllMessage(List<MessageModel> messages);
+  Future<void> updateAllMessages(List<MessageModel> messages);
 
   Future<void> insertAllMessage(List<MessageModel> messages);
 }

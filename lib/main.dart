@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:harmony_chat_demo/core/views/login_view.dart';
+import 'package:harmony_chat_demo/views/login_view.dart';
 
 void main() {
   runApp(const MyApp());

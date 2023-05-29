@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:harmony_chat_demo/core/views/chat_view.dart';
+import 'package:harmony_chat_demo/views/chat_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
