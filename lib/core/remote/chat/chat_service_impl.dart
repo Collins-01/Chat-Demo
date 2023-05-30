@@ -8,7 +8,7 @@ import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
 class ChatServiceImpl implements IChatService {
-  ChatRepository _chatRepository;
+  final ChatRepository _chatRepository;
   late Socket _socket;
 
   ChatServiceImpl({ChatRepository? chatRepository})
@@ -81,5 +81,10 @@ class ChatServiceImpl implements IChatService {
 
   void _sendTextMessage(MessageModel message, ContactModel contact) async {
     await _chatRepository.insertMessage(message);
+  }
+
+  @override
+  Stream<List<ContactModel>> getContactsAsStream(String pattern) async* {
+    yield [];
   }
 }

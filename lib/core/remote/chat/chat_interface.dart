@@ -29,4 +29,6 @@ abstract class IChatService {
 
   /// Returns conversation for this user from the server
   Future<void> getConversations();
+
+  Stream<List<ContactModel>> getContactsAsStream(String pattern);
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/views/login_view.dart';
 
 void main() {
-  runApp(const MyApp());
+  setUpLocaator();
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

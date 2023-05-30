@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:harmony_chat_demo/views/home_view.dart';
+import 'package:harmony_chat_demo/views/home/home_view.dart';
 
 class LoginVew extends StatefulWidget {
   const LoginVew({super.key});

@@ -18,31 +18,31 @@ MessageStatus messageStatusToEnum(String value) {
 }
 
 class MessageModel {
-  int id;
-  String content;
+  String? id;
+  String? content;
   String localId;
-  int remoteId;
+  int? remoteId;
   DateTime createdAt;
   DateTime updatedAt;
-  MessageStatus status;
+  MessageStatus? status;
   String sender;
   String receiver;
-  MessageType type;
+  MessageType? type;
   MessageModel({
-    required this.id,
-    required this.content,
+    this.id = "",
+    this.content = "",
     required this.localId,
-    required this.remoteId,
+    this.remoteId = 0,
     required this.createdAt,
     required this.updatedAt,
-    required this.status,
+    this.status = MessageStatus.failed,
     required this.sender,
     required this.receiver,
-    required this.type,
+    this.type = MessageType.text,
   });
 
   MessageModel copyWith({
-    int? id,
+    String? id,
     String? content,
     String? localId,
     int? remoteId,
@@ -78,13 +78,13 @@ class MessageModel {
       'status': status,
       'sender': sender,
       'receiver': receiver,
-      'type': type.name
+      'type': type.toString()
     };
   }
 
   factory MessageModel.fromMap(Map<String, dynamic> map) {
     return MessageModel(
-      id: map['id'] as int,
+      id: map['id'] as String,
       content: map['content'] as String,
       localId: map['localId'] as String,
       remoteId: map['remoteId'] as int,
