@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:harmony_chat_demo/core/enums/message_status.dart';
+import 'package:harmony_chat_demo/core/enums/message_type.dart';
 
 MessageStatus messageStatusToEnum(String value) {
   if (value == 'sent') {
@@ -26,6 +27,7 @@ class MessageModel {
   MessageStatus status;
   String sender;
   String receiver;
+  MessageType type;
   MessageModel({
     required this.id,
     required this.content,
@@ -36,6 +38,7 @@ class MessageModel {
     required this.status,
     required this.sender,
     required this.receiver,
+    required this.type,
   });
 
   MessageModel copyWith({
@@ -48,6 +51,7 @@ class MessageModel {
     MessageStatus? status,
     String? sender,
     String? receiver,
+    MessageType? type,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -59,6 +63,7 @@ class MessageModel {
       status: status ?? this.status,
       sender: sender ?? this.sender,
       receiver: receiver ?? this.receiver,
+      type: type ?? this.type,
     );
   }
 
@@ -73,6 +78,7 @@ class MessageModel {
       'status': status,
       'sender': sender,
       'receiver': receiver,
+      'type': type.name
     };
   }
 
@@ -87,6 +93,7 @@ class MessageModel {
       status: messageStatusToEnum(map['status']),
       sender: map['sender'] as String,
       receiver: map['receiver'] as String,
+      type: MessageType.text,
     );
   }
 

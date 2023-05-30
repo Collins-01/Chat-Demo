@@ -10,13 +10,23 @@ abstract class IChatService {
   ///[deleteDatabase] method is used to delete the database from the device.
   Future<void> deleteDatabase();
 
+//* * * * * * * * * * * * * * * * * ON EVENTS  * * * * * * * * * * * *
+
+  Future<void> onMessageReceived(Map<String, dynamic> json);
+
+  Future<void> onMessageRead(Map<String, dynamic> json);
+
+  Future<void> onMessageDelivered(Map<String, dynamic> json);
+
+// * * * * * * * * * * * * * * * * * EMIT * * * * * * * * *
   /// Used to send a message to the
   Future<void> sendMessage(
       MessageModel message, ContactModel contact, File? file);
+  // Future<void> emitMessageRead();
+  // Future<void> emitMessageDelivered();
 
-  Future<void> onMessageReceived();
+  Future<void> queryAndSendUnsentMessages();
 
-  Future<void> onMessageRead();
-
-  Future<void> emitMessageRead();
+  /// Returns conversation for this user from the server
+  Future<void> getConversations();
 }

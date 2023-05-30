@@ -86,10 +86,7 @@ class ChatRepositoyImpl implements ChatRepository {
   }
 
   @override
-  Future<void> insertMessage(MessageModel message) async {
-    // TODO: implement insertMessage
-    throw UnimplementedError();
-  }
+  Future<void> insertMessage(MessageModel message) async {}
 
   @override
   Future<void> updateAllMessages(List<MessageModel> messages) {
@@ -106,6 +103,70 @@ class ChatRepositoyImpl implements ChatRepository {
   @override
   Future<void> updateMessage(MessageModel message) {
     // TODO: implement updateMessage
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<int> bulkRead(
+      {required DateTime date,
+      required String senderId,
+      required String receiverId}) {
+    // TODO: implement bulkRead
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<MessageModel?> getContactLastMessage(ContactModel contact) {
+    // TODO: implement getContactLastMessage
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<MessageModel>> getContactMessages(ContactModel contact) {
+    // TODO: implement getContactMessages
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<MessageModel>> getMediaMessagesInUploadOrDownloadState() {
+    // TODO: implement getMediaMessagesInUploadOrDownloadState
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<MessageModel?> getMessageById(String id) {
+    // TODO: implement getMessageById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<MessageModel?> getMessageByLocalId(String localId) {
+    // TODO: implement getMessageByLocalId
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<MessageModel>> getUnreadMessagesByChatId(
+      {required String chatId, required String contactId}) {
+    // TODO: implement getUnreadMessagesByChatId
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<MessageModel>> getUnsentMessages() {
+    // TODO: implement getUnsentMessages
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<List<MessageModel>> watchContactMessages(ContactModel contact) {
+    // TODO: implement watchContactMessages
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<List<MessageModel>> watchMediaMessages(String chatId) {
+    // TODO: implement watchMediaMessages
     throw UnimplementedError();
   }
 }

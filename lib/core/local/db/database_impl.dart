@@ -150,7 +150,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Future<List<ContactModel>> getContacts() {
+  Future<List<ContactModel>> getContacts() async {
     // TODO: implement getContacts
     throw UnimplementedError();
   }
