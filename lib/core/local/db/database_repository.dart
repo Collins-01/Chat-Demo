@@ -2,6 +2,9 @@ import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 
 abstract class DatabaseRepository {
+  Future<void> initializeDB();
+  Future<void> deleteDB();
+
 // * * * * * * * * * * * * * * * INSERT * * * * * * * * * * *
 
   /// Used to Create an [INSERT] action on the database.

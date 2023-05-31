@@ -39,7 +39,7 @@ class ChatRepositoyImpl implements ChatRepository {
 
   @override
   Future<void> initialize() async {
-    _databaseRepository = DatabaseRepositoryImpl(await _initializeDatabase());
+    // _databaseRepository = DatabaseRepositoryImpl(await _initializeDatabase());
   }
 
   @override

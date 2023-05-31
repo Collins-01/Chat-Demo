@@ -92,16 +92,16 @@ class ChatServiceImpl implements IChatService {
 
   @override
   Future insertAllContacts(List<ContactModel> contacts) async {
-    var list = [
-      ...List.generate(
-        10,
-        (index) => ContactModel(
-          lastName: faker.person.lastName(),
-          firstName: faker.person.firstName(),
-          avatarUrl: faker.image.image(),
-        ),
-      )
-    ];
-    await _chatRepository.insertAllContacts(list);
+    // var list = [
+    //   ...List.generate(
+    //     10,
+    //     (index) => ContactModel(
+    //       lastName: faker.person.lastName(),
+    //       firstName: faker.person.firstName(),
+    //       avatarUrl: faker.image.image(),
+    //     ),
+    //   )
+    // ];
+    await _chatRepository.insertAllContacts([]);
   }
 }

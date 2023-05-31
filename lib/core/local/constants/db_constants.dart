@@ -12,13 +12,14 @@ class DBConstants {
 
   static String createContactsTable = ''' 
     CREATE TABLE $contactTable (
-    ${ContactField.id} INT PRIMARY KEY AUTO_INCREMENT,
+    ${ContactField.id} Text PRIMARY KEY NOT NULL,
     ${ContactField.firstName} VARCHAR(255) NOT NULL,
     ${ContactField.lastName} VARCHAR(255) NOT NULL,
     ${ContactField.avatar} VARCHAR(255) NOT NULL,
     ${ContactField.serverId} VARCHAR(255) NOT NULL,
     ${ContactField.bio} VARCHAR(255) NOT NULL,
-    ${ContactField.occupation} VARCHAR(255) NOT NULL
+    ${ContactField.occupation} VARCHAR(255) NOT NULL,
+    ${ContactField.createdAt} DATETIME NOT NULL
 )
 
     ''';
@@ -26,7 +27,7 @@ class DBConstants {
   static String createMessagesTable = '''
 
     CREATE TABLE $messageTable (
-        ${MessageField.id} INT PRIMARY KEY AUTO_INCREMENT,
+        ${MessageField.id} Text PRIMARY KEY NOT NULL ,
         ${MessageField.content} TEXT,
         ${MessageField.messageType} ENUM(${MessageType.audio.name}, ${MessageType.video.name},  ${MessageType.image.name}, ${MessageType.text}) NOT NULL,
         ${MessageField.mediaType} ENUM(${MediaType.audio.name}, ${MediaType.video.name},  ${MediaType.image.name}, ${MediaType.document.name}) NOT NULL,
@@ -82,6 +83,7 @@ class DBConstants {
   /// Get contaact that match [contactUsernamePattern]
   static String contactRawQuery([String? contactUsernamePattern]) => '''
         SELECT  *  FROM $contactTable 
-        ORDER BY ${ContactField.createdAt} DESC
+        
       ''';
 }
+// ORDER BY ${ContactField.createdAt} DESC

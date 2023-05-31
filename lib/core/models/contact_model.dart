@@ -11,19 +11,19 @@ class ContactModel extends Equatable {
   final String firstName;
   final String avatarUrl;
   final String serverId;
-  final DateTime? createdAt;
-  // final String occupation;
-  // final String bio;
-  const ContactModel(
-      {this.id = '',
-      required this.lastName,
-      this.serverId = '',
-      required this.firstName,
-      required this.avatarUrl,
-      this.createdAt
-      // required this.occupation,
-      // required this.bio,
-      });
+  final DateTime createdAt;
+  final String occupation;
+  final String bio;
+  const ContactModel({
+    this.id = '',
+    required this.lastName,
+    this.serverId = '',
+    required this.firstName,
+    required this.avatarUrl,
+    required this.createdAt,
+    required this.occupation,
+    required this.bio,
+  });
 
   ContactModel copyWith({
     String? id,
@@ -32,6 +32,8 @@ class ContactModel extends Equatable {
     String? avatarUrl,
     String? serverId,
     DateTime? createdAt,
+    String? bio,
+    String? occupation,
   }) {
     return ContactModel(
       id: id ?? this.id,
@@ -40,6 +42,8 @@ class ContactModel extends Equatable {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       serverId: serverId ?? this.serverId,
       createdAt: createdAt ?? this.createdAt,
+      bio: bio ?? this.bio,
+      occupation: occupation ?? this.occupation,
     );
   }
 
@@ -51,6 +55,8 @@ class ContactModel extends Equatable {
       'avatarUrl': avatarUrl,
       'serverId': serverId,
       'createdAt': createdAt,
+      'bio': bio,
+      'occupation': occupation,
     };
   }
 
@@ -62,6 +68,8 @@ class ContactModel extends Equatable {
       avatarUrl: map['avatarUrl'] as String,
       serverId: map['serverId'] as String,
       createdAt: map['createdAt'] as DateTime,
+      bio: map['bio'] as String,
+      occupation: map['occupation'] as String,
     );
   }
 
@@ -76,7 +84,9 @@ class ContactModel extends Equatable {
         firstName: source[ContactField.firstName],
         avatarUrl: source[ContactField.avatar],
         serverId: source[ContactField.serverId],
-        createdAt: source[ContactField.createdAt],
+        createdAt: DateTime.parse(source[ContactField.createdAt]).toLocal(),
+        bio: source[ContactField.bio],
+        occupation: source[ContactField.occupation],
       );
 
   Map<String, dynamic> mapToDB() {
@@ -86,11 +96,21 @@ class ContactModel extends Equatable {
       ContactField.firstName: firstName,
       ContactField.avatar: avatarUrl,
       ContactField.serverId: serverId,
-      ContactField.createdAt: createdAt,
+      ContactField.createdAt: createdAt.toIso8601String(),
+      ContactField.bio: bio,
+      ContactField.occupation: occupation,
     };
   }
 
   @override
-  List<Object?> get props =>
-      [id, lastName, firstName, avatarUrl, serverId, createdAt];
+  List<Object?> get props => [
+        id,
+        lastName,
+        firstName,
+        avatarUrl,
+        serverId,
+        createdAt,
+        occupation,
+        bio
+      ];
 }
