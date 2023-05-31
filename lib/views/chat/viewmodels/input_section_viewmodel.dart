@@ -16,7 +16,7 @@ class InputSectionViewModel extends ChangeNotifier {
   final Ref ref;
   InputSectionViewModel(this.ref);
   final uuid = const Uuid();
-  final myId = '';
+  final myId = '001';
   File? _selectedFile;
   File? get selectedFile => _selectedFile;
 
@@ -27,12 +27,13 @@ class InputSectionViewModel extends ChangeNotifier {
 
   sendMessage(ContactModel contact, String content) async {
     MessageModel message = MessageModel(
+      id: uuid.v1(),
       content: content,
       localId: uuid.v4(),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       sender: myId,
-      receiver: contact.id,
+      receiver: contact.serverId,
     );
     await _chatService.sendMessage(message, contact, _selectedFile);
   }

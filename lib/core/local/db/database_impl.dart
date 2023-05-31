@@ -20,7 +20,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
     await db.execute(DBConstants.createContactsTable);
 
     // create  a `messages` table in the newly created database.
-    // await db.execute(DBConstants.createMessagesTable);
+    await db.execute(DBConstants.createMessagesTable);
   }
 
   Future<Database> _initializeDatabase() async {
@@ -228,9 +228,20 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Stream<List<MessageModel>> watchContactMessages(ContactModel contact) {
-    // TODO: implement watchContactMessages
-    throw UnimplementedError();
+  Stream<List<MessageModel>> watchContactMessages(ContactModel contact) async* {
+    yield* _streamDatabase
+        .createQuery(
+          DBConstants.messageTable,
+          where: "${MessageField.sender} = ? or ${MessageField.receiver} = ?",
+          whereArgs: [
+            contact.id,
+            contact.id,
+          ],
+          orderBy: MessageField.updatedAt,
+        )
+        .mapToList(
+          (row) => MessageModel.fromDB(row),
+        );
   }
 
   @override
@@ -249,8 +260,9 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Stream<List<MessageModel>> watchMessages() {
-    // TODO: implement watchMessages
-    throw UnimplementedError();
+  Stream<List<MessageModel>> watchMessages() async* {
+    yield* _streamDatabase.createQuery(DBConstants.messageTable).mapToList(
+          (row) => MessageModel.fromDB(row),
+        );
   }
 }

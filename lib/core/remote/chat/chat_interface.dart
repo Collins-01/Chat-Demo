@@ -8,7 +8,6 @@ abstract class IChatService {
   Future<void> init();
 
   ///[deleteDatabase] method is used to delete the database from the device.
-  Future<void> deleteDatabase();
 
 //* * * * * * * * * * * * * * * * * ON EVENTS  * * * * * * * * * * * *
 
@@ -29,8 +28,4 @@ abstract class IChatService {
 
   /// Returns conversation for this user from the server
   Future<void> getConversations();
-
-  Stream<List<ContactModel>> getContactsAsStream(String pattern);
-
-  Future insertAllContacts(List<ContactModel> contacts);
 }

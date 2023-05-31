@@ -34,7 +34,7 @@ class DBConstants {
         ${MessageField.status} ENUM (${MessageStatus.failed.name}, ${MessageStatus.sent.name}, ${MessageStatus.delivered.name}, ${MessageStatus.read.name}) NOT NULL,
         ${MessageField.createdAt} DATETIME NOT NULL,
         ${MessageField.updatedAt} DATETIME NOT NULL,
-        ${MessageField.severId} VARCHAR(36),
+        ${MessageField.serverId} VARCHAR(36),
         ${MessageField.localId} VARCHAR(36) NOT NULL,
         ${MessageField.mediaUrl} VARCHAR(255),
         ${MessageField.localMediaPath} VARCHAR(255),

@@ -18,7 +18,7 @@ class MessageField {
   static String updatedAt = 'updated_at';
 
   /// Describes the id for the message generated on the server. [uuidv4]
-  static String severId = 'sever_id';
+  static String serverId = 'sever_id';
 
   /// Describes the local id of the message [uuidv4]
   static String localId = 'local_id';
