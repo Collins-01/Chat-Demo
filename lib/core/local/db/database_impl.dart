@@ -199,9 +199,12 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Stream<List<ContactModel>> watchContacts() {
-    // TODO: implement watchContacts
-    throw UnimplementedError();
+  Stream<List<ContactModel>> watchContacts() async* {
+    final stream = _streamDatabase.createRawQuery(
+      [DBConstants.contactTable],
+      DBConstants.contactRawQuery(),
+    );
+    yield* stream.mapToList((row) => ContactModel.fromDB(row));
   }
 
   @override

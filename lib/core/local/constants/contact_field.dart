@@ -12,11 +12,14 @@ class ContactField {
   static String avatar = 'avatar';
 
   /// This the id for the user created locally on the database.
-  static String chatId = 'chat_id';
+  static String serverId = 'server_id';
 
   /// User's bio
   static String bio = 'bio';
 
   /// User's occupation
   static String occupation = 'occupation';
+
+  /// Date the contact was created
+  static String createdAt = 'created_at';
 }

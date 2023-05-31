@@ -46,6 +46,10 @@ dependencies:
   file_picker: ^1.13.3
   record: ^2.1.1
   flutter_riverpod: ^2.3.6
+  dio: ^5.1.2
+  mime: ^1.0.4
+  faker: ^2.1.0
+  equatable: ^2.0.5
   # image_picker: ^0.6.7+22
 
 dev_dependencies:

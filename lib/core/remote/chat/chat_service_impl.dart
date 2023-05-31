@@ -1,3 +1,4 @@
+import 'package:faker/faker.dart';
 import 'package:harmony_chat_demo/core/enums/message_type.dart';
 import 'package:harmony_chat_demo/core/local/chat_repository/chat_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
@@ -9,6 +10,7 @@ import 'package:socket_io_client/socket_io_client.dart';
 
 class ChatServiceImpl implements IChatService {
   final ChatRepository _chatRepository;
+  var faker = Faker();
   late Socket _socket;
 
   ChatServiceImpl({ChatRepository? chatRepository})
@@ -41,7 +43,7 @@ class ChatServiceImpl implements IChatService {
   @override
   Future<void> sendMessage(
       MessageModel message, ContactModel contact, File? file) async {
-    switch (message.type) {
+    switch (message.messageType) {
       case MessageType.text:
         _sendTextMessage(message, contact);
         break;
@@ -85,6 +87,21 @@ class ChatServiceImpl implements IChatService {
 
   @override
   Stream<List<ContactModel>> getContactsAsStream(String pattern) async* {
-    yield [];
+    yield* _chatRepository.getContactsAsStream();
+  }
+
+  @override
+  Future insertAllContacts(List<ContactModel> contacts) async {
+    var list = [
+      ...List.generate(
+        10,
+        (index) => ContactModel(
+          lastName: faker.person.lastName(),
+          firstName: faker.person.firstName(),
+          avatarUrl: faker.image.image(),
+        ),
+      )
+    ];
+    await _chatRepository.insertAllContacts(list);
   }
 }

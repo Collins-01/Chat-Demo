@@ -53,7 +53,9 @@ class ChatRepositoyImpl implements ChatRepository {
   }
 
   @override
-  Future<ContactModel?> getContact(String id) async {}
+  Future<ContactModel?> getContact(String id) async {
+    return null;
+  }
 
   @override
   Future<List<ContactModel>> getContacts() {

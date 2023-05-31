@@ -24,7 +24,7 @@ class MessageField {
   static String localId = 'local_id';
 
   /// Path to the media file on the Cloud Storage [String `http://cloudstorage/chatmedia`]
-  static String mediaPath = 'media_path';
+  static String mediaUrl = 'media_url';
 
   /// Path to the media file that exists on the local machine [String `applicaltion path/chatmedia/ images`]
   static String localMediaPath = 'local_media_path';

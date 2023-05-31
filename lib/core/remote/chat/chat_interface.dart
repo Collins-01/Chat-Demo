@@ -31,4 +31,6 @@ abstract class IChatService {
   Future<void> getConversations();
 
   Stream<List<ContactModel>> getContactsAsStream(String pattern);
+
+  Future insertAllContacts(List<ContactModel> contacts);
 }

@@ -16,7 +16,7 @@ class DBConstants {
     ${ContactField.firstName} VARCHAR(255) NOT NULL,
     ${ContactField.lastName} VARCHAR(255) NOT NULL,
     ${ContactField.avatar} VARCHAR(255) NOT NULL,
-    ${ContactField.chatId} VARCHAR(255) NOT NULL,
+    ${ContactField.serverId} VARCHAR(255) NOT NULL,
     ${ContactField.bio} VARCHAR(255) NOT NULL,
     ${ContactField.occupation} VARCHAR(255) NOT NULL
 )
@@ -35,7 +35,7 @@ class DBConstants {
         ${MessageField.updatedAt} DATETIME NOT NULL,
         ${MessageField.severId} VARCHAR(36),
         ${MessageField.localId} VARCHAR(36) NOT NULL,
-        ${MessageField.mediaPath} VARCHAR(255),
+        ${MessageField.mediaUrl} VARCHAR(255),
         ${MessageField.localMediaPath} VARCHAR(255),
         ${MessageField.chatId} VARCHAR(36),
         ${MessageField.sender} VARCHAR(36) NOT NULL,
@@ -78,4 +78,10 @@ class DBConstants {
           ORDER BY
             m.${MessageField.updatedAt} DESC;
      ''';
+
+  /// Get contaact that match [contactUsernamePattern]
+  static String contactRawQuery([String? contactUsernamePattern]) => '''
+        SELECT  *  FROM $contactTable 
+        ORDER BY ${ContactField.createdAt} DESC
+      ''';
 }
