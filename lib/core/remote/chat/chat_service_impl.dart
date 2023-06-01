@@ -1,5 +1,4 @@
 import 'package:faker/faker.dart';
-import 'package:harmony_chat_demo/core/enums/message_type.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
@@ -9,6 +8,8 @@ import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
 import 'package:harmony_chat_demo/utils/app_logger.dart';
 import 'package:socket_io_client/socket_io_client.dart';
+
+import '../../models/message_type.dart';
 
 class ChatServiceImpl implements IChatService {
   final DatabaseRepository _databaseRepository;
@@ -85,5 +86,16 @@ class ChatServiceImpl implements IChatService {
       // * Query the user from the server and save
     }
     await _databaseRepository.insertMessage(message);
+  }
+
+  @override
+  Stream<List<MessageModel>> watchMessages() async* {
+    yield* _databaseRepository.watchMessages();
+  }
+
+  @override
+  Stream<List<MessageModel>> watchMessagesWithContact(
+      ContactModel contact) async* {
+    yield* _databaseRepository.watchContactMessages(contact);
   }
 }

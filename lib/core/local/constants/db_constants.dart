@@ -1,8 +1,5 @@
-import 'package:harmony_chat_demo/core/enums/media_type.dart';
-import 'package:harmony_chat_demo/core/enums/message_type.dart';
 import 'package:harmony_chat_demo/core/local/constants/contact_field.dart';
 import 'package:harmony_chat_demo/core/local/constants/message_field.dart';
-import '../../enums/message_status.dart';
 
 class DBConstants {
   static const String databaseName = 'harmony_chat_demo.db';
@@ -29,12 +26,12 @@ class DBConstants {
     CREATE TABLE $messageTable (
         ${MessageField.id} Text PRIMARY KEY NOT NULL ,
         ${MessageField.content} TEXT,
-        ${MessageField.messageType} ENUM(${MessageType.audio.name}, ${MessageType.video.name},  ${MessageType.image.name}, ${MessageType.text}) NOT NULL,
-        ${MessageField.mediaType} ENUM(${MediaType.audio.name}, ${MediaType.video.name},  ${MediaType.image.name}, ${MediaType.document.name}) NOT NULL,
-        ${MessageField.status} ENUM (${MessageStatus.failed.name}, ${MessageStatus.sent.name}, ${MessageStatus.delivered.name}, ${MessageStatus.read.name}) NOT NULL,
+        ${MessageField.messageType} VARCHAR(36) NOT NULL,
+        ${MessageField.mediaType}  VARCHAR(36) ,
+        ${MessageField.status} VARCHAR(36) NOT NULL,
         ${MessageField.createdAt} DATETIME NOT NULL,
         ${MessageField.updatedAt} DATETIME NOT NULL,
-        ${MessageField.serverId} VARCHAR(36),
+        ${MessageField.serverId} INT ,
         ${MessageField.localId} VARCHAR(36) NOT NULL,
         ${MessageField.mediaUrl} VARCHAR(255),
         ${MessageField.localMediaPath} VARCHAR(255),

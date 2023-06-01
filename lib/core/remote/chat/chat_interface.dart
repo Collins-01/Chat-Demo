@@ -28,4 +28,8 @@ abstract class IChatService {
 
   /// Returns conversation for this user from the server
   Future<void> getConversations();
+
+  Stream<List<MessageModel>> watchMessages();
+
+  Stream<List<MessageModel>> watchMessagesWithContact(ContactModel contact);
 }

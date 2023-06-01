@@ -11,12 +11,12 @@ class ChatView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("John"),
+        title: Text("${contactModel.lastName} ${contactModel.firstName}"),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            const MessagesSection(),
+            MessagesSection(contactModel),
             InputSection(contactModel),
           ],
         ),

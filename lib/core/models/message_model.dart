@@ -3,8 +3,8 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:harmony_chat_demo/core/local/constants/message_field.dart';
-
-import '../enums/enums.dart';
+import 'package:harmony_chat_demo/core/models/message_status.dart';
+import 'package:harmony_chat_demo/core/models/message_type.dart';
 
 class MessageModel extends Equatable {
   final String? id;
@@ -13,11 +13,11 @@ class MessageModel extends Equatable {
   final int? serverId;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final MessageStatus? status;
+  final String status;
   final String sender;
   final String receiver;
-  final MessageType? messageType;
-  final MediaType? mediaType;
+  final String messageType;
+  final String? mediaType;
   final String? localMediaPath;
   final String? mediaUrl;
   const MessageModel({
@@ -27,13 +27,13 @@ class MessageModel extends Equatable {
     this.serverId = 0,
     required this.createdAt,
     required this.updatedAt,
-    this.status = MessageStatus.failed,
+    this.status = MessageStatus.unsent,
     required this.sender,
     required this.receiver,
     this.messageType = MessageType.text,
-    this.mediaType,
     this.localMediaPath,
     this.mediaUrl,
+    this.mediaType,
   });
 
   MessageModel copyWith({
@@ -43,11 +43,11 @@ class MessageModel extends Equatable {
     int? serverId,
     DateTime? createdAt,
     DateTime? updatedAt,
-    MessageStatus? status,
+    String? status,
     String? sender,
     String? receiver,
-    MessageType? messageType,
-    MediaType? mediaType,
+    String? messageType,
+    String? mediaType,
     String? localMediaPath,
     String? mediaUrl,
   }) {
@@ -93,17 +93,11 @@ class MessageModel extends Equatable {
       serverId: map['serverId'] as int,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int),
-      status: MessageStatus.values.firstWhere(
-        (element) => element.toString().split('.').last == map['status'],
-      ),
+      status: map['status'],
       sender: map['sender'] as String,
       receiver: map['receiver'] as String,
-      messageType: MessageType.values.firstWhere(
-        (e) => e.toString().split('.').last == map['type'],
-      ),
-      mediaType: MediaType.values.firstWhere(
-        (element) => element.toString().split('.').last == map['mediaType'],
-      ),
+      messageType: map['messageType'] as String,
+      mediaType: map['mediaType'] as String,
       mediaUrl: map['mediaUrl'],
     );
   }
@@ -122,20 +116,11 @@ class MessageModel extends Equatable {
         content: source[MessageField.content],
         id: source[MessageField.id],
         localMediaPath: source[MessageField.localMediaPath],
-        mediaType: MediaType.values.firstWhere(
-          (element) =>
-              element.toString().split('.').last ==
-              source[MessageField.mediaType],
-        ),
+        mediaType: source[MessageField.mediaType],
         mediaUrl: source[MessageField.mediaUrl],
-        messageType: MessageType.values.firstWhere(
-          (e) => e.toString().split('.').last == source[MessageField.mediaType],
-        ),
+        messageType: source[MessageField.messageType],
         serverId: source[MessageField.serverId],
-        status: MessageStatus.values.firstWhere(
-          (element) =>
-              element.toString().split('.').last == source[MessageField.status],
-        ),
+        status: source[MessageField.status],
       );
 
   Map<String, dynamic> mapToDB() => {

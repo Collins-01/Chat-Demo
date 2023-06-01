@@ -231,17 +231,21 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   Stream<List<MessageModel>> watchContactMessages(ContactModel contact) async* {
     yield* _streamDatabase
         .createQuery(
-          DBConstants.messageTable,
-          where: "${MessageField.sender} = ? or ${MessageField.receiver} = ?",
-          whereArgs: [
-            contact.id,
-            contact.id,
-          ],
-          orderBy: MessageField.updatedAt,
-        )
+      DBConstants.messageTable,
+      where: "${MessageField.sender} = ? or ${MessageField.receiver} = ?",
+      whereArgs: [
+        contact.id,
+        contact.id,
+      ],
+      orderBy: MessageField.updatedAt,
+    )
         .mapToList(
-          (row) => MessageModel.fromDB(row),
-        );
+      (row) {
+        _logger
+            .i("Local Message for ${contact.firstName}==> ${row.toString()}");
+        return MessageModel.fromDB(row);
+      },
+    );
   }
 
   @override
@@ -264,5 +268,14 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
     yield* _streamDatabase.createQuery(DBConstants.messageTable).mapToList(
           (row) => MessageModel.fromDB(row),
         );
+  }
+
+  @override
+  Stream<List<MessageModel>> getLastConversations() async* {
+    final data = _streamDatabase.createRawQuery(
+      [DBConstants.messageTable, DBConstants.contactTable],
+      DBConstants.getLastConversations,
+      [],
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:harmony_chat_demo/views/home/home_view.dart';
+import 'package:harmony_chat_demo/views/widgets/auth_text_field.dart';
 
 class LoginVew extends StatefulWidget {
   const LoginVew({super.key});
@@ -9,6 +10,8 @@ class LoginVew extends StatefulWidget {
 }
 
 class _LoginVewState extends State<LoginVew> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,18 +21,22 @@ class _LoginVewState extends State<LoginVew> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text("Login"),
-            TextFormField(
-              decoration: const InputDecoration(hintText: "Email"),
+            AuthTextField(
+              hintText: 'example@gmail.com',
+              controller: emailController,
+              labelText: "Email",
             ),
-            TextFormField(
-              decoration: const InputDecoration(hintText: "Password"),
-            ),
+            AuthTextField(
+                hintText: '*****6',
+                controller: passwordController,
+                labelText: "Password"),
             TextButton(
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const HomeView()));
-                },
-                child: const Text("LOGIN")),
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => const HomeView()));
+              },
+              child: const Text("LOGIN"),
+            ),
           ],
         ),
       ),

@@ -108,4 +108,6 @@ abstract class DatabaseRepository {
 
   /// Get all media messages that have not been completely uploaded/downloaded.
   Future<List<MessageModel>> getMediaMessagesInUploadOrDownloadState();
+
+  Stream<List<MessageModel>> getLastConversations();
 }

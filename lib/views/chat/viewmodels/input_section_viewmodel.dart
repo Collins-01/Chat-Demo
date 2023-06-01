@@ -21,8 +21,11 @@ class InputSectionViewModel extends ChangeNotifier {
   File? get selectedFile => _selectedFile;
 
   recordAudio() async {
-    // await _fileService.r
+    await _fileService.recordAudio(
+      'path',
+    );
   }
+
   setSelectedFile() {}
 
   sendMessage(ContactModel contact, String content) async {
@@ -33,7 +36,7 @@ class InputSectionViewModel extends ChangeNotifier {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       sender: myId,
-      receiver: contact.serverId,
+      receiver: contact.id,
     );
     await _chatService.sendMessage(message, contact, _selectedFile);
   }

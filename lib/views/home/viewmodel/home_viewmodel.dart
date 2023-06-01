@@ -15,7 +15,7 @@ class HomeViewModel extends ChangeNotifier {
   HomeViewModel() {
     _contactService.getContactsAsStream().listen((event) {
       _contactStream.add(event);
-      _logger.i("New contact :: ${event.toString()}");
+      // _logger.i("New contact :: ${event.toString()}");
     }, onError: (e) {
       _logger.e("Error Receiving contacts as stream :: ", error: e);
     });

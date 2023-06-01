@@ -66,7 +66,15 @@ class _InputSectionState extends ConsumerState<InputSection> {
             width: 10,
           ),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              if (controller.text.isNotEmpty) {
+                model.sendMessage(widget.contactModel, controller.text.trim());
+                controller.clear();
+              }
+
+              if (_showMic) {}
+              return;
+            },
             child: Container(
                 height: 40,
                 width: 40,
