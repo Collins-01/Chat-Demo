@@ -51,13 +51,14 @@ dependencies:
   faker: ^2.1.0
   equatable: ^2.0.5
   chat_bubbles: ^1.4.1
-  shared_preferences: ^0.5.5
   freezed_annotation: ^2.2.0
   flutter_flushbar: ^0.0.2
   flutter_spinkit: ^5.2.0
   google_fonts: ^4.0.4
   plugin_platform_interface: ^2.1.4
   image_picker: ^0.7.2+1
+  flutter_secure_storage: ^4.2.1
+
   
 
 dev_dependencies:

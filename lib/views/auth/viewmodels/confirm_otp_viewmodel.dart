@@ -1,26 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
-import 'package:harmony_chat_demo/navigations/navigations.dart';
+import 'package:harmony_chat_demo/views/widgets/widgets.dart';
 
-import '../../../core/network_service/exceptions/exceptions.dart';
-import '../../../utils/utils.dart';
+import '../../../core/network_service/exceptions/failure.dart';
 import '../../view_states/view_states.dart';
-import '../../widgets/widgets.dart';
 
 IAuthService _authService = locator();
 
-class RegisterViewModel extends BaseViewModel {
-  final _logger = appLogger(RegisterViewModel);
-  register(String email, String password) async {
+class ConfirmOtpViewModel extends BaseViewModel {
+  verifyOtp(String code, String email) async {
     try {
       changeState(const ViewModelState.busy());
-      await _authService.register(email, password);
+      await _authService.verifyOtp(email, code);
       changeState(const ViewModelState.idle());
-      NavigationService.instance.navigateToReplace(
-        NavigationRoutes.EMAIL_VERIFICATION,
-        arguments: email,
-      );
     } on Failure catch (e) {
       changeState(ViewModelState.error(e));
       AppFlushBar.showError(title: e.title, message: e.message);
@@ -32,6 +25,6 @@ class RegisterViewModel extends BaseViewModel {
   }
 }
 
-final registerViewModel = ChangeNotifierProvider<RegisterViewModel>((ref) {
-  return RegisterViewModel();
+final confirmOtpViewModel = ChangeNotifierProvider<ConfirmOtpViewModel>((ref) {
+  return ConfirmOtpViewModel();
 });

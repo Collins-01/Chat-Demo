@@ -1,8 +1,11 @@
 import 'package:harmony_chat_demo/core/models/user_model.dart';
 import 'package:harmony_chat_demo/core/network_service/network_client.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
+import 'package:harmony_chat_demo/utils/utils.dart';
 
 class AuthServiceImpl implements IAuthService {
+  final _logger = appLogger(AuthServiceImpl);
+  final String path = '/authentication/';
   final NetworkClient _networkClient = NetworkClient.instance;
   final UserModel _currentUser = UserModel(
     avatar:
@@ -17,37 +20,51 @@ class AuthServiceImpl implements IAuthService {
   /// When a user logs in, a list of the user's connections(contacts) will be returned alongside with the user's
   /// credentials, for local storage.
   ///
-  Future<void> login(String username, String password) {
-    // TODO: implement login
-    throw UnimplementedError();
+  Future<void> login(String username, String password) async {
+    var response = await _networkClient.post(
+      '${path}login',
+      body: {
+        'email': username,
+        'password': password,
+      },
+    );
+    _logger.i("Response from Login ${response.toString()}",
+        functionName: 'login');
   }
 
   @override
   UserModel? get user => _currentUser;
 
   @override
-  Future<void> logout() {
-    // TODO: implement logout
-    throw UnimplementedError();
+  Future<void> logout() async {}
+
+  @override
+  Future<void> register(String email, String password) async {
+    var response = await _networkClient.post(
+      '${path}register',
+      body: {
+        'email': email,
+        'password': password,
+      },
+    );
+    _logger.i("Response from Login", error: response, functionName: 'login');
   }
 
   @override
-  Future<void> register(String email, String password) {
-    // TODO: implement register
-    throw UnimplementedError();
+  Future<void> verifyOtp(String email, String code) async {
+    var response = await _networkClient.post(
+      '${path}otp/verify',
+      body: {
+        'email': email,
+        'code': code,
+      },
+    );
+    _logger.i(response.toString());
   }
 
   @override
-  Future<void> verifyOtp(String email, String code) {
-    // TODO: implement verifyOtp
-    throw UnimplementedError();
-  }
+  String? get accessToken => '';
 
   @override
-  // TODO: implement accessToken
-  String? get accessToken => throw UnimplementedError();
-
-  @override
-  // TODO: implement refreshToken
-  String? get refreshToken => throw UnimplementedError();
+  String? get refreshToken => '';
 }

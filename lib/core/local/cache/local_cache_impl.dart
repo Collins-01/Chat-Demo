@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:harmony_chat_demo/core/local/cache/local_cache.dart';
 import 'package:harmony_chat_demo/utils/app_logger.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -9,6 +10,7 @@ class LocalCacheImpl implements LocalCache {
   static const _tokenKey = 'userToken';
   static const _userDataKey = 'userData';
   late final _log = appLogger(LocalCacheImpl);
+  final _localStorage = const FlutterSecureStorage();
 
   // late SharedPreferences _sharedPreferences;
 
@@ -28,14 +30,18 @@ class LocalCacheImpl implements LocalCache {
   }
 
   @override
-  Object? getFromLocalCache(String key) {
+  Object? getFromLocalCache(String key) async {
     try {
-      // return _sharedPreferences.get(key);
+      final data = await _localStorage.read(key: key);
+      if (data != null) {
+        return jsonDecode(data);
+      }
+      return null;
     } catch (e) {
       _log.i(e);
       return null;
     }
-    return null;
+    // return null;
   }
 
   @override
@@ -45,7 +51,7 @@ class LocalCacheImpl implements LocalCache {
 
   @override
   Future<void> removeFromLocalCache(String key) async {
-    // await _sharedPreferences.remove(key);
+    await _localStorage.delete(key: key);
   }
 
   @override
@@ -55,7 +61,9 @@ class LocalCacheImpl implements LocalCache {
 
   @override
   Future<void> saveToLocalCache({required String key, required value}) async {
-    // _log.i('Data being saved: key: $key, value: $value');
+    _log.i('Data being saved: key: $key, value: $value');
+
+    await _localStorage.write(key: key, value: jsonEncode(value));
 
     // if (value is String) {
     //   await _sharedPreferences.setString(key, value);

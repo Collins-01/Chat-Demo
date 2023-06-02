@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:harmony_chat_demo/navigations/navigation_routes.dart';
+import 'package:harmony_chat_demo/views/auth/confirm_otp_view.dart';
 import 'package:harmony_chat_demo/views/splash_screen_view.dart';
 import 'package:harmony_chat_demo/views/views.dart';
 
@@ -15,10 +16,11 @@ class RouteGenerators {
           builder: (_) => const ResgisterView(),
         );
 
-      // case NavigationRoutes.EMAIL_VERIFICATION:
-      //   return MaterialPageRoute(
-      //     builder: (_) => EmailVerificationView(),
-      //   );
+      case NavigationRoutes.EMAIL_VERIFICATION:
+        final email = routeSettings.arguments as String;
+        return MaterialPageRoute(
+          builder: (_) => ConfirmOtpView(email: email),
+        );
 
       case NavigationRoutes.HOME:
         return MaterialPageRoute(

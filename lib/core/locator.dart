@@ -9,6 +9,7 @@ import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface
 import 'package:harmony_chat_demo/core/remote/contacts/contacts_service_impl.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
+import 'local/cache/cache.dart';
 import 'local/db/database_impl.dart';
 import 'local/db/database_repository.dart';
 
@@ -17,8 +18,7 @@ GetIt locator = GetIt.instance;
 Future<void> setUpLocaator() async {
   // final sharedPrefs = await SharedPreferences.getInstance();
   // locator.registerSingleton(sharedPrefs);
-  // locator.registerLazySingleton<LocalCache>(
-  //     () => LocalCacheImpl(sharedPreferences: sharedPrefs));
+  locator.registerLazySingleton<LocalCache>(() => LocalCacheImpl());
   locator.registerLazySingleton<DatabaseRepository>(
       () => DatabaseRepositoryImpl());
   locator.registerLazySingleton<IAuthService>(() => AuthServiceImpl());
