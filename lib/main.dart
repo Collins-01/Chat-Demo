@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/views/splash_screen_view.dart';
 
+import 'navigations/navigations.dart';
+
 void main() {
   setUpLocaator();
   runApp(const ProviderScope(child: MyApp()));
@@ -15,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'HARMONY CHAT DEMO',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const SplashScreenView(),
+      navigatorKey: NavigationService.instance.navigatorKey,
+      onGenerateRoute: RouteGenerators.generateRoutes,
     );
   }
 }

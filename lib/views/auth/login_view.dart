@@ -1,46 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:harmony_chat_demo/views/home/home_view.dart';
-import 'package:harmony_chat_demo/views/widgets/auth_text_field.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harmony_chat_demo/views/auth/viewmodels/login_viewmodel.dart';
+import 'package:harmony_chat_demo/views/widgets/widgets.dart';
 
-class LoginVew extends StatefulWidget {
-  const LoginVew({super.key});
+class LoginView extends ConsumerStatefulWidget {
+  const LoginView({super.key});
 
   @override
-  State<LoginVew> createState() => _LoginVewState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _LoginViewState();
 }
 
-class _LoginVewState extends State<LoginVew> {
+class _LoginViewState extends ConsumerState<LoginView> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("Login"),
-            AuthTextField(
-              hintText: 'example@gmail.com',
-              controller: emailController,
-              labelText: "Email",
+    var model = ref.watch(loginViewModel);
+    return LoaderPage(
+      busy: model.isBusy,
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 22),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Login"),
+                AuthTextField(
+                  hintText: 'example@gmail.com',
+                  controller: emailController,
+                  labelText: "Email",
+                ),
+                AuthTextField(
+                  hintText: '*****6',
+                  controller: passwordController,
+                  labelText: "Password",
+                ),
+                const SizedBox(
+                  height: 50,
+                ),
+                AppLongButton(
+                  title: 'LOGIN',
+                  onTap: () {
+                    if (_formKey.currentState!.validate()) {
+                      model.login(
+                          emailController.text, passwordController.text);
+                    }
+                    return;
+                  },
+                )
+              ],
             ),
-            AuthTextField(
-                hintText: '*****6',
-                controller: passwordController,
-                labelText: "Password"),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (_) => const HomeView(),
-                  ),
-                );
-              },
-              child: const Text("LOGIN"),
-            ),
-          ],
+          ),
         ),
       ),
     );

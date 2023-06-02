@@ -17,7 +17,7 @@ class _SplashScreenViewState extends State<SplashScreenView> {
     await _databaseRepository.initializeDB();
 
     Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (_) => const LoginVew()));
+        .pushReplacement(MaterialPageRoute(builder: (_) => const LoginView()));
   }
 
   @override
