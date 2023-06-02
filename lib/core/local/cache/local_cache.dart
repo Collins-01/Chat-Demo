@@ -1,6 +1,6 @@
 abstract class LocalCache {
   ///Retrieves access token for authorizing requests
-  String? getToken();
+  Future<String?> getToken();
 
   ///Saves access token for authorizing requests
   Future<void> saveToken(String tokenId);

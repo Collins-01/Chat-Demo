@@ -33,6 +33,7 @@ class LocalCacheImpl implements LocalCache {
   Object? getFromLocalCache(String key) async {
     try {
       final data = await _localStorage.read(key: key);
+      _log.i(data);
       if (data != null) {
         return jsonDecode(data);
       }
@@ -45,8 +46,14 @@ class LocalCacheImpl implements LocalCache {
   }
 
   @override
-  String? getToken() {
-    return getFromLocalCache(_tokenKey) as String?;
+  Future<String?> getToken() async {
+    final token = await _localStorage.read(key: _tokenKey);
+    _log.i(
+      "Token from getToken()  :: $token",
+    );
+    return token;
+
+    // return await getFromLocalCache(_tokenKey) as String?;
   }
 
   @override
