@@ -51,7 +51,7 @@ dependencies:
   faker: ^2.1.0
   equatable: ^2.0.5
   chat_bubbles: ^1.4.1
-  # shared_preferences: ^0.5.5
+  shared_preferences: ^0.5.5
   freezed_annotation: ^2.2.0
   flutter_flushbar: ^0.0.2
   flutter_spinkit: ^5.2.0
