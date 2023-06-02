@@ -18,6 +18,7 @@ class LoginViewModel extends BaseViewModel {
       changeState(ViewModelState.error(e));
       AppFlushBar.showError(title: e.title, message: e.message);
     } catch (e) {
+      changeState(const ViewModelState.idle());
       // changeState(const ViewModelState.error());
       AppFlushBar.showError(title: 'Unexpected Error', message: e.toString());
     }
