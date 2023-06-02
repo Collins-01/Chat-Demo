@@ -1,6 +1,5 @@
 import 'dart:io';
-import 'package:harmony_chat_demo/core/models/contact_model.dart';
-import 'package:harmony_chat_demo/core/models/message_model.dart';
+import 'package:harmony_chat_demo/core/models/models.dart';
 
 abstract class IChatService {
   /// [init] method is called when the the chat service is created.
@@ -8,7 +7,6 @@ abstract class IChatService {
   Future<void> init();
 
   ///[deleteDatabase] method is used to delete the database from the device.
-  Future<void> deleteDatabase();
 
 //* * * * * * * * * * * * * * * * * ON EVENTS  * * * * * * * * * * * *
 
@@ -30,7 +28,8 @@ abstract class IChatService {
   /// Returns conversation for this user from the server
   Future<void> getConversations();
 
-  Stream<List<ContactModel>> getContactsAsStream(String pattern);
+  Stream<List<MessageModel>> watchMessages();
 
-  Future insertAllContacts(List<ContactModel> contacts);
+  Stream<List<MessageModel>> watchMessagesWithContact(ContactModel contact);
+  Stream<List<MessageInfoModel>> getMyLastConversations();
 }

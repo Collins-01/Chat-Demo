@@ -65,41 +65,46 @@ class _InputSectionState extends ConsumerState<InputSection> {
           const SizedBox(
             width: 10,
           ),
-          Container(
-              height: 40,
-              width: 40,
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-                shape: BoxShape.circle,
-              ),
-              child: !_showMic
-                  ? const Icon(
-                      Icons.send,
-                      color: Colors.white,
-                    )
-                  : FutureBuilder(
-                      future: _fileService.isRecording,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return IconButton(
-                            onPressed: () {},
-                            icon: Icon(
+          InkWell(
+            onTap: () {
+              if (controller.text.isNotEmpty) {
+                model.sendMessage(widget.contactModel, controller.text.trim());
+                controller.clear();
+              }
+
+              if (_showMic) {}
+              return;
+            },
+            child: Container(
+                height: 40,
+                width: 40,
+                decoration: const BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                ),
+                child: !_showMic
+                    ? const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      )
+                    : FutureBuilder(
+                        future: _fileService.isRecording,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Icon(
                               Icons.mic,
                               color:
                                   snapshot.data! ? Colors.green : Colors.white,
-                            ),
-                          );
-                        } else {
-                          return IconButton(
-                            onPressed: () {},
-                            icon: const Icon(
+                            );
+                          } else {
+                            return const Icon(
                               Icons.mic,
                               color: Colors.white,
-                            ),
-                          );
-                        }
-                      },
-                    ))
+                            );
+                          }
+                        },
+                      )),
+          )
         ],
       ),
     );

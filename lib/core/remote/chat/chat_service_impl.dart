@@ -1,20 +1,28 @@
 import 'package:faker/faker.dart';
-import 'package:harmony_chat_demo/core/enums/message_type.dart';
-import 'package:harmony_chat_demo/core/local/chat_repository/chat_repository.dart';
+import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
+import 'package:harmony_chat_demo/core/models/message_info_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'dart:io';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
+import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
+import 'package:harmony_chat_demo/utils/app_logger.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
+import '../../models/message_type.dart';
+
 class ChatServiceImpl implements IChatService {
-  final ChatRepository _chatRepository;
+  final DatabaseRepository _databaseRepository;
+  final IContactService _contactService;
+  final _logger = const AppLogger(ChatServiceImpl);
   var faker = Faker();
   late Socket _socket;
 
-  ChatServiceImpl({ChatRepository? chatRepository})
-      : _chatRepository = chatRepository ?? locator();
+  ChatServiceImpl(
+      {DatabaseRepository? databaseRepository, IContactService? contactService})
+      : _databaseRepository = databaseRepository ?? locator(),
+        _contactService = contactService ?? locator();
 
   final String _messageEvent = 'MESSAGE';
 
@@ -27,17 +35,6 @@ class ChatServiceImpl implements IChatService {
         'authorization': 'token',
       }
     });
-  }
-
-  @override
-  Future<void> deleteDatabase() async {
-    await _chatRepository.deleteDatabase();
-  }
-
-  @override
-  Future<void> emitMessageRead() {
-    // TODO: implement emitMessageRead
-    throw UnimplementedError();
   }
 
   @override
@@ -82,26 +79,30 @@ class ChatServiceImpl implements IChatService {
   }
 
   void _sendTextMessage(MessageModel message, ContactModel contact) async {
-    await _chatRepository.insertMessage(message);
+    final user = await _contactService.getContact(contact.serverId);
+    if (user == null) {
+      _logger.e(
+        "User Id not found in local db",
+      );
+      // * Query the user from the server and save
+    }
+    await _databaseRepository.insertMessage(message);
   }
 
   @override
-  Stream<List<ContactModel>> getContactsAsStream(String pattern) async* {
-    yield* _chatRepository.getContactsAsStream();
+  Stream<List<MessageModel>> watchMessages() async* {
+    yield* _databaseRepository.watchMessages();
   }
 
   @override
-  Future insertAllContacts(List<ContactModel> contacts) async {
-    var list = [
-      ...List.generate(
-        10,
-        (index) => ContactModel(
-          lastName: faker.person.lastName(),
-          firstName: faker.person.firstName(),
-          avatarUrl: faker.image.image(),
-        ),
-      )
-    ];
-    await _chatRepository.insertAllContacts(list);
+  Stream<List<MessageModel>> watchMessagesWithContact(
+      ContactModel contact) async* {
+    yield* _databaseRepository.watchContactMessages(contact);
+  }
+
+  @override
+  Stream<List<MessageInfoModel>> getMyLastConversations() async* {
+    final id = _contactService.userContactInfo.id;
+    yield* _databaseRepository.getMyLastConversations(id);
   }
 }

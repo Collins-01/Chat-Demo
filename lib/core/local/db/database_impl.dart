@@ -2,16 +2,49 @@ import 'package:harmony_chat_demo/core/local/constants/contact_field.dart';
 import 'package:harmony_chat_demo/core/local/constants/db_constants.dart';
 import 'package:harmony_chat_demo/core/local/constants/message_field.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
-import 'package:harmony_chat_demo/core/models/message_model.dart';
-import 'package:harmony_chat_demo/core/models/contact_model.dart';
+import 'package:harmony_chat_demo/core/models/models.dart';
+import 'package:path/path.dart';
 import 'package:sqlbrite/sqlbrite.dart';
 
-class DatabaseRepositoryImpl implements DatabaseRepository {
-  final BriteDatabase _streamDatabase;
-  final Database _database;
+import '../../../utils/app_logger.dart';
 
-  DatabaseRepositoryImpl(this._database)
-      : _streamDatabase = BriteDatabase(_database);
+class DatabaseRepositoryImpl implements DatabaseRepository {
+  final _logger = const AppLogger(DatabaseRepositoryImpl);
+
+  late BriteDatabase _streamDatabase;
+  // late Database _database;
+
+  _onCreateDatabase(Database db, int verserion) async {
+    // Creates a `contacts` table in the newly created database.
+    await db.execute(DBConstants.createContactsTable);
+
+    // create  a `messages` table in the newly created database.
+    await db.execute(DBConstants.createMessagesTable);
+  }
+
+  Future<Database> _initializeDatabase() async {
+    // Get the directory for the database.
+    final documentDirectory = await getDatabasesPath();
+    // Create a path for the database, with the name of the database from the db_constants.
+    final path = join(documentDirectory, DBConstants.databaseName);
+    _logger.i("Path to created database ::: $path ");
+    return openDatabase(path,
+        version: DBConstants.dbVersion, onCreate: _onCreateDatabase);
+  }
+
+  @override
+  Future<void> deleteDB() async {
+    final documentDirectory = await getDatabasesPath();
+    final path = join(documentDirectory, DBConstants.databaseName);
+    await databaseFactory.deleteDatabase(path);
+    await _initializeDatabase();
+  }
+
+  @override
+  Future<void> initializeDB() async {
+    final db = await _initializeDatabase();
+    _streamDatabase = BriteDatabase(db);
+  }
 
   @override
   Future<int> insert(String table, Map<String, dynamic> rowData,
@@ -26,6 +59,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   Future<void> insertAllContacts(List<ContactModel> contacts) async {
     final batch = _streamDatabase.batch();
     for (var contact in contacts) {
+      _logger.i(contact.toString());
       batch.insert(DBConstants.contactTable, contact.mapToDB());
     }
     batch.commit(noResult: true);
@@ -193,9 +227,24 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Stream<List<MessageModel>> watchContactMessages(ContactModel contact) {
-    // TODO: implement watchContactMessages
-    throw UnimplementedError();
+  Stream<List<MessageModel>> watchContactMessages(ContactModel contact) async* {
+    yield* _streamDatabase
+        .createQuery(
+      DBConstants.messageTable,
+      where: "${MessageField.sender} = ? or ${MessageField.receiver} = ?",
+      whereArgs: [
+        contact.id,
+        contact.id,
+      ],
+      orderBy: MessageField.updatedAt,
+    )
+        .mapToList(
+      (row) {
+        _logger
+            .i("Local Message for ${contact.firstName}==> ${row.toString()}");
+        return MessageModel.fromDB(row);
+      },
+    );
   }
 
   @override
@@ -214,8 +263,20 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Stream<List<MessageModel>> watchMessages() {
-    // TODO: implement watchMessages
-    throw UnimplementedError();
+  Stream<List<MessageModel>> watchMessages() async* {
+    yield* _streamDatabase.createQuery(DBConstants.messageTable).mapToList(
+          (row) => MessageModel.fromDB(row),
+        );
+  }
+
+  @override
+  Stream<List<MessageInfoModel>> getMyLastConversations(String id) async* {
+    yield* _streamDatabase
+        .createRawQuery(
+          [DBConstants.messageTable, DBConstants.contactTable],
+          DBConstants.getLastConversations,
+          [id],
+        )
+        .mapToList((row) => MessageInfoModel.fromDB(row));
   }
 }

@@ -13,18 +13,18 @@ class HomeViewModel extends ChangeNotifier {
   final _logger = const AppLogger(HomeViewModel);
   // final Ref ref;
   HomeViewModel() {
-    _chatService.getContactsAsStream('chat').listen((event) {
-      _contactStream.add(event);
+    _chatService.getMyLastConversations().listen((event) {
+      _messagesStream.add(event);
+      _logger.i("New Message :: ${event.toString()}");
     }, onError: (e) {
       _logger.e("Error Receiving contacts as stream :: ", error: e);
     });
   }
 
-  final BehaviorSubject<List<ContactModel>> _contactStream =
-      BehaviorSubject<List<ContactModel>>();
-  Stream<List<ContactModel>> get contactStream => _contactStream;
-  Stream<List<ContactModel>> contactStreamPattern(String pattern) =>
-      _chatService.getContactsAsStream(pattern);
+  final BehaviorSubject<List<MessageInfoModel>> _messagesStream =
+      BehaviorSubject<List<MessageInfoModel>>();
+
+  Stream<List<MessageInfoModel>> get messagesStream => _messagesStream;
 }
 
 final homeViewModel = ChangeNotifierProvider<HomeViewModel>((ref) {

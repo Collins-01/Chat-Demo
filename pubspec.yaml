@@ -50,6 +50,12 @@ dependencies:
   mime: ^1.0.4
   faker: ^2.1.0
   equatable: ^2.0.5
+  chat_bubbles: ^1.4.1
+  # shared_preferences: ^0.5.5
+  freezed_annotation: ^2.2.0
+  flutter_flushbar: ^0.0.2
+  flutter_spinkit: ^5.2.0
+  google_fonts: ^4.0.4
   # image_picker: ^0.6.7+22
 
 dev_dependencies:
@@ -62,6 +68,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  freezed: ^2.3.3
+  build_runner: ^2.3.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

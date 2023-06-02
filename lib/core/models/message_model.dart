@@ -1,38 +1,39 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:equatable/equatable.dart';
 import 'package:harmony_chat_demo/core/local/constants/message_field.dart';
+import 'package:harmony_chat_demo/core/models/message_status.dart';
+import 'package:harmony_chat_demo/core/models/message_type.dart';
 
-import '../enums/enums.dart';
-
-class MessageModel {
-  String? id;
-  String? content;
-  String localId;
-  int? serverId;
-  DateTime createdAt;
-  DateTime updatedAt;
-  MessageStatus? status;
-  String sender;
-  String receiver;
-  MessageType? messageType;
-  MediaType? mediaType;
-  String? localMediaPath;
-  String? mediaUrl;
-  MessageModel({
+class MessageModel extends Equatable {
+  final String? id;
+  final String? content;
+  final String localId;
+  final int? serverId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final String status;
+  final String sender;
+  final String receiver;
+  final String messageType;
+  final String? mediaType;
+  final String? localMediaPath;
+  final String? mediaUrl;
+  const MessageModel({
     this.id = "",
     this.content = "",
     required this.localId,
     this.serverId = 0,
     required this.createdAt,
     required this.updatedAt,
-    this.status = MessageStatus.failed,
+    this.status = MessageStatus.unsent,
     required this.sender,
     required this.receiver,
     this.messageType = MessageType.text,
-    this.mediaType,
     this.localMediaPath,
     this.mediaUrl,
+    this.mediaType,
   });
 
   MessageModel copyWith({
@@ -42,11 +43,11 @@ class MessageModel {
     int? serverId,
     DateTime? createdAt,
     DateTime? updatedAt,
-    MessageStatus? status,
+    String? status,
     String? sender,
     String? receiver,
-    MessageType? messageType,
-    MediaType? mediaType,
+    String? messageType,
+    String? mediaType,
     String? localMediaPath,
     String? mediaUrl,
   }) {
@@ -73,8 +74,8 @@ class MessageModel {
       'content': content,
       'localId': localId,
       'serverId': serverId,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'updatedAt': updatedAt.millisecondsSinceEpoch,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
       'status': status,
       'sender': sender,
       'receiver': receiver,
@@ -92,17 +93,11 @@ class MessageModel {
       serverId: map['serverId'] as int,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int),
-      status: MessageStatus.values.firstWhere(
-        (element) => element.toString().split('.').last == map['status'],
-      ),
+      status: map['status'],
       sender: map['sender'] as String,
       receiver: map['receiver'] as String,
-      messageType: MessageType.values.firstWhere(
-        (e) => e.toString().split('.').last == map['type'],
-      ),
-      mediaType: MediaType.values.firstWhere(
-        (element) => element.toString().split('.').last == map['mediaType'],
-      ),
+      messageType: map['messageType'] as String,
+      mediaType: map['mediaType'] as String,
       mediaUrl: map['mediaUrl'],
     );
   }
@@ -112,16 +107,29 @@ class MessageModel {
   factory MessageModel.fromJson(String source) =>
       MessageModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
-  factory MessageModel.fromDB(Map<String, dynamic> source) =>
-      MessageModel.fromMap(source);
+  factory MessageModel.fromDB(Map<String, dynamic> source) => MessageModel(
+        createdAt: DateTime.parse(source[MessageField.createdAt]).toLocal(),
+        updatedAt: DateTime.parse(source[MessageField.updatedAt]).toLocal(),
+        localId: source[MessageField.localId],
+        receiver: source[MessageField.receiver],
+        sender: source[MessageField.sender],
+        content: source[MessageField.content],
+        id: source[MessageField.id],
+        localMediaPath: source[MessageField.localMediaPath],
+        mediaType: source[MessageField.mediaType],
+        mediaUrl: source[MessageField.mediaUrl],
+        messageType: source[MessageField.messageType],
+        serverId: source[MessageField.serverId],
+        status: source[MessageField.status],
+      );
 
   Map<String, dynamic> mapToDB() => {
         MessageField.id: id,
         MessageField.content: content,
         MessageField.localId: localId,
-        MessageField.severId: serverId,
-        MessageField.createdAt: createdAt,
-        MessageField.updatedAt: updatedAt,
+        MessageField.serverId: serverId,
+        MessageField.createdAt: createdAt.toIso8601String(),
+        MessageField.updatedAt: updatedAt.toIso8601String(),
         MessageField.status: status,
         MessageField.mediaType: mediaType,
         MessageField.messageType: messageType,
@@ -130,4 +138,21 @@ class MessageModel {
         MessageField.localMediaPath: localMediaPath,
         MessageField.mediaUrl: mediaUrl,
       };
+
+  @override
+  List<Object?> get props => [
+        id,
+        content,
+        localId,
+        serverId,
+        createdAt,
+        updatedAt,
+        status,
+        messageType,
+        messageType,
+        sender,
+        receiver,
+        localMediaPath,
+        mediaUrl
+      ];
 }

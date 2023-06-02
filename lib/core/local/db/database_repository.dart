@@ -1,7 +1,9 @@
-import 'package:harmony_chat_demo/core/models/contact_model.dart';
-import 'package:harmony_chat_demo/core/models/message_model.dart';
+import 'package:harmony_chat_demo/core/models/models.dart';
 
 abstract class DatabaseRepository {
+  Future<void> initializeDB();
+  Future<void> deleteDB();
+
 // * * * * * * * * * * * * * * * INSERT * * * * * * * * * * *
 
   /// Used to Create an [INSERT] action on the database.
@@ -105,4 +107,6 @@ abstract class DatabaseRepository {
 
   /// Get all media messages that have not been completely uploaded/downloaded.
   Future<List<MessageModel>> getMediaMessagesInUploadOrDownloadState();
+
+  Stream<List<MessageInfoModel>> getMyLastConversations(String id);
 }

@@ -16,17 +16,21 @@ class InputSectionViewModel extends ChangeNotifier {
   final Ref ref;
   InputSectionViewModel(this.ref);
   final uuid = const Uuid();
-  final myId = '';
+  final myId = '001';
   File? _selectedFile;
   File? get selectedFile => _selectedFile;
 
   recordAudio() async {
-    // await _fileService.r
+    await _fileService.recordAudio(
+      'path',
+    );
   }
+
   setSelectedFile() {}
 
   sendMessage(ContactModel contact, String content) async {
     MessageModel message = MessageModel(
+      id: uuid.v1(),
       content: content,
       localId: uuid.v4(),
       createdAt: DateTime.now(),

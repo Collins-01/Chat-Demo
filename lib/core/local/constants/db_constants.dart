@@ -1,8 +1,5 @@
-import 'package:harmony_chat_demo/core/enums/media_type.dart';
-import 'package:harmony_chat_demo/core/enums/message_type.dart';
 import 'package:harmony_chat_demo/core/local/constants/contact_field.dart';
 import 'package:harmony_chat_demo/core/local/constants/message_field.dart';
-import '../../enums/message_status.dart';
 
 class DBConstants {
   static const String databaseName = 'harmony_chat_demo.db';
@@ -12,13 +9,14 @@ class DBConstants {
 
   static String createContactsTable = ''' 
     CREATE TABLE $contactTable (
-    ${ContactField.id} INT PRIMARY KEY AUTO_INCREMENT,
+    ${ContactField.id} Text PRIMARY KEY NOT NULL,
     ${ContactField.firstName} VARCHAR(255) NOT NULL,
     ${ContactField.lastName} VARCHAR(255) NOT NULL,
     ${ContactField.avatar} VARCHAR(255) NOT NULL,
     ${ContactField.serverId} VARCHAR(255) NOT NULL,
     ${ContactField.bio} VARCHAR(255) NOT NULL,
-    ${ContactField.occupation} VARCHAR(255) NOT NULL
+    ${ContactField.occupation} VARCHAR(255) NOT NULL,
+    ${ContactField.createdAt} DATETIME NOT NULL
 )
 
     ''';
@@ -26,14 +24,14 @@ class DBConstants {
   static String createMessagesTable = '''
 
     CREATE TABLE $messageTable (
-        ${MessageField.id} INT PRIMARY KEY AUTO_INCREMENT,
+        ${MessageField.id} Text PRIMARY KEY NOT NULL ,
         ${MessageField.content} TEXT,
-        ${MessageField.messageType} ENUM(${MessageType.audio.name}, ${MessageType.video.name},  ${MessageType.image.name}, ${MessageType.text}) NOT NULL,
-        ${MessageField.mediaType} ENUM(${MediaType.audio.name}, ${MediaType.video.name},  ${MediaType.image.name}, ${MediaType.document.name}) NOT NULL,
-        ${MessageField.status} ENUM (${MessageStatus.failed.name}, ${MessageStatus.sent.name}, ${MessageStatus.delivered.name}, ${MessageStatus.read.name}) NOT NULL,
+        ${MessageField.messageType} VARCHAR(36) NOT NULL,
+        ${MessageField.mediaType}  VARCHAR(36) ,
+        ${MessageField.status} VARCHAR(36) NOT NULL,
         ${MessageField.createdAt} DATETIME NOT NULL,
         ${MessageField.updatedAt} DATETIME NOT NULL,
-        ${MessageField.severId} VARCHAR(36),
+        ${MessageField.serverId} INT ,
         ${MessageField.localId} VARCHAR(36) NOT NULL,
         ${MessageField.mediaUrl} VARCHAR(255),
         ${MessageField.localMediaPath} VARCHAR(255),
@@ -54,9 +52,11 @@ class DBConstants {
             c.${ContactField.avatar},
             c.${ContactField.bio},
             m.${MessageField.content},
-            m.${MessageField.updatedAt}
-            m.${MessageField.status}
-            m.${MessageField.mediaType}
+            m.${MessageField.updatedAt},
+            m.${MessageField.status},
+            m.${MessageField.mediaType},
+            m.${MessageField.sender},
+            m.${MessageField.receiver}
           FROM
             $contactTable AS c
             JOIN $messageTable AS m ON (
@@ -82,6 +82,7 @@ class DBConstants {
   /// Get contaact that match [contactUsernamePattern]
   static String contactRawQuery([String? contactUsernamePattern]) => '''
         SELECT  *  FROM $contactTable 
-        ORDER BY ${ContactField.createdAt} DESC
+        
       ''';
 }
+// ORDER BY ${ContactField.createdAt} DESC

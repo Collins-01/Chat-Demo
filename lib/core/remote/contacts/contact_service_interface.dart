@@ -21,4 +21,9 @@ abstract class IContactService {
 
   /// Gets all contacts from the local contacts table as a `stream`
   Stream<List<ContactModel>> getContactsAsStream();
+
+  /// Returns an my locally saved contact model.
+  Future<ContactModel> getMyContactInfo(String id);
+
+  ContactModel get userContactInfo;
 }

@@ -3,6 +3,7 @@ import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
+import 'package:uuid/uuid.dart';
 
 class ContactServiceImpl implements IContactService {
   final faker = Faker();
@@ -26,18 +27,23 @@ class ContactServiceImpl implements IContactService {
 
   @override
   Stream<List<ContactModel>> getContactsAsStream() async* {
-    yield* _databaseRepository.watchContactsByPattern('');
+    yield* _databaseRepository.watchContacts();
   }
 
   @override
   Future<void> insertAllContacts(List<ContactModel> contacts) async {
+    // await Future.delayed(const Duration(seconds: 2),);
     var list = [
       ...List.generate(
         10,
         (index) => ContactModel(
+          id: const Uuid().v4().toString(),
+          bio: faker.lorem.sentence(),
+          occupation: faker.job.title(),
           lastName: faker.person.lastName(),
           firstName: faker.person.firstName(),
           avatarUrl: faker.image.image(),
+          createdAt: DateTime.now(),
         ),
       )
     ];
@@ -53,4 +59,17 @@ class ContactServiceImpl implements IContactService {
   Future<void> updateContact(ContactModel contact) async {
     await _databaseRepository.updateContact(contact);
   }
+
+  @override
+  Future<ContactModel> getMyContactInfo(String id) async {
+    final r = await _databaseRepository.getContact(id);
+    if (r != null) {
+      return r;
+    }
+    throw 'Contact not found';
+  }
+
+  @override
+  // TODO: implement userContactInfo
+  ContactModel get userContactInfo => throw UnimplementedError();
 }
