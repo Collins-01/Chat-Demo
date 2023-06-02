@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
-import 'package:harmony_chat_demo/views/login_view.dart';
+import 'package:harmony_chat_demo/views/auth/login_view.dart';
 
 final DatabaseRepository _databaseRepository = locator();
 

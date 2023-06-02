@@ -1,6 +1,7 @@
 import 'package:faker/faker.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
+import 'package:harmony_chat_demo/core/models/message_info_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'dart:io';
@@ -97,5 +98,11 @@ class ChatServiceImpl implements IChatService {
   Stream<List<MessageModel>> watchMessagesWithContact(
       ContactModel contact) async* {
     yield* _databaseRepository.watchContactMessages(contact);
+  }
+
+  @override
+  Stream<List<MessageInfoModel>> getMyLastConversations() async* {
+    final id = _contactService.userContactInfo.id;
+    yield* _databaseRepository.getMyLastConversations(id);
   }
 }

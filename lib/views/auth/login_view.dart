@@ -33,7 +33,10 @@ class _LoginVewState extends State<LoginVew> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (_) => const HomeView()));
+                  MaterialPageRoute(
+                    builder: (_) => const HomeView(),
+                  ),
+                );
               },
               child: const Text("LOGIN"),
             ),

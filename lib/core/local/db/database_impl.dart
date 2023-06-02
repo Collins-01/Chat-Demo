@@ -2,8 +2,7 @@ import 'package:harmony_chat_demo/core/local/constants/contact_field.dart';
 import 'package:harmony_chat_demo/core/local/constants/db_constants.dart';
 import 'package:harmony_chat_demo/core/local/constants/message_field.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
-import 'package:harmony_chat_demo/core/models/message_model.dart';
-import 'package:harmony_chat_demo/core/models/contact_model.dart';
+import 'package:harmony_chat_demo/core/models/models.dart';
 import 'package:path/path.dart';
 import 'package:sqlbrite/sqlbrite.dart';
 
@@ -271,11 +270,13 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Stream<List<MessageModel>> getLastConversations() async* {
-    final data = _streamDatabase.createRawQuery(
-      [DBConstants.messageTable, DBConstants.contactTable],
-      DBConstants.getLastConversations,
-      [],
-    );
+  Stream<List<MessageInfoModel>> getMyLastConversations(String id) async* {
+    yield* _streamDatabase
+        .createRawQuery(
+          [DBConstants.messageTable, DBConstants.contactTable],
+          DBConstants.getLastConversations,
+          [id],
+        )
+        .mapToList((row) => MessageInfoModel.fromDB(row));
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:io';
-import 'package:harmony_chat_demo/core/models/contact_model.dart';
-import 'package:harmony_chat_demo/core/models/message_model.dart';
+import 'package:harmony_chat_demo/core/models/models.dart';
 
 abstract class IChatService {
   /// [init] method is called when the the chat service is created.
@@ -32,4 +31,5 @@ abstract class IChatService {
   Stream<List<MessageModel>> watchMessages();
 
   Stream<List<MessageModel>> watchMessagesWithContact(ContactModel contact);
+  Stream<List<MessageInfoModel>> getMyLastConversations();
 }

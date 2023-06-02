@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
-import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
+import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
 import 'package:harmony_chat_demo/utils/app_logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../core/models/models.dart';
 
-IContactService _contactService = locator();
+IChatService _chatService = locator();
 
 class HomeViewModel extends ChangeNotifier {
   final _logger = const AppLogger(HomeViewModel);
   // final Ref ref;
   HomeViewModel() {
-    _contactService.getContactsAsStream().listen((event) {
-      _contactStream.add(event);
-      // _logger.i("New contact :: ${event.toString()}");
+    _chatService.getMyLastConversations().listen((event) {
+      _messagesStream.add(event);
+      _logger.i("New Message :: ${event.toString()}");
     }, onError: (e) {
       _logger.e("Error Receiving contacts as stream :: ", error: e);
     });
   }
 
-  final BehaviorSubject<List<ContactModel>> _contactStream =
-      BehaviorSubject<List<ContactModel>>();
+  final BehaviorSubject<List<MessageInfoModel>> _messagesStream =
+      BehaviorSubject<List<MessageInfoModel>>();
 
-  Stream<List<ContactModel>> get contactStream => _contactStream;
+  Stream<List<MessageInfoModel>> get messagesStream => _messagesStream;
 }
 
 final homeViewModel = ChangeNotifierProvider<HomeViewModel>((ref) {

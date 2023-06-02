@@ -52,9 +52,11 @@ class DBConstants {
             c.${ContactField.avatar},
             c.${ContactField.bio},
             m.${MessageField.content},
-            m.${MessageField.updatedAt}
-            m.${MessageField.status}
-            m.${MessageField.mediaType}
+            m.${MessageField.updatedAt},
+            m.${MessageField.status},
+            m.${MessageField.mediaType},
+            m.${MessageField.sender},
+            m.${MessageField.receiver}
           FROM
             $contactTable AS c
             JOIN $messageTable AS m ON (

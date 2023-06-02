@@ -59,4 +59,17 @@ class ContactServiceImpl implements IContactService {
   Future<void> updateContact(ContactModel contact) async {
     await _databaseRepository.updateContact(contact);
   }
+
+  @override
+  Future<ContactModel> getMyContactInfo(String id) async {
+    final r = await _databaseRepository.getContact(id);
+    if (r != null) {
+      return r;
+    }
+    throw 'Contact not found';
+  }
+
+  @override
+  // TODO: implement userContactInfo
+  ContactModel get userContactInfo => throw UnimplementedError();
 }

@@ -51,6 +51,7 @@ dependencies:
   faker: ^2.1.0
   equatable: ^2.0.5
   chat_bubbles: ^1.4.1
+  shared_preferences: ^0.5.5
   # image_picker: ^0.6.7+22
 
 dev_dependencies:
