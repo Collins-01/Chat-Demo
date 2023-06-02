@@ -57,7 +57,8 @@ dependencies:
   flutter_spinkit: ^5.2.0
   google_fonts: ^4.0.4
   plugin_platform_interface: ^2.1.4
-  # image_picker: ^0.6.7+22
+  image_picker: ^0.7.2+1
+  
 
 dev_dependencies:
   flutter_test:
