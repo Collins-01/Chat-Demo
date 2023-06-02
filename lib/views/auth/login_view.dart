@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harmony_chat_demo/views/auth/viewmodels/login_viewmodel.dart';
+import 'package:harmony_chat_demo/views/widgets/app_text.dart';
 import 'package:harmony_chat_demo/views/widgets/widgets.dart';
 
 class LoginView extends ConsumerStatefulWidget {
@@ -27,7 +28,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text("Login"),
+                AppText.heading1("LOGIN "),
+                // const Text("Login"),
                 AuthTextField(
                   hintText: 'example@gmail.com',
                   controller: emailController,
@@ -44,11 +46,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 AppLongButton(
                   title: 'LOGIN',
                   onTap: () {
-                    if (_formKey.currentState!.validate()) {
-                      model.login(
-                          emailController.text, passwordController.text);
+                    if (!_formKey.currentState!.validate()) {
+                      return;
                     }
-                    return;
+                    model.login(emailController.text, passwordController.text);
                   },
                 )
               ],
