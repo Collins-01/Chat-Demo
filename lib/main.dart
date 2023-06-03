@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
-import 'package:harmony_chat_demo/views/splash_screen_view.dart';
+import 'package:harmony_chat_demo/views/auth/create_bio_view.dart';
 
 import 'navigations/navigations.dart';
 
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const SplashScreenView(),
+      home: const CreateBioView(),
       navigatorKey: NavigationService.instance.navigatorKey,
       onGenerateRoute: RouteGenerators.generateRoutes,
     );

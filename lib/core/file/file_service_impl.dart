@@ -1,20 +1,24 @@
 import 'dart:io';
 import 'package:harmony_chat_demo/core/file/file_service_interface.dart';
+import 'package:image_picker/image_picker.dart';
 // ignore: import_of_legacy_library_into_null_safe
 // import 'package:image_picker/image_picker.dart';
 import 'package:record/record.dart';
 
 class FileServiceImpl implements IFileService {
-  // final ImagePicker _imagePicker = ImagePicker();
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   Future<File?> pickImage([bool isGallery = true]) async {
-    return null;
+    // return null;
 
-    // var data = await _imagePicker.getImage(
-    //     source: isGallery ? ImageSource.gallery : ImageSource.camera);
-    // File file = File(data.path);
-    // return file;
+    var data = await _imagePicker.getImage(
+        source: isGallery ? ImageSource.gallery : ImageSource.camera);
+    if (data == null) {
+      return null;
+    }
+    File file = File(data.path);
+    return file;
   }
 
   @override
