@@ -10,4 +10,7 @@ class NavigationRoutes {
 
   // ignore: constant_identifier_names
   static const SPLASH_SCREEN = '/splash_screen';
+
+// ignore: constant_identifier_names
+  static const CREATE_BIO = '/create-bio';
 }

@@ -22,7 +22,7 @@ class ContactModel extends Equatable {
     required this.avatarUrl,
     required this.createdAt,
     required this.occupation,
-    required this.bio,
+    this.bio = '',
   });
 
   ContactModel copyWith({

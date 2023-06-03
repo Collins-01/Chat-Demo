@@ -10,20 +10,13 @@ class AuthServiceImpl implements IAuthService {
   late final LocalCache _localCache;
   final String path = '/authentication/';
   final NetworkClient _networkClient = NetworkClient.instance;
-
+  UserModel? _currentUser;
   String? _accessToken;
   String? _refreshToken;
 
   AuthServiceImpl({LocalCache? localCache})
       : _localCache = localCache ?? locator();
-  final UserModel _currentUser = UserModel(
-    avatar:
-        'https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80',
-    email: 'oriakhicolls01@gmail.com',
-    firstName: 'Collins',
-    lastName: 'Oriakhi',
-    id: '001',
-  );
+
   @override
 
   /// When a user logs in, a list of the user's connections(contacts) will be returned alongside with the user's
@@ -40,13 +33,16 @@ class AuthServiceImpl implements IAuthService {
     var token = response['data']['access_token'];
     var refreshToken = response['data']['refresh_token'];
     var user = response['data']['current_user'];
-    var connections = response['data']['connections'];
-    var usBioCreated = response['data']['current_user']['isBioCreated'];
+    // var connections = response['data']['connections'];
     _accessToken = token;
     _refreshToken = refreshToken;
+    _currentUser = UserModel.fromMap(user);
     await _localCache.saveToken(token);
-    _logger.i("Response from Login ${response.toString()}",
-        functionName: 'login');
+    await _localCache.saveUserData(_currentUser!.toMap());
+    _logger.i(
+      "Response from Login ${response.toString()}",
+      functionName: 'login',
+    );
   }
 
   @override

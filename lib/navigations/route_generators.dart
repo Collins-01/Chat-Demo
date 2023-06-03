@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:harmony_chat_demo/navigations/navigation_routes.dart';
 import 'package:harmony_chat_demo/views/auth/confirm_otp_view.dart';
+import 'package:harmony_chat_demo/views/auth/create_bio_view.dart';
 import 'package:harmony_chat_demo/views/splash_screen_view.dart';
 import 'package:harmony_chat_demo/views/views.dart';
 
@@ -21,6 +22,8 @@ class RouteGenerators {
         return MaterialPageRoute(
           builder: (_) => ConfirmOtpView(email: email),
         );
+      case NavigationRoutes.CREATE_BIO:
+        return MaterialPageRoute(builder: (_) => const CreateBioView());
 
       case NavigationRoutes.HOME:
         return MaterialPageRoute(

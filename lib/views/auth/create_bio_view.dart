@@ -15,6 +15,7 @@ class _CreateBioViewState extends ConsumerState<CreateBioView> {
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController occupationController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? _selectedGender;
   @override
   Widget build(BuildContext context) {
@@ -26,73 +27,87 @@ class _CreateBioViewState extends ConsumerState<CreateBioView> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22),
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      model.pickImage();
-                    },
-                    child: Container(
-                      height: 100,
-                      width: 100,
-                      margin: const EdgeInsets.only(bottom: 50, top: 50),
-                      decoration: BoxDecoration(
-                        border: Border.all(),
-                        shape: BoxShape.circle,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        model.pickImage();
+                      },
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        margin: const EdgeInsets.only(bottom: 50, top: 50),
+                        decoration: BoxDecoration(
+                          border: Border.all(),
+                          shape: BoxShape.circle,
+                        ),
+                        child: model.selectedImage == null
+                            ? const Icon(Icons.camera_alt_outlined)
+                            : Image.file(
+                                model.selectedImage!,
+                                fit: BoxFit.contain,
+                              ),
                       ),
-                      child: model.selectedImage == null
-                          ? const Icon(Icons.camera_alt_outlined)
-                          : Image.file(
-                              model.selectedImage!,
-                              fit: BoxFit.contain,
-                            ),
                     ),
-                  ),
-                  AuthTextField(
-                    controller: firstNameController,
-                    labelText: "FirstName",
-                    hintText: "John",
-                    validator: (v) => FieldValidators.string(v, 'FirstName'),
-                  ),
-                  AuthTextField(
-                    controller: lastNameController,
-                    labelText: "LastName",
-                    hintText: "Doe",
-                    validator: (v) => FieldValidators.string(v, 'LastName'),
-                  ),
-                  AuthTextField(
-                    controller: firstNameController,
-                    labelText: "Occupation",
-                    hintText: "Teacher",
-                    validator: (v) => FieldValidators.string(v, 'Occupation'),
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: _selectedGender,
-                    onChanged: (newValue) {
-                      setState(() {
-                        _selectedGender = newValue;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Gender',
-                      border: OutlineInputBorder(),
+                    AuthTextField(
+                      controller: firstNameController,
+                      labelText: "FirstName",
+                      hintText: "John",
+                      validator: (v) => FieldValidators.string(v, 'FirstName'),
                     ),
-                    items: <String>['Male', 'Female']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(
-                    height: 22,
-                  ),
-                  AppLongButton(
-                    title: 'Create',
-                    onTap: () {},
-                  )
-                ],
+                    AuthTextField(
+                      controller: lastNameController,
+                      labelText: "LastName",
+                      hintText: "Doe",
+                      validator: (v) => FieldValidators.string(v, 'LastName'),
+                    ),
+                    AuthTextField(
+                      controller: firstNameController,
+                      labelText: "Occupation",
+                      hintText: "Teacher",
+                      validator: (v) => FieldValidators.string(v, 'Occupation'),
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: _selectedGender,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedGender = newValue;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Gender',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: <String>['Male', 'Female']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(
+                      height: 22,
+                    ),
+                    AppLongButton(
+                      title: 'Create',
+                      onTap: () {
+                        if (_formKey.currentState!.validate() &&
+                            _selectedGender != null) {
+                          model.createBio(
+                            firstNameController.text,
+                            lastNameController.text,
+                            _selectedGender!,
+                            occupationController.text,
+                          );
+                        }
+                        return;
+                      },
+                    )
+                  ],
+                ),
               ),
             ),
           ),

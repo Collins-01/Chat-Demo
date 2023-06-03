@@ -102,7 +102,7 @@ class ChatServiceImpl implements IChatService {
 
   @override
   Stream<List<MessageInfoModel>> getMyLastConversations() async* {
-    final id = _contactService.userContactInfo.id;
+    final id = _contactService.userContactInfo!.id;
     yield* _databaseRepository.getMyLastConversations(id);
   }
 }

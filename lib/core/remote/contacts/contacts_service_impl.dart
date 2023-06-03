@@ -2,14 +2,20 @@ import 'package:faker/faker.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
+import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
 import 'package:uuid/uuid.dart';
 
 class ContactServiceImpl implements IContactService {
   final faker = Faker();
+  final IAuthService _authService;
   final DatabaseRepository _databaseRepository;
-  ContactServiceImpl({DatabaseRepository? databaseRepository})
-      : _databaseRepository = databaseRepository ?? locator();
+  ContactServiceImpl(
+      {DatabaseRepository? databaseRepository,
+      IAuthService? authService,
+      ContactServiceImpl? contactService})
+      : _databaseRepository = databaseRepository ?? locator(),
+        _authService = authService ?? locator();
   @override
   Future<void> deleteContact(ContactModel contact) async {
     await _databaseRepository.deleteContact(contact);
@@ -70,6 +76,17 @@ class ContactServiceImpl implements IContactService {
   }
 
   @override
-  // TODO: implement userContactInfo
-  ContactModel get userContactInfo => throw UnimplementedError();
+  ContactModel? get userContactInfo {
+    if (_authService.user != null) {
+      return ContactModel(
+        lastName: _authService.user!.lastName!,
+        firstName: _authService.user!.firstName!,
+        avatarUrl: _authService.user!.avatar!,
+        createdAt: DateTime.now(),
+        occupation: '',
+      );
+    } else {
+      return null;
+    }
+  }
 }

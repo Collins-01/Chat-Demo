@@ -4,6 +4,7 @@ import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/views/widgets/widgets.dart';
 
 import '../../../core/network_service/exceptions/failure.dart';
+import '../../../navigations/navigations.dart';
 import '../../view_states/view_states.dart';
 
 IAuthService _authService = locator();
@@ -14,6 +15,7 @@ class ConfirmOtpViewModel extends BaseViewModel {
       changeState(const ViewModelState.busy());
       await _authService.verifyOtp(email, code);
       changeState(const ViewModelState.idle());
+      NavigationService.instance.navigateToReplace(NavigationRoutes.LOGIN);
     } on Failure catch (e) {
       changeState(ViewModelState.error(e));
       AppFlushBar.showError(title: e.title, message: e.message);

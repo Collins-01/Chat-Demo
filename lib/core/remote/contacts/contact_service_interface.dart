@@ -25,5 +25,5 @@ abstract class IContactService {
   /// Returns an my locally saved contact model.
   Future<ContactModel> getMyContactInfo(String id);
 
-  ContactModel get userContactInfo;
+  ContactModel? get userContactInfo;
 }
