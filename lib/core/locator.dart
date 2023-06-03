@@ -7,6 +7,7 @@ import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
 import 'package:harmony_chat_demo/core/remote/chat/chat_service_impl.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contacts_service_impl.dart';
+import 'package:harmony_chat_demo/core/remote/user/user.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 import 'local/cache/cache.dart';
@@ -28,4 +29,7 @@ Future<void> setUpLocaator() async {
 
   // * Contacts
   locator.registerLazySingleton<IContactService>(() => ContactServiceImpl());
+
+// * Users
+  locator.registerLazySingleton<IUserService>(() => UserServiceImpl());
 }
