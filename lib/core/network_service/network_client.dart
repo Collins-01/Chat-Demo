@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/network_service/network_client_interceptors.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
+import 'package:mime/mime.dart';
 
 import 'exceptions/exceptions.dart';
 
@@ -260,13 +261,13 @@ class NetworkClient {
       await Future.forEach<MapEntry<String, File>>(
         images.entries,
         (item) async {
-          // final mimeTypeData =
-          //     lookupMimeType(item.value.path, headerBytes: [0xFF, 0xD8])
-          //         ?.split("/");
-          // multipartImages[item.key] = await MultipartFile.fromFile(
-          //   item.value.path,
-          //   contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
-          // );
+          final mimeTypeData =
+              lookupMimeType(item.value.path, headerBytes: [0xFF, 0xD8])
+                  ?.split("/");
+          multipartImages[item.key] = await MultipartFile.fromFile(
+            item.value.path,
+            // contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
+          );
         },
       );
       FormData formData = FormData.fromMap({

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:harmony_chat_demo/core/local/cache/local.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/user_model.dart';
@@ -80,4 +81,18 @@ class AuthServiceImpl implements IAuthService {
 
   @override
   String? get refreshToken => _refreshToken;
+
+  @override
+  Future<void> onInit(
+      [VoidCallback? successCallback, VoidCallback? errorCallback]) async {
+    var token = await _localCache.getToken();
+    var user = _localCache.getUserData();
+    if (user != null && token != null) {
+      _accessToken = token;
+      _currentUser = UserModel.fromMap(user);
+      successCallback?.call();
+    } else {
+      errorCallback?.call();
+    }
+  }
 }

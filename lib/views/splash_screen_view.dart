@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:harmony_chat_demo/core/local/cache/local.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
-import 'package:harmony_chat_demo/views/home/home.dart';
+import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 
-import 'auth/auth.dart';
+import '../navigations/navigations.dart';
 
 final DatabaseRepository _databaseRepository = locator();
-final LocalCache _localCache = locator();
+IAuthService _authService = locator();
 
 class SplashScreenView extends StatefulWidget {
   const SplashScreenView({Key? key}) : super(key: key);
@@ -18,19 +17,14 @@ class SplashScreenView extends StatefulWidget {
 
 class _SplashScreenViewState extends State<SplashScreenView> {
   _onInit() async {
-    var token = await _localCache.getToken();
-
-    if (token != null) {
+    await _authService.onInit(() async {
+      await _databaseRepository.initializeDB();
+      NavigationService.instance.navigateToReplace(NavigationRoutes.HOME);
+    }, () async {
       await _databaseRepository.initializeDB();
 
-      Navigator.of(context)
-          .pushReplacement(MaterialPageRoute(builder: (_) => const HomeView()));
-    } else {
-      await _databaseRepository.initializeDB();
-
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginView()));
-    }
+      NavigationService.instance.navigateToReplace(NavigationRoutes.LOGIN);
+    });
   }
 
   @override
