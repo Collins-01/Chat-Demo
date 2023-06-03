@@ -1,11 +1,15 @@
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/models.dart';
+import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
 import 'package:harmony_chat_demo/extensions/extensions.dart';
 import 'package:harmony_chat_demo/views/home/all_contacts_view.dart';
 import 'package:harmony_chat_demo/views/home/components/message_tile.dart';
 import 'package:harmony_chat_demo/views/home/viewmodel/home_viewmodel.dart';
+
+IContactService _contactService = locator();
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});

@@ -84,6 +84,7 @@ class ContactServiceImpl implements IContactService {
         avatarUrl: _authService.user!.avatar!,
         createdAt: DateTime.now(),
         occupation: '',
+        id: const Uuid().v4(),
       );
     } else {
       return null;

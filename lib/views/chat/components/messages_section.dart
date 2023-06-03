@@ -43,7 +43,7 @@ class MessagesSection extends ConsumerWidget {
                         delivered: snapshot.data![index].status ==
                             MessageStatus.delivered,
                         text: snapshot.data![index].content!,
-                        isSender: snapshot.data![index].sender == model.user.id,
+                        isSender: snapshot.data![index].sender == '001',
                         // isSender: index % 2 == 0,
                         color: const Color(0xFFE8E8EE),
                         tail: true,

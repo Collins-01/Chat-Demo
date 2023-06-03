@@ -17,14 +17,16 @@ class SplashScreenView extends StatefulWidget {
 
 class _SplashScreenViewState extends State<SplashScreenView> {
   _onInit() async {
-    await _authService.onInit(() async {
-      await _databaseRepository.initializeDB();
-      NavigationService.instance.navigateToReplace(NavigationRoutes.HOME);
-    }, () async {
-      await _databaseRepository.initializeDB();
+    await _databaseRepository.initializeDB();
+    NavigationService.instance.navigateToReplace(NavigationRoutes.HOME);
+    // await _authService.onInit(() async {
+    //   await _databaseRepository.initializeDB();
+    //   NavigationService.instance.navigateToReplace(NavigationRoutes.HOME);
+    // }, () async {
+    //   await _databaseRepository.initializeDB();
 
-      NavigationService.instance.navigateToReplace(NavigationRoutes.LOGIN);
-    });
+    //   NavigationService.instance.navigateToReplace(NavigationRoutes.LOGIN);
+    // });
   }
 
   @override

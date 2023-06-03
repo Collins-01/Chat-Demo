@@ -19,7 +19,12 @@ class LoginViewModel extends BaseViewModel {
       changeState(const ViewModelState.busy());
       await _authService.login(email, password);
       changeState(const ViewModelState.idle());
-      NavigationService.instance.navigateToReplace(NavigationRoutes.HOME);
+      if (_authService.user!.isBioCreated) {
+        NavigationService.instance.navigateToReplace(NavigationRoutes.HOME);
+      } else {
+        NavigationService.instance
+            .navigateToReplace(NavigationRoutes.CREATE_BIO);
+      }
     } on Failure catch (e) {
       changeState(ViewModelState.error(e));
       AppFlushBar.showError(title: e.title, message: e.message);
