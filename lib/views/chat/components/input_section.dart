@@ -87,14 +87,15 @@ class _InputSectionState extends ConsumerState<InputSection> {
                         Icons.send,
                         color: Colors.white,
                       )
-                    : FutureBuilder(
-                        future: _fileService.isRecording,
+                    : StreamBuilder(
+                        stream: model.isRecording,
+                        initialData: false,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
+                            final isRecording = snapshot.data!;
                             return Icon(
-                              Icons.mic,
-                              color:
-                                  snapshot.data! ? Colors.green : Colors.white,
+                              isRecording ? Icons.stop_rounded : Icons.mic,
+                              color: isRecording ? Colors.red : Colors.white,
                             );
                           } else {
                             return const Icon(

@@ -8,8 +8,10 @@ import 'package:harmony_chat_demo/core/remote/chat/chat_service_impl.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contacts_service_impl.dart';
 import 'package:harmony_chat_demo/core/remote/user/user.dart';
+import 'package:harmony_chat_demo/services/audio/audio.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
+import '../services/permissions/permissions.dart';
 import 'local/cache/cache.dart';
 import 'local/db/database_impl.dart';
 import 'local/db/database_repository.dart';
@@ -32,4 +34,10 @@ Future<void> setUpLocaator() async {
 
 // * Users
   locator.registerLazySingleton<IUserService>(() => UserServiceImpl());
+
+  // Services
+  locator.registerLazySingleton<IFileService>(() => FileServiceImpl());
+  locator.registerLazySingleton<IAudioService>(() => AudioServiceImpl());
+  locator
+      .registerLazySingleton<IPermissionService>(() => PermissionServiceImpl());
 }

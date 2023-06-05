@@ -9,8 +9,11 @@ import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../services/audio/audio.dart';
+
 final IChatService _chatService = locator();
 final IFileService _fileService = locator();
+final IAudioService _audioService = locator();
 
 class InputSectionViewModel extends ChangeNotifier {
   final Ref ref;
@@ -21,11 +24,14 @@ class InputSectionViewModel extends ChangeNotifier {
   File? get selectedFile => _selectedFile;
 
   recordAudio() async {
-    await _fileService.recordAudio(
-      'path',
-    );
+    await _audioService.startRecord();
   }
 
+  stopRecord() async {
+    await _audioService.stopRecord();
+  }
+
+  Stream<bool> get isRecording => _audioService.isRecordingStream;
   setSelectedFile() {}
 
   sendMessage(ContactModel contact, String content) async {

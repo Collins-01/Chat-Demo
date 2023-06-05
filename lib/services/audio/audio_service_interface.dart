@@ -9,4 +9,6 @@ abstract class IAudioService {
   Future<void> pauseAudio(String path);
 
   bool get isPlaying;
+
+  Stream<bool> get isRecordingStream;
 }
