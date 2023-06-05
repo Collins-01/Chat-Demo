@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harmony_chat_demo/core/file/file_service_interface.dart';
-import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/views/chat/viewmodels/input_section_viewmodel.dart';
-
-final IFileService _fileService = locator();
 
 class InputSection extends ConsumerStatefulWidget {
   final ContactModel contactModel;

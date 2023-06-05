@@ -89,6 +89,32 @@ class ChatServiceImpl implements IChatService {
     await _databaseRepository.insertMessage(message);
   }
 
+  void _sendAudioMessage(
+      MessageModel message, ContactModel contact, File audioFile) async {
+    final user = await _contactService.getContact(contact.serverId);
+    if (user == null) {
+      _logger.e(
+        "User Id not found in local db",
+      );
+      await _databaseRepository.insertMessage(message);
+      // * Change Media Uploading State to true
+      var savedMsg = await _databaseRepository.getMessageById(message.id!);
+      await Future.delayed(
+          const Duration(seconds: 2)); // TODO: Upload Audio File
+      var mediaUrl =
+          'http://aws.amazon.com/s3/media/audio/dcbdjkcdlcd'; // TODO: Get Response from Upload and update the message
+
+      await _databaseRepository.updateMessage(
+        savedMsg!.copyWith(mediaUrl: mediaUrl),
+      );
+
+      _socket.emit(
+        _messageEvent,
+        () => savedMsg.copyWith(mediaUrl: mediaUrl),
+      );
+    }
+  }
+
   @override
   Stream<List<MessageModel>> watchMessages() async* {
     yield* _databaseRepository.watchMessages();
