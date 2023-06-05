@@ -44,6 +44,9 @@ class ChatServiceImpl implements IChatService {
       case MessageType.text:
         _sendTextMessage(message, contact);
         break;
+      case MessageType.audio:
+        _sendAudioMessage(message, contact, file!);
+        break;
       default:
     }
   }
