@@ -14,6 +14,7 @@ class InputSection extends ConsumerStatefulWidget {
 class _InputSectionState extends ConsumerState<InputSection> {
   final TextEditingController controller = TextEditingController();
   bool _showMic = true;
+  bool _isRecording = false;
   @override
   void initState() {
     controller.addListener(() {
@@ -26,6 +27,11 @@ class _InputSectionState extends ConsumerState<InputSection> {
           _showMic = true;
         });
       }
+    });
+    ref.read(inputSectionViewModel).isRecording.listen((event) {
+      setState(() {
+        _isRecording = event;
+      });
     });
     super.initState();
   }
@@ -68,10 +74,16 @@ class _InputSectionState extends ConsumerState<InputSection> {
                 controller.clear();
               }
 
-              if (_showMic) {
+              if (!_isRecording && _showMic) {
                 model.recordAudio();
               }
-              return;
+              if (_isRecording) {
+                model.stopRecord();
+              }
+              // if (_showMic) {
+              //   model.recordAudio();
+              // }
+              // return;
             },
             child: Container(
                 height: 40,
