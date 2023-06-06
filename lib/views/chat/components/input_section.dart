@@ -68,7 +68,9 @@ class _InputSectionState extends ConsumerState<InputSection> {
                 controller.clear();
               }
 
-              if (_showMic) {}
+              if (_showMic) {
+                model.recordAudio();
+              }
               return;
             },
             child: Container(

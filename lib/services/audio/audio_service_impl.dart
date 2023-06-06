@@ -3,12 +3,17 @@ import 'dart:io';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/services/audio/audio_service_interface.dart';
 import 'package:harmony_chat_demo/services/permissions/permission_interface.dart';
+import 'package:harmony_chat_demo/utils/utils.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 import 'package:rxdart/subjects.dart';
 
 class AudioServiceImpl implements IAudioService {
+  final _logger = appLogger(AudioServiceImpl);
   // final _flutterSound = FlutterSound();
+  String _currentPath = '';
+  final _audioRecorder = Record();
   late final IPermissionService _permissionService;
 
   AudioServiceImpl({IPermissionService? permissionService})
@@ -19,7 +24,10 @@ class AudioServiceImpl implements IAudioService {
   Future<String> get _recordingOutputPath async {
     final dir = await getApplicationDocumentsDirectory();
     final timeInMillisecs = DateTime.now().millisecondsSinceEpoch;
-    return "${dir.path}/media/VN_$timeInMillisecs.mp3";
+
+    final path = "${dir.path}/media/VN_$timeInMillisecs.m4a";
+    _logger.i('Path to Audio file:: $path');
+    return path;
   }
 
   @override
@@ -44,21 +52,23 @@ class AudioServiceImpl implements IAudioService {
 
   @override
   Future<void> startRecord() async {
-    var isPermitted = await _permissionService.requestMicrophonePermission();
+    var isPermitted = await Record.hasPermission();
     if (isPermitted) {
       var path = await _recordingOutputPath;
+      _currentPath = path;
       _isRecordingStream.add(true);
-      // await _flutterSound.startRecorder(uri: path);
+      // await Record.start(path: path);
     }
     return;
   }
 
   @override
   Future<File?> stopRecord() async {
-    // final path = await _flutterSound.stopRecorder();
+    // await Record.stop();
     _isRecordingStream.add(false);
     return null;
-    // return File(path);
+
+    // return File(_currentPath);
   }
 
   @override

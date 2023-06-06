@@ -5,6 +5,7 @@ class PermissionServiceImpl implements IPermissionService {
   @override
   Future requestMicrophonePermission() async {
     var status = await Permission.microphone.request();
+    print(status.name);
     if (status.isGranted) {
       return true;
     }
