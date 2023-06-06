@@ -29,9 +29,6 @@ Future<void> setUpLocaator() async {
   locator.registerLazySingleton<IAuthService>(() => AuthServiceImpl());
   locator.registerLazySingleton<IChatService>(() => ChatServiceImpl());
 
-  locator
-      .registerLazySingleton<IFilePickerService>(() => FilePickerServiceImpl());
-
   // * Contacts
   locator.registerLazySingleton<IContactService>(() => ContactServiceImpl());
 

@@ -43,7 +43,6 @@ dependencies:
   uuid: ^3.0.7
   path: ^1.8.2
   get_it: ^7.6.0
-  # file_picker: ^1.13.3
   record: ^2.1.1
   flutter_riverpod: ^2.3.6
   dio: ^5.1.2
@@ -58,7 +57,7 @@ dependencies:
   plugin_platform_interface: ^2.1.4
   image_picker: ^0.7.2+1
   flutter_secure_storage: ^4.2.1
-  flutter_sound: ^2.0.3
+  # flutter_sound: ^2.0.3
   permission_handler: ^10.2.0
 
   

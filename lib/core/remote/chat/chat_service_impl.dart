@@ -53,6 +53,9 @@ class ChatServiceImpl implements IChatService {
       case MessageType.audio:
         _sendAudioMessage(message, contact, file!);
         break;
+      case MessageType.image:
+        _sendImageMessage(message, contact, file!);
+        break;
       default:
     }
   }
@@ -110,16 +113,47 @@ class ChatServiceImpl implements IChatService {
       var savedMsg = await _databaseRepository.getMessageById(message.id!);
       final mediaUrl =
           await _fileService.uploadFile(audioFile, MediaType.audio);
-      // TODO: Get Response from Upload and update the message
+      if (mediaUrl != null) {
+        await _databaseRepository.updateMessage(
+          savedMsg!.copyWith(mediaUrl: mediaUrl),
+        );
+        _socket.emit(
+          _messageEvent,
+          () => savedMsg.copyWith(mediaUrl: mediaUrl),
+        );
+      } else {
+        await _databaseRepository.updateMessage(
+          savedMsg!.copyWith(failedToUploadMedia: true),
+        );
+      }
+    }
+  }
 
-      await _databaseRepository.updateMessage(
-        savedMsg!.copyWith(mediaUrl: mediaUrl),
+  void _sendImageMessage(
+      MessageModel message, ContactModel contact, File imageFile) async {
+    final user = await _contactService.getContact(contact.serverId);
+    if (user == null) {
+      _logger.e(
+        "User Id not found in local db",
       );
-
-      _socket.emit(
-        _messageEvent,
-        () => savedMsg.copyWith(mediaUrl: mediaUrl),
-      );
+      await _databaseRepository.insertMessage(message);
+      // * Change Media Uploading State to true
+      var savedMsg = await _databaseRepository.getMessageById(message.id!);
+      final mediaUrl =
+          await _fileService.uploadFile(imageFile, MediaType.image);
+      if (mediaUrl != null) {
+        await _databaseRepository.updateMessage(
+          savedMsg!.copyWith(mediaUrl: mediaUrl),
+        );
+        _socket.emit(
+          _messageEvent,
+          () => savedMsg.copyWith(mediaUrl: mediaUrl),
+        );
+      } else {
+        await _databaseRepository.updateMessage(
+          savedMsg!.copyWith(failedToUploadMedia: true),
+        );
+      }
     }
   }
 

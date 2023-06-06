@@ -8,15 +8,18 @@ class FileServiceImpl implements IFileService {
   @override
   Future<String?> uploadFile(File file, String mediaType) async {
     try {
-      var response = await _client.sendFormData(
-        FormDataType.post,
-        uri: '/messaging/upload-file',
-        body: {
-          'type': mediaType,
-        },
-      );
-      final data = response['data'] as Map<String, String>;
-      final url = data['url'] as String;
+      await Future.delayed(const Duration(seconds: 2));
+      final url =
+          'https://aws.amazon.com/media/${DateTime.now().microsecondsSinceEpoch}';
+      // var response = await _client.sendFormData(
+      //   FormDataType.post,
+      //   uri: '/messaging/upload-file',
+      //   body: {
+      //     'type': mediaType,
+      //   },
+      // );
+      // final data = response['data'] as Map<String, String>;
+      // final url = data['url'] as String;
       return url;
     } catch (e) {
       rethrow;

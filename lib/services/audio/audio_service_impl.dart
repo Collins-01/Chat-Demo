@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter_sound/flutter_sound.dart';
 
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/services/audio/audio_service_interface.dart';
@@ -9,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
 
 class AudioServiceImpl implements IAudioService {
-  final _flutterSound = FlutterSound();
+  // final _flutterSound = FlutterSound();
   late final IPermissionService _permissionService;
 
   AudioServiceImpl({IPermissionService? permissionService})
@@ -28,7 +27,8 @@ class AudioServiceImpl implements IAudioService {
   bool get isPlaying => throw UnimplementedError();
 
   @override
-  bool get isRecording => _flutterSound.isRecording;
+  bool get isRecording => false;
+  // _flutterSound.isRecording;
 
   @override
   Future<void> pauseAudio(String path) {
@@ -48,16 +48,17 @@ class AudioServiceImpl implements IAudioService {
     if (isPermitted) {
       var path = await _recordingOutputPath;
       _isRecordingStream.add(true);
-      await _flutterSound.startRecorder(uri: path);
+      // await _flutterSound.startRecorder(uri: path);
     }
     return;
   }
 
   @override
   Future<File?> stopRecord() async {
-    final path = await _flutterSound.stopRecorder();
+    // final path = await _flutterSound.stopRecorder();
     _isRecordingStream.add(false);
-    return File(path);
+    return null;
+    // return File(path);
   }
 
   @override
