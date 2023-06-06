@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harmony_chat_demo/core/file/file_service_interface.dart';
+import 'package:harmony_chat_demo/services/file_picker/file_picker_service_interface.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/core/models/media_type.dart';
@@ -14,7 +14,7 @@ import 'package:uuid/uuid.dart';
 import '../../../services/audio/audio.dart';
 
 final IChatService _chatService = locator();
-final IFileService _fileService = locator();
+final IFilePickerService _fileService = locator();
 final IAudioService _audioService = locator();
 
 class InputSectionViewModel extends ChangeNotifier {

@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:harmony_chat_demo/core/file/file_service_interface.dart';
+import 'package:harmony_chat_demo/services/file_picker/file_picker_service_interface.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/remote/user/dto/dto.dart';
 import 'package:harmony_chat_demo/core/remote/user/user_service_interface.dart';
@@ -10,7 +10,7 @@ import 'package:harmony_chat_demo/views/widgets/widgets.dart';
 import '../../../core/network_service/exceptions/exceptions.dart';
 import '../../view_states/view_states.dart';
 
-IFileService _fileService = locator();
+IFilePickerService _fileService = locator();
 IUserService _userService = locator();
 
 class CreateBioViewModel extends BaseViewModel {

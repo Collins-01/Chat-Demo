@@ -40,4 +40,8 @@ class MessageField {
 
   /// Used to indicate the status of a particular message [`sent` ,`failed` , `delivered`, `received`]
   static String status = 'status';
+
+  static String isDownloadingMedia = 'is_downloading_media';
+
+  static String failedToUploadMedia = 'failed_to_upload_media';
 }

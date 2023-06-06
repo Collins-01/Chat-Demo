@@ -20,6 +20,9 @@ class MessageModel extends Equatable {
   final String? mediaType;
   final String? localMediaPath;
   final String? mediaUrl;
+  final bool? isDownloadingMedia;
+  final bool? failedToUploadMedia;
+
   const MessageModel({
     this.id = "",
     this.content = "",
@@ -34,6 +37,8 @@ class MessageModel extends Equatable {
     this.localMediaPath,
     this.mediaUrl,
     this.mediaType,
+    this.isDownloadingMedia = false,
+    this.failedToUploadMedia = false,
   });
 
   MessageModel copyWith({
@@ -50,6 +55,8 @@ class MessageModel extends Equatable {
     String? mediaType,
     String? localMediaPath,
     String? mediaUrl,
+    bool? isDownloadingMedia,
+    bool? failedToUploadMedia,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -65,6 +72,8 @@ class MessageModel extends Equatable {
       mediaType: mediaType ?? this.mediaType,
       localMediaPath: localMediaPath ?? this.localMediaPath,
       mediaUrl: mediaUrl ?? this.mediaUrl,
+      isDownloadingMedia: isDownloadingMedia ?? this.isDownloadingMedia,
+      failedToUploadMedia: failedToUploadMedia ?? this.failedToUploadMedia,
     );
   }
 
@@ -121,6 +130,12 @@ class MessageModel extends Equatable {
         messageType: source[MessageField.messageType],
         serverId: source[MessageField.serverId],
         status: source[MessageField.status],
+        isDownloadingMedia: source[MessageField.isDownloadingMedia] == null
+            ? null
+            : (source[MessageField.isDownloadingMedia] == 0 ? false : true),
+        failedToUploadMedia: source[MessageField.failedToUploadMedia] == null
+            ? null
+            : (source[MessageField.failedToUploadMedia] == 0 ? false : true),
       );
 
   Map<String, dynamic> mapToDB() => {
@@ -137,6 +152,11 @@ class MessageModel extends Equatable {
         MessageField.receiver: receiver,
         MessageField.localMediaPath: localMediaPath,
         MessageField.mediaUrl: mediaUrl,
+        MessageField.isDownloadingMedia:
+            (isDownloadingMedia == null) ? null : (isDownloadingMedia! ? 1 : 0),
+        MessageField.failedToUploadMedia: (failedToUploadMedia == null)
+            ? null
+            : (failedToUploadMedia! ? 1 : 0),
       };
 
   @override
@@ -153,6 +173,8 @@ class MessageModel extends Equatable {
         sender,
         receiver,
         localMediaPath,
-        mediaUrl
+        mediaUrl,
+        isDownloadingMedia,
+        failedToUploadMedia,
       ];
 }

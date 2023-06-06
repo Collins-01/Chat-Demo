@@ -373,4 +373,62 @@ class NetworkClient {
       rethrow;
     }
   }
+
+  // * Upload File To Server
+
+  Future<dynamic> uploadFile({
+    /// route path without baseurl
+    required String uri,
+
+    ///this are query parameters that would
+    /// be attached to the url
+    /// [e.g]=>{"a":"yes"}
+    /// she.com/getPeople?a=yes
+    Map<String, dynamic> queryParameters = const {},
+
+    /// data to be sent
+    /// [must not add file]
+    Map<String, dynamic>? body,
+
+    /// Files to be sent
+    /// [Files only]
+    /// for all the images you want to send
+    /// the key would act as the parameter sent
+    /// to the server
+    Map<String, File> files = const {},
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    try {
+      Map<String, MultipartFile> multipartFiles = {};
+      await Future.forEach<MapEntry<String, File>>(
+        files.entries,
+        (item) async {
+          final mimeTypeData =
+              lookupMimeType(item.value.path, headerBytes: [0xFF, 0xD8])
+                  ?.split("/");
+          multipartFiles[item.key] = await MultipartFile.fromFile(
+            item.value.path,
+            // contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
+          );
+        },
+      );
+      FormData formData = FormData.fromMap({
+        ...body ?? {},
+        ...multipartFiles,
+      });
+      Response response;
+      response = await _dio.post(
+        uri,
+        queryParameters: queryParameters,
+        data: formData,
+        cancelToken: cancelToken,
+        onReceiveProgress: onReceiveProgress,
+        options: Options(headers: _headers),
+      );
+      return response.data;
+    } on Failure {
+      rethrow;
+    }
+  }
 }

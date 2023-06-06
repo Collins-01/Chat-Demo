@@ -1,12 +1,14 @@
 import 'package:faker/faker.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
+import 'package:harmony_chat_demo/core/models/media_type.dart';
 import 'package:harmony_chat_demo/core/models/message_info_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'dart:io';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
+import 'package:harmony_chat_demo/services/files/file_service_interface.dart';
 import 'package:harmony_chat_demo/utils/app_logger.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
@@ -15,14 +17,18 @@ import '../../models/message_type.dart';
 class ChatServiceImpl implements IChatService {
   final DatabaseRepository _databaseRepository;
   final IContactService _contactService;
+  final IFileService _fileService;
   final _logger = const AppLogger(ChatServiceImpl);
   var faker = Faker();
   late Socket _socket;
 
   ChatServiceImpl(
-      {DatabaseRepository? databaseRepository, IContactService? contactService})
+      {DatabaseRepository? databaseRepository,
+      IContactService? contactService,
+      IFileService? fileService})
       : _databaseRepository = databaseRepository ?? locator(),
-        _contactService = contactService ?? locator();
+        _contactService = contactService ?? locator(),
+        _fileService = fileService ?? locator();
 
   final String _messageEvent = 'MESSAGE';
 
@@ -102,10 +108,9 @@ class ChatServiceImpl implements IChatService {
       await _databaseRepository.insertMessage(message);
       // * Change Media Uploading State to true
       var savedMsg = await _databaseRepository.getMessageById(message.id!);
-      await Future.delayed(
-          const Duration(seconds: 2)); // TODO: Upload Audio File
-      var mediaUrl =
-          'http://aws.amazon.com/s3/media/audio/dcbdjkcdlcd'; // TODO: Get Response from Upload and update the message
+      final mediaUrl =
+          await _fileService.uploadFile(audioFile, MediaType.audio);
+      // TODO: Get Response from Upload and update the message
 
       await _databaseRepository.updateMessage(
         savedMsg!.copyWith(mediaUrl: mediaUrl),

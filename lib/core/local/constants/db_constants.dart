@@ -32,12 +32,14 @@ class DBConstants {
         ${MessageField.createdAt} DATETIME NOT NULL,
         ${MessageField.updatedAt} DATETIME NOT NULL,
         ${MessageField.serverId} INT ,
-        ${MessageField.localId} VARCHAR(36) NOT NULL,
+        ${MessageField.localId} VARCHAR(36) UNIQUE  NOT NULL ,
         ${MessageField.mediaUrl} VARCHAR(255),
         ${MessageField.localMediaPath} VARCHAR(255),
         ${MessageField.chatId} VARCHAR(36),
         ${MessageField.sender} VARCHAR(36) NOT NULL,
-        ${MessageField.receiver} VARCHAR(36) NOT NULL
+        ${MessageField.receiver} VARCHAR(36) NOT NULL,
+        ${MessageField.isDownloadingMedia}  INT ,
+        ${MessageField.failedToUploadMedia}  INT 
 )
 
 
