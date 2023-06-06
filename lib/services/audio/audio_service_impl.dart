@@ -11,9 +11,7 @@ import 'package:rxdart/subjects.dart';
 
 class AudioServiceImpl implements IAudioService {
   final _logger = appLogger(AudioServiceImpl);
-  // final _flutterSound = FlutterSound();
   String _currentPath = '';
-  final _audioRecorder = Record();
   late final IPermissionService _permissionService;
 
   AudioServiceImpl({IPermissionService? permissionService})
@@ -56,19 +54,17 @@ class AudioServiceImpl implements IAudioService {
     if (isPermitted) {
       var path = await _recordingOutputPath;
       _currentPath = path;
+      await Record.start(path: path);
       _isRecordingStream.add(true);
-      // await Record.start(path: path);
     }
     return;
   }
 
   @override
   Future<File?> stopRecord() async {
-    // await Record.stop();
+    await Record.stop();
     _isRecordingStream.add(false);
-    return null;
-
-    // return File(_currentPath);
+    return File(_currentPath);
   }
 
   @override
