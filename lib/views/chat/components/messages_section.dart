@@ -1,14 +1,23 @@
-import 'package:chat_bubbles/bubbles/bubble_normal.dart';
+import 'dart:io';
+
+import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/message_status.dart';
+import 'package:harmony_chat_demo/core/models/message_type.dart';
 import 'package:harmony_chat_demo/views/chat/viewmodels/message_section_viewmodel.dart';
 
+// ignore: must_be_immutable
 class MessagesSection extends ConsumerWidget {
   final ContactModel contactModel;
-  const MessagesSection(this.contactModel, {Key? key}) : super(key: key);
+  MessagesSection(this.contactModel, {Key? key}) : super(key: key);
+  Duration duration = const Duration();
+  Duration position = const Duration();
+  bool isPlaying = false;
+  bool isLoading = false;
+  bool isPause = false;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,21 +44,66 @@ class MessagesSection extends ConsumerWidget {
                 children: [
                   ...List.generate(
                     snapshot.data!.length,
-                    (index) => GestureDetector(
-                      onTap: () {},
-                      child: BubbleNormal(
-                        seen:
-                            snapshot.data![index].status == MessageStatus.read,
-                        delivered: snapshot.data![index].status ==
-                            MessageStatus.delivered,
-                        text: snapshot.data![index].content!,
-                        isSender: snapshot.data![index].sender == '001',
-                        // isSender: index % 2 == 0,
-                        color: const Color(0xFFE8E8EE),
-                        tail: true,
-                        sent:
-                            snapshot.data![index].status == MessageStatus.sent,
-                      ),
+                    (index) => Builder(
+                      builder: (context) {
+                        final message = snapshot.data![index];
+
+                        switch (message.messageType) {
+                          case MessageType.audio:
+                            return BubbleNormalAudio(
+                              isSender: message.sender == '001',
+                              color: const Color(0xFFE8E8EE),
+                              duration: duration.inSeconds.toDouble(),
+                              position: position.inSeconds.toDouble(),
+                              isPlaying: isPlaying,
+                              isLoading: isLoading,
+                              isPause: isPause,
+                              onSeekChanged: (value) {},
+                              onPlayPauseButtonClick: () {},
+                              sent: message.status == MessageStatus.sent,
+                            );
+
+                          case MessageType.text:
+                            return BubbleNormal(
+                              seen: snapshot.data![index].status ==
+                                  MessageStatus.read,
+                              delivered: snapshot.data![index].status ==
+                                  MessageStatus.delivered,
+                              text: snapshot.data![index].content!,
+                              isSender: snapshot.data![index].sender == '001',
+                              color: const Color(0xFFE8E8EE),
+                              tail: true,
+                              sent: snapshot.data![index].status ==
+                                  MessageStatus.sent,
+                            );
+
+                          case MessageType.image:
+                            return BubbleNormalImage(
+                              id: message.id!,
+                              isSender: message.sender == '001',
+                              seen: message.status == MessageStatus.read,
+                              sent: message.status == MessageStatus.sent,
+                              image: Image.file(File(message.mediaUrl!)),
+                              color: Colors.purpleAccent,
+                              tail: true,
+                              delivered: true,
+                            );
+
+                          default:
+                            return BubbleNormal(
+                              seen: snapshot.data![index].status ==
+                                  MessageStatus.read,
+                              delivered: snapshot.data![index].status ==
+                                  MessageStatus.delivered,
+                              text: snapshot.data![index].content!,
+                              isSender: snapshot.data![index].sender == '001',
+                              color: const Color(0xFFE8E8EE),
+                              tail: true,
+                              sent: snapshot.data![index].status ==
+                                  MessageStatus.sent,
+                            );
+                        }
+                      },
                     ),
                   )
                 ],
@@ -59,3 +113,13 @@ class MessagesSection extends ConsumerWidget {
         });
   }
 }
+
+/*
+  BubbleNormalImage(
+    id: 'id001',
+    image: _image(),
+    color: Colors.purpleAccent,
+    tail: true,
+    delivered: true,
+  ),
+*/

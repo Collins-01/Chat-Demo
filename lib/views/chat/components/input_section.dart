@@ -78,12 +78,8 @@ class _InputSectionState extends ConsumerState<InputSection> {
                 model.recordAudio();
               }
               if (_isRecording) {
-                model.stopRecord();
+                model.stopRecord(widget.contactModel);
               }
-              // if (_showMic) {
-              //   model.recordAudio();
-              // }
-              // return;
             },
             child: Container(
                 height: 40,
