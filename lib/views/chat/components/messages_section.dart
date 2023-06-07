@@ -81,7 +81,7 @@ class MessagesSection extends ConsumerWidget {
                               isSender: message.sender == '001',
                               seen: message.status == MessageStatus.read,
                               sent: message.status == MessageStatus.sent,
-                              image: Image.file(File(message.mediaUrl!)),
+                              image: Image.file(File(message.localMediaPath!)),
                               color: Colors.purpleAccent,
                               tail: true,
                               delivered: true,

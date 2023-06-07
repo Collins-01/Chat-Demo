@@ -53,7 +53,25 @@ class InputSectionViewModel extends ChangeNotifier {
   }
 
   Stream<bool> get isRecording => _audioService.isRecordingStream;
-  setSelectedFile() {}
+  pickImage(ContactModel contact) async {
+    var response = await _fileService.pickImage(true);
+    if (response != null) {
+      MessageModel message = MessageModel(
+        id: uuid.v1(),
+        content: '',
+        localId: uuid.v4(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        sender: myId,
+        receiver: contact.id,
+        mediaType: MediaType.image,
+        localMediaPath: response.path,
+        messageType: MessageType.image,
+      );
+      await _chatService.sendMessage(message, contact, response);
+    }
+    _logger.d("No Image selected ");
+  }
 
   sendMessage(ContactModel contact, String content) async {
     if (content.isNotEmpty) {

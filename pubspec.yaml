@@ -57,7 +57,6 @@ dependencies:
   plugin_platform_interface: ^2.1.4
   image_picker: ^0.7.2+1
   flutter_secure_storage: ^4.2.1
-  # flutter_sound: ^2.0.3
   permission_handler: ^10.2.0
   just_audio: ^0.9.34
 

@@ -54,9 +54,8 @@ class _InputSectionState extends ConsumerState<InputSection> {
                   contentPadding: const EdgeInsets.only(left: 13, top: 10),
                   hintText: "Send a message...",
                   suffixIcon: IconButton(
-                    onPressed: () => model.sendMessage(
+                    onPressed: () => model.pickImage(
                       widget.contactModel,
-                      controller.text.trim(),
                     ),
                     icon: const Icon(Icons.attach_file),
                   ),
