@@ -12,7 +12,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   final _logger = const AppLogger(DatabaseRepositoryImpl);
 
   late BriteDatabase _streamDatabase;
-  // late Database _database;
+  late Database _database;
 
   _onCreateDatabase(Database db, int verserion) async {
     // Creates a `contacts` table in the newly created database.
@@ -43,6 +43,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   @override
   Future<void> initializeDB() async {
     final db = await _initializeDatabase();
+    _database = db;
     _streamDatabase = BriteDatabase(db);
   }
 
@@ -190,15 +191,25 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Future<MessageModel?> getMessageById(String id) {
-    // TODO: implement getMessageById
-    throw UnimplementedError();
+  Future<MessageModel?> getMessageById(String id) async {
+    final data = await _database.query(DBConstants.messageTable,
+        where: '${MessageField.id} = ?', whereArgs: [id]);
+    if (data.isEmpty) {
+      _logger.e("No message with id = $id found locally");
+      return null;
+    }
+    return MessageModel.fromDB(data[0]);
   }
 
   @override
-  Future<MessageModel?> getMessageByLocalId(String localId) {
-    // TODO: implement getMessageByLocalId
-    throw UnimplementedError();
+  Future<MessageModel?> getMessageByLocalId(String localId) async {
+    final data = await _database.query(DBConstants.messageTable,
+        where: '${MessageField.localId} = ?', whereArgs: [localId]);
+    if (data.isEmpty) {
+      _logger.e("No message with localId = $localId found locally");
+      return null;
+    }
+    return MessageModel.fromDB(data[0]);
   }
 
   @override

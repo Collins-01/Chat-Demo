@@ -5,10 +5,14 @@ abstract class IAudioService {
   Future<File?> stopRecord();
   bool get isRecording;
 
-  Future<void> playAudio(String path);
-  Future<void> pauseAudio(String path);
+  Future<void> playAudio();
+  Future<void> pauseAudio();
 
   bool get isPlaying;
 
   Stream<bool> get isRecordingStream;
+
+  Stream<bool> get isPlayingAudioStream;
+  Stream<Duration> get position;
+  Duration? get duration;
 }

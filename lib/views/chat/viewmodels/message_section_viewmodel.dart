@@ -6,11 +6,29 @@ import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/user_model.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
+import 'package:harmony_chat_demo/services/audio/audio.dart';
 
 IChatService _chatService = locator();
 IAuthService _authService = locator();
+IAudioService _audioService = locator();
 
 class MessageSectionViewModel extends ChangeNotifier {
+  bool _isPlaying = false;
+  bool get isPlaying => _isPlaying;
+  Duration? get duration => _audioService.duration;
+  double _position = 0.0;
+  double get position => _position;
+  MessageSectionViewModel() {
+    _audioService.isPlayingAudioStream.listen((value) {
+      _isPlaying = value;
+      notifyListeners();
+    });
+
+    _audioService.position.listen((value) {
+      _position = value.inSeconds.toDouble();
+      notifyListeners();
+    });
+  }
   Stream<List<MessageModel>> messagesStream(ContactModel contact) =>
       _chatService.watchMessagesWithContact(contact);
 
@@ -18,6 +36,14 @@ class MessageSectionViewModel extends ChangeNotifier {
 
   updateMessageStatus(String status) {
     // _chatService
+  }
+
+  onPlayPauseButtonClick() async {
+    if (_isPlaying) {
+      await _audioService.pauseAudio();
+    } else {
+      await _audioService.playAudio();
+    }
   }
 }
 

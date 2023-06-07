@@ -13,11 +13,8 @@ import 'package:harmony_chat_demo/views/chat/viewmodels/message_section_viewmode
 class MessagesSection extends ConsumerWidget {
   final ContactModel contactModel;
   MessagesSection(this.contactModel, {Key? key}) : super(key: key);
-  Duration duration = const Duration();
-  Duration position = const Duration();
-  bool isPlaying = false;
+
   bool isLoading = false;
-  bool isPause = false;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,13 +50,14 @@ class MessagesSection extends ConsumerWidget {
                             return BubbleNormalAudio(
                               isSender: message.sender == '001',
                               color: const Color(0xFFE8E8EE),
-                              duration: duration.inSeconds.toDouble(),
-                              position: position.inSeconds.toDouble(),
-                              isPlaying: isPlaying,
-                              isLoading: isLoading,
-                              isPause: isPause,
+                              duration: model.duration?.inSeconds.toDouble(),
+                              position: model.position,
+                              isPlaying: model.isPlaying,
+                              isLoading: true,
+                              isPause: !model.isPlaying,
                               onSeekChanged: (value) {},
-                              onPlayPauseButtonClick: () {},
+                              onPlayPauseButtonClick: () =>
+                                  model.onPlayPauseButtonClick(),
                               sent: message.status == MessageStatus.sent,
                             );
 

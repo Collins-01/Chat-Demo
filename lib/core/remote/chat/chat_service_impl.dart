@@ -103,29 +103,30 @@ class ChatServiceImpl implements IChatService {
 
   void _sendAudioMessage(
       MessageModel message, ContactModel contact, File audioFile) async {
-    final user = await _contactService.getContact(contact.serverId);
-    if (user == null) {
+    final receiverContact = await _contactService.getContact(contact
+        .id); //TODO: Check for the server id later. Use local contact id for now.
+    if (receiverContact == null) {
       _logger.e(
-        "User Id not found in local db",
+        "receiverContact Id not found in local db",
       );
-      await _databaseRepository.insertMessage(message);
-      // * Change Media Uploading State to true
-      var savedMsg = await _databaseRepository.getMessageById(message.id!);
-      final mediaUrl =
-          await _fileService.uploadFile(audioFile, MediaType.audio);
-      if (mediaUrl != null) {
-        await _databaseRepository.updateMessage(
-          savedMsg!.copyWith(mediaUrl: mediaUrl),
-        );
-        _socket.emit(
-          _messageEvent,
-          () => savedMsg.copyWith(mediaUrl: mediaUrl),
-        );
-      } else {
-        await _databaseRepository.updateMessage(
-          savedMsg!.copyWith(failedToUploadMedia: true),
-        );
-      }
+    }
+    await _databaseRepository.insertMessage(message);
+    // * Change Media Uploading State to true
+    var savedMsg = await _databaseRepository.getMessageById(message.id!);
+    _logger.d("Saved Message Fectched by Id :: ${savedMsg?.mapToDB()}");
+    final mediaUrl = await _fileService.uploadFile(audioFile, MediaType.audio);
+    if (mediaUrl != null) {
+      await _databaseRepository.updateMessage(
+        savedMsg!.copyWith(mediaUrl: mediaUrl),
+      );
+      // _socket.emit(
+      //   _messageEvent,
+      //   () => savedMsg.copyWith(mediaUrl: mediaUrl),
+      // );
+    } else {
+      await _databaseRepository.updateMessage(
+        savedMsg!.copyWith(failedToUploadMedia: true),
+      );
     }
   }
 

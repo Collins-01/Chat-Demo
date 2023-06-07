@@ -4,6 +4,7 @@ import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/services/audio/audio_service_interface.dart';
 import 'package:harmony_chat_demo/services/permissions/permission_interface.dart';
 import 'package:harmony_chat_demo/utils/utils.dart';
+import 'package:just_audio/just_audio.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
@@ -11,12 +12,14 @@ import 'package:rxdart/subjects.dart';
 
 class AudioServiceImpl implements IAudioService {
   final _logger = appLogger(AudioServiceImpl);
-  String _currentPath = '';
+
   late final IPermissionService _permissionService;
 
   AudioServiceImpl({IPermissionService? permissionService})
       : _permissionService = permissionService ?? locator();
 
+  String _currentAudioPath = '';
+  final _audioPlayer = AudioPlayer();
   final BehaviorSubject<bool> _isRecordingStream =
       BehaviorSubject.seeded(false);
   Future<String> get _recordingOutputPath async {
@@ -29,31 +32,34 @@ class AudioServiceImpl implements IAudioService {
   }
 
   @override
-  // TODO: implement isPlaying
   bool get isPlaying => throw UnimplementedError();
 
   @override
   bool get isRecording => false;
-  // _flutterSound.isRecording;
 
   @override
-  Future<void> pauseAudio(String path) {
-    // TODO: implement pauseAudio
-    throw UnimplementedError();
+  Future<void> pauseAudio() async {
+    await _audioPlayer.pause();
   }
 
   @override
-  Future<void> playAudio(String path) {
-    // TODO: implement playAudio
-    throw UnimplementedError();
+  Future<void> playAudio() async {
+    await _audioPlayer.stop();
+    var duration = await _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(
+        'https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3')));
+    await _audioPlayer.play();
+
+    if (duration != null) {}
+    _logger.e("No Duration found for audio with path: $_currentAudioPath");
   }
 
   @override
   Future<void> startRecord() async {
     var isPermitted = await Record.hasPermission();
+
     if (isPermitted) {
       var path = await _recordingOutputPath;
-      _currentPath = path;
+      _currentAudioPath = path;
       await Record.start(path: path);
       _isRecordingStream.add(true);
     }
@@ -64,9 +70,20 @@ class AudioServiceImpl implements IAudioService {
   Future<File?> stopRecord() async {
     await Record.stop();
     _isRecordingStream.add(false);
-    return File(_currentPath);
+    return File(_currentAudioPath);
   }
 
   @override
   Stream<bool> get isRecordingStream => _isRecordingStream.asBroadcastStream();
+
+  @override
+  Stream<bool> get isPlayingAudioStream =>
+      _audioPlayer.playingStream.asBroadcastStream();
+
+  @override
+  Stream<Duration> get position =>
+      _audioPlayer.createPositionStream().asBroadcastStream();
+
+  @override
+  Duration? get duration => _audioPlayer.duration;
 }
