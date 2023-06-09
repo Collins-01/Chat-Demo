@@ -6,6 +6,7 @@ import 'package:harmony_chat_demo/core/models/media_type.dart';
 import 'package:harmony_chat_demo/core/models/message_info_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
+import 'package:harmony_chat_demo/core/models/message_status.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'dart:io';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
@@ -13,6 +14,7 @@ import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface
 import 'package:harmony_chat_demo/services/files/file_service_interface.dart';
 import 'package:harmony_chat_demo/utils/app_logger.dart';
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../models/message_type.dart';
 
@@ -39,6 +41,10 @@ class ChatServiceImpl implements IChatService {
   final String _messageSentEvent = 'MESSAGE_SENT';
   final String _messageDelivered = 'DELIVERED';
   final String _messageDeliveredAck = 'DELIVERED_ACK';
+  final String _messageReadEvent = 'MESSAGE_READ_EVENT';
+  final String _messageReadAck = 'MESSAGE_READ_ACK';
+  final String _messageDeleteEvent = 'DELETE_MESSAGE';
+  final String _messageBulkRead = 'MESSAGE_BULK_READ';
 
   @override
   Future<void> init() async {
@@ -63,21 +69,48 @@ class ChatServiceImpl implements IChatService {
         _logger.e(data);
       },
     );
+
     _socket.onConnectError(
       (data) {
         _logger.i("Socket Connect Error");
         _logger.i(data);
       },
     );
+    /*
+      This channel listens for incoming messages.
+    */
     _socket.on(_messageEvent, (data) {
-      _logger.d("On Message Event::: $data ", functionName: _messageEvent);
+      _logger.d("On Message Event Received::: $data ",
+          functionName: _messageEvent);
       onMessageReceived(data);
     });
+    /*
+    This Channel listens for every successfuly saved message on the database, and updates the 
+    local message with the  server generated id
+    */
     _socket.on(_messageSentEvent, (data) {
       _logger.d(
         "On Message Sent Event :: $data",
       );
       onMessageSent(data);
+    });
+    /*
+    When a message has been successfully delivered to the receiver, the status of the message will be updated locally.
+    i.e for the sender to know the status of the message sent.
+    */
+    _socket.on(_messageDeliveredAck, (data) {
+      onMessageDelivered(data);
+    });
+    /*
+  This method listens for messages read by the other client, and updates the status locally.
+  */
+    _socket.on(_messageReadAck, (data) {
+      onMessageRead(data);
+    });
+
+// When a sender deletes a message
+    _socket.on(_messageDeleteEvent, (data) {
+      onMessageDeleted(data);
     });
     _socket.connect();
     _logger.d("Socket Connected::: ${_socket.connected}");
@@ -93,41 +126,9 @@ class ChatServiceImpl implements IChatService {
   }
 
   @override
-  Future<void> sendMessage(
-      MessageModel message, ContactModel contact, File? file) async {
-    switch (message.messageType) {
-      case MessageType.text:
-        _sendTextMessage(message, contact);
-        break;
-      case MessageType.audio:
-        _sendAudioMessage(message, contact, file!);
-        break;
-      case MessageType.image:
-        _sendImageMessage(message, contact, file!);
-        break;
-      default:
-    }
-  }
-
-  @override
   Future<void> getConversations() {
     // TODO: implement getConversations
     throw UnimplementedError();
-  }
-
-  @override
-  Future<void> onMessageDelivered(Map<String, dynamic> json) async {
-    final data = json['data'];
-    final message =
-        await _databaseRepository.getMessageByServerId(data['server_id']);
-    if (message != null) {
-      await _databaseRepository.updateMessage(
-        message.copyWith(
-          status: data['status'],
-        ),
-      );
-    }
-    _logger.e("Message with local id ${data['local_id']} not found ..");
   }
 
   @override
@@ -136,19 +137,8 @@ class ChatServiceImpl implements IChatService {
     throw UnimplementedError();
   }
 
-  @override
-  Future<void> onMessageRead(Map<String, dynamic> json) async {}
-
-  @override
-  Future<void> onMessageReceived(Map<String, dynamic> json) async {
-    final data = json['data'];
-    final MessageModel message = MessageModel.fromMap(data);
-    await _databaseRepository.insertMessage(message);
-    emitMessageDelivered(message.serverId!);
-  }
-
   void _sendTextMessage(MessageModel message, ContactModel contact) async {
-    final user = await _contactService.getContact(contact.serverId);
+    final user = await _contactService.getContactByServerId(contact.serverId);
     if (user == null) {
       _logger.e(
         "User Id not found in local db",
@@ -237,6 +227,7 @@ class ChatServiceImpl implements IChatService {
     yield* _databaseRepository.getMyLastConversations(id);
   }
 
+// ********************   MESSAGE SENT ********************************
   @override
   Future<void> onMessageSent(Map<String, dynamic> json) async {
     final data = json['data'];
@@ -254,10 +245,126 @@ class ChatServiceImpl implements IChatService {
   }
 
   @override
+  Future<void> sendMessage(
+      MessageModel message, ContactModel contact, File? file) async {
+    switch (message.messageType) {
+      case MessageType.text:
+        _sendTextMessage(message, contact);
+        break;
+      case MessageType.audio:
+        _sendAudioMessage(message, contact, file!);
+        break;
+      case MessageType.image:
+        _sendImageMessage(message, contact, file!);
+        break;
+      default:
+    }
+  }
+
+  @override
+  Future<void> onMessageReceived(Map<String, dynamic> json) async {
+    final data = json['data'];
+    final MessageModel message = MessageModel(
+      createdAt: DateTime.now(),
+      localId: data['localId'],
+      receiver: data['receiver'],
+      sender: data['sender'],
+      id: const Uuid().v4(),
+      updatedAt: DateTime.now(),
+      content: data['content'],
+      status: data['status'],
+      messageType: data['message_type'],
+      serverId: data['serverId'],
+    );
+    await _databaseRepository.insertMessage(message);
+    emitMessageDelivered(message.serverId!);
+  }
+  // ****************************** MESSAGE DELIVERED ****************************
+
+  @override
   Future<void> emitMessageDelivered(int serverId) async {
     _socket.emit(_messageDelivered, {
       "id": serverId,
     });
     _logger.d("Emitting Message Delivered for serverId : $serverId");
+  }
+
+  @override
+  Future<void> onMessageDelivered(Map<String, dynamic> json) async {
+    final data = json['data'];
+    final message =
+        await _databaseRepository.getMessageByServerId(data['server_id']);
+    if (message != null) {
+      await _databaseRepository.updateMessage(
+        message.copyWith(
+          status: data['status'],
+        ),
+      );
+    }
+    _logger.e("Message with local id ${data['local_id']} not found ..");
+  }
+
+// ************************* MESSAGE READ  ************************************************
+  @override
+  Future<void> emitMessageRead(int serverId) async {
+    final message =
+        await _databaseRepository.getMessageByServerId(serverId.toString());
+    if (message != null) {
+      _socket.emit(_messageReadEvent, {
+        'id': serverId,
+      });
+    }
+    _logger.e("Message with ID :$serverId");
+  }
+
+  @override
+  Future<void> onMessageRead(Map<String, dynamic> json) async {
+    final data = json['data'];
+    final id = data['server_id'] as int;
+    final message =
+        await _databaseRepository.getMessageByServerId(id.toString());
+    if (message != null) {
+      await _databaseRepository.updateMessage(
+        message.copyWith(status: MessageStatus.read),
+      );
+    }
+    _logger.e("Message with server id $id Not found locally.");
+  }
+
+  @override
+  Future<void> emitBulkRead(String receiverId) async {
+    // await _databaseRepository.
+  }
+
+  // ********************** DELETE MESSAGE ****************************************************
+
+  @override
+  Future<void> emitDeleteMessage(int serverId) async {
+    final message =
+        await _databaseRepository.getMessageByServerId(serverId.toString());
+    if (message != null) {
+      await _databaseRepository
+          .updateMessage(message.copyWith(isDeleted: true));
+      _socket.emit(_messageDeleteEvent, {
+        'id': message.id,
+      });
+    }
+    _logger.e("Failed to find message with serverId :$serverId for deletion");
+  }
+
+  @override
+  Future<void> onMessageDeleted(Map<String, dynamic> json) async {
+    final data = json['data'];
+    final id = data['messsage_id'];
+    final message =
+        await _databaseRepository.getMessageByServerId(id.toString());
+
+    if (message != null) {
+      await _databaseRepository.updateMessage(
+        message.copyWith(isDeleted: true),
+      );
+    }
+    _logger.e(
+        "Failed to delete message with serverId : $id, because id was not found locally");
   }
 }

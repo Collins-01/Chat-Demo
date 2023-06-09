@@ -39,7 +39,8 @@ class DBConstants {
         ${MessageField.sender} VARCHAR(36) NOT NULL,
         ${MessageField.receiver} VARCHAR(36) NOT NULL,
         ${MessageField.isDownloadingMedia}  INT ,
-        ${MessageField.failedToUploadMedia}  INT 
+        ${MessageField.failedToUploadMedia}  INT ,
+        ${MessageField.isDeleted}  INT 
 )
 
 

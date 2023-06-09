@@ -91,4 +91,9 @@ class ContactServiceImpl implements IContactService {
     //   return null;
     // }
   }
+
+  @override
+  Future<ContactModel?> getContactByServerId(String serverId) async {
+    return _databaseRepository.getContactByServerId(serverId);
+  }
 }

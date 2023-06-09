@@ -244,8 +244,8 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
       DBConstants.messageTable,
       where: "${MessageField.sender} = ? or ${MessageField.receiver} = ?",
       whereArgs: [
-        contact.id,
-        contact.id,
+        contact.serverId,
+        contact.serverId,
       ],
       orderBy: MessageField.updatedAt,
     )
@@ -300,5 +300,27 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
       return null;
     }
     return MessageModel.fromDB(data[0]);
+  }
+
+  @override
+  Future<List<MessageModel>> getAllDeliveredMessagesWithUser(
+      String receiverId) async {
+    final data = _streamDatabase.createQuery(
+      DBConstants.messageTable,
+      where: '${MessageField.receiver} = ? AND ${MessageField.status} = ?',
+      whereArgs: [receiverId, MessageStatus.delivered],
+    );
+    return [];
+  }
+
+  @override
+  Future<ContactModel?> getContactByServerId(String serverId) async {
+    final data = await _streamDatabase.query(
+      DBConstants.contactTable,
+      where: "${ContactField.serverId} = ?",
+      whereArgs: [serverId],
+      limit: 1,
+    );
+    return data.isEmpty ? null : ContactModel.fromDB(data[0]);
   }
 }

@@ -23,6 +23,7 @@ class MessageModel extends Equatable {
   final String? mediaUrl;
   final bool? isDownloadingMedia;
   final bool? failedToUploadMedia;
+  final bool? isDeleted;
 
   const MessageModel({
     this.id = "",
@@ -40,6 +41,7 @@ class MessageModel extends Equatable {
     this.mediaType,
     this.isDownloadingMedia = false,
     this.failedToUploadMedia = false,
+    this.isDeleted = false,
   });
 
   MessageModel copyWith({
@@ -58,6 +60,7 @@ class MessageModel extends Equatable {
     String? mediaUrl,
     bool? isDownloadingMedia,
     bool? failedToUploadMedia,
+    bool? isDeleted,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -75,6 +78,7 @@ class MessageModel extends Equatable {
       mediaUrl: mediaUrl ?? this.mediaUrl,
       isDownloadingMedia: isDownloadingMedia ?? this.isDownloadingMedia,
       failedToUploadMedia: failedToUploadMedia ?? this.failedToUploadMedia,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
@@ -100,19 +104,21 @@ class MessageModel extends Equatable {
       id: const Uuid().v4(),
       content: map['content'] == null ? '' : map['content'] as String,
       localId: map['localId'] as String,
-      serverId: map['id'] as int,
-      createdAt: map['createdAt'] == null
-          ? DateTime.now()
-          : DateTime.parse(map['createdAt']),
-      updatedAt: map['updatedAt'] == null
-          ? DateTime.now()
-          : DateTime.parse(map['updatedAt']),
+      serverId: map['serverId'],
+      createdAt: DateTime.now(),
+      // map['createdAt'] == null
+      //     ? DateTime.now()
+      //     : DateTime.parse(map['createdAt']),
+      updatedAt: DateTime.now(),
+      // map['updatedAt'] == null
+      //     ? DateTime.now()
+      //     : DateTime.parse(map['updatedAt']),
       status: map['status'],
       sender: map['sender']['id'] as String,
       receiver: map['receiver']['id'] as String,
-      messageType: map['media'] as String,
+      messageType: map['message_type'] as String,
       // mediaType: map['mediaType'] as String,
-      mediaUrl: map['mediaUrl'] == null ? null : map['mediaUrl']['url'],
+      mediaUrl: map['media'] == null ? null : map['media']['url'],
     );
   }
 
@@ -141,6 +147,9 @@ class MessageModel extends Equatable {
         failedToUploadMedia: source[MessageField.failedToUploadMedia] == null
             ? null
             : (source[MessageField.failedToUploadMedia] == 0 ? false : true),
+        isDeleted: source[MessageField.isDeleted] == null
+            ? null
+            : (source[MessageField.isDeleted] == 0 ? false : true),
       );
 
   Map<String, dynamic> mapToDB() => {
@@ -162,6 +171,8 @@ class MessageModel extends Equatable {
         MessageField.failedToUploadMedia: (failedToUploadMedia == null)
             ? null
             : (failedToUploadMedia! ? 1 : 0),
+        MessageField.isDeleted:
+            (isDeleted == null) ? null : (isDeleted! ? 1 : 0),
       };
 
   Map<String, dynamic> mapToServerDB() {
@@ -169,7 +180,7 @@ class MessageModel extends Equatable {
       'receiver_id': receiver,
       'content': content,
       'local_id': localId,
-      'media_type': mediaType,
+      // 'media_type': 'text',
       'message_type': messageType,
     };
   }
@@ -191,5 +202,6 @@ class MessageModel extends Equatable {
         mediaUrl,
         isDownloadingMedia,
         failedToUploadMedia,
+        isDeleted,
       ];
 }

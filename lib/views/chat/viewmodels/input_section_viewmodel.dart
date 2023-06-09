@@ -44,7 +44,7 @@ class InputSectionViewModel extends ChangeNotifier {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         sender: myId,
-        receiver: contact.id,
+        receiver: contact.serverId,
         mediaType: MediaType.audio,
         localMediaPath: _audioFile!.path,
         messageType: MessageType.audio,
@@ -65,7 +65,7 @@ class InputSectionViewModel extends ChangeNotifier {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         sender: myId,
-        receiver: contact.id,
+        receiver: contact.serverId,
         mediaType: MediaType.image,
         localMediaPath: response.path,
         messageType: MessageType.image,
@@ -85,7 +85,7 @@ class InputSectionViewModel extends ChangeNotifier {
         updatedAt: DateTime.now(),
         messageType: MessageType.text,
         sender: myId,
-        receiver: contact.id,
+        receiver: contact.serverId,
       );
       await _chatService.sendMessage(message, contact, null);
     }

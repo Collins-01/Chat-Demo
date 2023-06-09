@@ -44,4 +44,6 @@ class MessageField {
   static String isDownloadingMedia = 'is_downloading_media';
 
   static String failedToUploadMedia = 'failed_to_upload_media';
+
+  static String isDeleted = 'is_deleted';
 }

@@ -68,8 +68,12 @@ abstract class DatabaseRepository {
   /// get message with [serverid]
   Future<MessageModel?> getMessageByServerId(String serverId);
 
+  Future<List<MessageModel>> getAllDeliveredMessagesWithUser(String receiverId);
+
   /// get user with [id]
   Future<ContactModel?> getContact(String id);
+
+  Future<ContactModel?> getContactByServerId(String serverId);
 
   /// get list of all user contacts
   Future<List<ContactModel>> getContacts();
