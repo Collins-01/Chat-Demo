@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:harmony_chat_demo/core/local/constants/message_field.dart';
 import 'package:harmony_chat_demo/core/models/message_status.dart';
 import 'package:harmony_chat_demo/core/models/message_type.dart';
+import 'package:uuid/uuid.dart';
 
 class MessageModel extends Equatable {
   final String? id;
@@ -96,18 +97,22 @@ class MessageModel extends Equatable {
 
   factory MessageModel.fromMap(Map<String, dynamic> map) {
     return MessageModel(
-      id: map['id'] as String,
-      content: map['content'] as String,
+      id: const Uuid().v4(),
+      content: map['content'] == null ? '' : map['content'] as String,
       localId: map['localId'] as String,
-      serverId: map['serverId'] as int,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int),
+      serverId: map['id'] as int,
+      createdAt: map['createdAt'] == null
+          ? DateTime.now()
+          : DateTime.parse(map['createdAt']),
+      updatedAt: map['updatedAt'] == null
+          ? DateTime.now()
+          : DateTime.parse(map['updatedAt']),
       status: map['status'],
-      sender: map['sender'] as String,
-      receiver: map['receiver'] as String,
-      messageType: map['messageType'] as String,
-      mediaType: map['mediaType'] as String,
-      mediaUrl: map['mediaUrl'],
+      sender: map['sender']['id'] as String,
+      receiver: map['receiver']['id'] as String,
+      messageType: map['media'] as String,
+      // mediaType: map['mediaType'] as String,
+      mediaUrl: map['mediaUrl'] == null ? null : map['mediaUrl']['url'],
     );
   }
 
@@ -158,6 +163,16 @@ class MessageModel extends Equatable {
             ? null
             : (failedToUploadMedia! ? 1 : 0),
       };
+
+  Map<String, dynamic> mapToServerDB() {
+    return {
+      'receiver_id': receiver,
+      'content': content,
+      'local_id': localId,
+      'media_type': mediaType,
+      'message_type': messageType,
+    };
+  }
 
   @override
   List<Object?> get props => [

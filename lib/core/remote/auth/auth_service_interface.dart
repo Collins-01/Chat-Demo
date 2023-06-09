@@ -8,8 +8,10 @@ abstract class IAuthService {
   Future<void> verifyOtp(String email, String code);
   Future<void> logout();
   Future<void> onInit(
-      [VoidCallback? successCallback, VoidCallback? errorCallback]);
+      {VoidCallback? successCallback, VoidCallback? errorCallback});
 
   String? get accessToken;
   String? get refreshToken;
+
+  Future<void> updateUserInfo(Map<String, dynamic> json);
 }

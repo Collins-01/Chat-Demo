@@ -65,6 +65,9 @@ abstract class DatabaseRepository {
   /// get message with [localId]
   Future<MessageModel?> getMessageByLocalId(String localId);
 
+  /// get message with [serverid]
+  Future<MessageModel?> getMessageByServerId(String serverId);
+
   /// get user with [id]
   Future<ContactModel?> getContact(String id);
 

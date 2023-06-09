@@ -15,6 +15,7 @@ abstract class IChatService {
   Future<void> onMessageRead(Map<String, dynamic> json);
 
   Future<void> onMessageDelivered(Map<String, dynamic> json);
+  Future<void> onMessageSent(Map<String, dynamic> json);
 
 // * * * * * * * * * * * * * * * * * EMIT * * * * * * * * *
   /// Used to send a message to the
@@ -24,6 +25,8 @@ abstract class IChatService {
   // Future<void> emitMessageDelivered();
 
   Future<void> queryAndSendUnsentMessages();
+
+  Future<void> emitMessageDelivered(int severId);
 
   /// Returns conversation for this user from the server
   Future<void> getConversations();

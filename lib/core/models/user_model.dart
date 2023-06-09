@@ -52,7 +52,7 @@ class UserModel {
       lastName: map['lastName'] != null ? map['lastName'] as String : null,
       email: map['email'] as String,
       id: map['id'] as String,
-      avatar: map['avatar'] != null ? map['avatar'] as String : null,
+      avatar: map['avatar'] != null ? map['avatar']['url'] as String : null,
       isBioCreated: map['isBioCreated'] as bool,
     );
   }

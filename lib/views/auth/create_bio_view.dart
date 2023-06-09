@@ -64,7 +64,7 @@ class _CreateBioViewState extends ConsumerState<CreateBioView> {
                       validator: (v) => FieldValidators.string(v, 'LastName'),
                     ),
                     AuthTextField(
-                      controller: firstNameController,
+                      controller: occupationController,
                       labelText: "Occupation",
                       hintText: "Teacher",
                       validator: (v) => FieldValidators.string(v, 'Occupation'),

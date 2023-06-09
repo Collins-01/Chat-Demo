@@ -290,4 +290,15 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
         )
         .mapToList((row) => MessageInfoModel.fromDB(row));
   }
+
+  @override
+  Future<MessageModel?> getMessageByServerId(String serverId) async {
+    final data = await _database.query(DBConstants.messageTable,
+        where: '${MessageField.serverId} = ?', whereArgs: [serverId]);
+    if (data.isEmpty) {
+      _logger.e("No message with ServerId = $serverId found locally");
+      return null;
+    }
+    return MessageModel.fromDB(data[0]);
+  }
 }

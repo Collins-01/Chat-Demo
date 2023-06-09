@@ -26,11 +26,10 @@ Future<void> setUpLocaator() async {
   locator.registerLazySingleton<LocalCache>(() => LocalCacheImpl());
   locator.registerLazySingleton<DatabaseRepository>(
       () => DatabaseRepositoryImpl());
-  locator.registerLazySingleton<IAuthService>(() => AuthServiceImpl());
-  locator.registerLazySingleton<IChatService>(() => ChatServiceImpl());
-
   // * Contacts
   locator.registerLazySingleton<IContactService>(() => ContactServiceImpl());
+  locator.registerLazySingleton<IAuthService>(() => AuthServiceImpl());
+  locator.registerLazySingleton<IChatService>(() => ChatServiceImpl());
 
 // * Users
   locator.registerLazySingleton<IUserService>(() => UserServiceImpl());

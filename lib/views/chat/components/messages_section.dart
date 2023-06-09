@@ -3,11 +3,15 @@ import 'dart:io';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/message_status.dart';
 import 'package:harmony_chat_demo/core/models/message_type.dart';
+import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/views/chat/viewmodels/message_section_viewmodel.dart';
+
+final IAuthService _authService = locator();
 
 // ignore: must_be_immutable
 class MessagesSection extends ConsumerWidget {
@@ -15,6 +19,7 @@ class MessagesSection extends ConsumerWidget {
   MessagesSection(this.contactModel, {Key? key}) : super(key: key);
 
   bool isLoading = false;
+  final userId = _authService.user!.id;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -48,7 +53,7 @@ class MessagesSection extends ConsumerWidget {
                         switch (message.messageType) {
                           case MessageType.audio:
                             return BubbleNormalAudio(
-                              isSender: message.sender == '001',
+                              isSender: message.sender == userId,
                               color: const Color(0xFFE8E8EE),
                               duration: model.duration?.inSeconds.toDouble(),
                               position: model.position,
@@ -68,7 +73,7 @@ class MessagesSection extends ConsumerWidget {
                               delivered: snapshot.data![index].status ==
                                   MessageStatus.delivered,
                               text: snapshot.data![index].content!,
-                              isSender: snapshot.data![index].sender == '001',
+                              isSender: snapshot.data![index].sender == userId,
                               color: const Color(0xFFE8E8EE),
                               tail: true,
                               sent: snapshot.data![index].status ==
@@ -78,7 +83,7 @@ class MessagesSection extends ConsumerWidget {
                           case MessageType.image:
                             return BubbleNormalImage(
                               id: message.id!,
-                              isSender: message.sender == '001',
+                              isSender: message.sender == userId,
                               seen: message.status == MessageStatus.read,
                               sent: message.status == MessageStatus.sent,
                               image: Image.file(File(message.localMediaPath!)),
@@ -94,7 +99,7 @@ class MessagesSection extends ConsumerWidget {
                               delivered: snapshot.data![index].status ==
                                   MessageStatus.delivered,
                               text: snapshot.data![index].content!,
-                              isSender: snapshot.data![index].sender == '001',
+                              isSender: snapshot.data![index].sender == userId,
                               color: const Color(0xFFE8E8EE),
                               tail: true,
                               sent: snapshot.data![index].status ==

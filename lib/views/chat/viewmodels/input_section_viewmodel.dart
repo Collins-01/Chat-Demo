@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/services/file_picker/file_picker_service_interface.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
@@ -16,13 +17,14 @@ import '../../../services/audio/audio.dart';
 final IChatService _chatService = locator();
 final IFilePickerService _fileService = locator();
 final IAudioService _audioService = locator();
+final IAuthService _authService = locator();
 
 class InputSectionViewModel extends ChangeNotifier {
   final _logger = appLogger(InputSectionViewModel);
   final Ref ref;
   InputSectionViewModel(this.ref);
   final uuid = const Uuid();
-  final myId = '001';
+  final myId = _authService.user!.id;
   File? _selectedFile;
   File? get selectedFile => _selectedFile;
   File? _audioFile;

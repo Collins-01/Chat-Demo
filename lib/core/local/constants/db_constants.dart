@@ -14,13 +14,13 @@ class DBConstants {
     ${ContactField.lastName} VARCHAR(255) NOT NULL,
     ${ContactField.avatar} VARCHAR(255) NOT NULL,
     ${ContactField.serverId} VARCHAR(255) NOT NULL,
-    ${ContactField.bio} VARCHAR(255) NOT NULL,
-    ${ContactField.occupation} VARCHAR(255) NOT NULL,
-    ${ContactField.createdAt} DATETIME NOT NULL
+    ${ContactField.occupation} VARCHAR(255) NOT NULL
+    
 )
 
     ''';
-
+  // ${ContactField.bio} VARCHAR(255) NOT NULL,
+// ${ContactField.createdAt} DATETIME NOT NULL
   static String createMessagesTable = '''
 
     CREATE TABLE $messageTable (

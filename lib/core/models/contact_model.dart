@@ -11,18 +11,18 @@ class ContactModel extends Equatable {
   final String firstName;
   final String avatarUrl;
   final String serverId;
-  final DateTime createdAt;
+  // final DateTime createdAt;
   final String occupation;
-  final String bio;
+  // final String bio;
   const ContactModel({
     this.id = '',
     required this.lastName,
     this.serverId = '',
     required this.firstName,
     required this.avatarUrl,
-    required this.createdAt,
+    // required this.createdAt,
     required this.occupation,
-    this.bio = '',
+    // this.bio = '',
   });
 
   ContactModel copyWith({
@@ -41,8 +41,8 @@ class ContactModel extends Equatable {
       firstName: firstName ?? this.firstName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       serverId: serverId ?? this.serverId,
-      createdAt: createdAt ?? this.createdAt,
-      bio: bio ?? this.bio,
+      // createdAt: createdAt ?? this.createdAt,
+      // bio: bio ?? this.bio,
       occupation: occupation ?? this.occupation,
     );
   }
@@ -54,8 +54,8 @@ class ContactModel extends Equatable {
       'firstName': firstName,
       'avatarUrl': avatarUrl,
       'serverId': serverId,
-      'createdAt': createdAt,
-      'bio': bio,
+      // 'createdAt': createdAt,
+      // 'bio': bio,
       'occupation': occupation,
     };
   }
@@ -67,8 +67,8 @@ class ContactModel extends Equatable {
       firstName: map['firstName'] as String,
       avatarUrl: map['avatarUrl'] as String,
       serverId: map['serverId'] as String,
-      createdAt: map['createdAt'] as DateTime,
-      bio: map['bio'] as String,
+      // createdAt: map['createdAt'] as DateTime,
+      // bio: map['bio'] as String,
       occupation: map['occupation'] as String,
     );
   }
@@ -84,8 +84,8 @@ class ContactModel extends Equatable {
         firstName: source[ContactField.firstName],
         avatarUrl: source[ContactField.avatar],
         serverId: source[ContactField.serverId],
-        createdAt: DateTime.parse(source[ContactField.createdAt]).toLocal(),
-        bio: source[ContactField.bio],
+        // createdAt: DateTime.parse(source[ContactField.createdAt]).toLocal(),
+        // bio: source[ContactField.bio],
         occupation: source[ContactField.occupation],
       );
 
@@ -96,8 +96,8 @@ class ContactModel extends Equatable {
       ContactField.firstName: firstName,
       ContactField.avatar: avatarUrl,
       ContactField.serverId: serverId,
-      ContactField.createdAt: createdAt.toIso8601String(),
-      ContactField.bio: bio,
+      // ContactField.createdAt: createdAt.toIso8601String(),
+      // ContactField.bio: bio,
       ContactField.occupation: occupation,
     };
   }
@@ -109,8 +109,8 @@ class ContactModel extends Equatable {
         firstName,
         avatarUrl,
         serverId,
-        createdAt,
+        // createdAt,
         occupation,
-        bio
+        // bio
       ];
 }
