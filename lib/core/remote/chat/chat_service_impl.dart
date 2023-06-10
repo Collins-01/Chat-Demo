@@ -44,7 +44,8 @@ class ChatServiceImpl implements IChatService {
   final String _messageReadEvent = 'MESSAGE_READ_EVENT';
   final String _messageReadAck = 'MESSAGE_READ_ACK';
   final String _messageDeleteEvent = 'DELETE_MESSAGE';
-  final String _messageBulkRead = 'MESSAGE_BULK_READ';
+  final String _messageBulkRead = 'BULK_READ';
+  final String _messageBulkReadAck = 'BULK_READ_ACK';
 
   @override
   Future<void> init() async {
@@ -99,7 +100,7 @@ class ChatServiceImpl implements IChatService {
     i.e for the sender to know the status of the message sent.
     */
     _socket.on(_messageDeliveredAck, (data) {
-      onMessageDelivered(data);
+      onMessageDeliveredAck(data);
     });
     /*
   This method listens for messages read by the other client, and updates the status locally.
@@ -111,6 +112,11 @@ class ChatServiceImpl implements IChatService {
 // When a sender deletes a message
     _socket.on(_messageDeleteEvent, (data) {
       onMessageDeleted(data);
+    });
+
+    _socket.on(_messageBulkReadAck, (data) {
+      _logger.i("_messageBulkReadAck ==> ${data.toString()}");
+      onBulkRead(data);
     });
     _socket.connect();
     _logger.d("Socket Connected::: ${_socket.connected}");
@@ -290,7 +296,7 @@ class ChatServiceImpl implements IChatService {
   }
 
   @override
-  Future<void> onMessageDelivered(Map<String, dynamic> json) async {
+  Future<void> onMessageDeliveredAck(Map<String, dynamic> json) async {
     final data = json['data'];
     final message =
         await _databaseRepository.getMessageByServerId(data['server_id']);
@@ -333,7 +339,29 @@ class ChatServiceImpl implements IChatService {
 
   @override
   Future<void> emitBulkRead(String receiverId) async {
-    // await _databaseRepository.
+    final messages = await _databaseRepository.getMessagesWithReceiverByStatus(
+      sender: _authService.user!.id,
+      receiver: receiverId,
+      status: MessageStatus.delivered,
+    );
+    if (messages.isNotEmpty) {
+      final ids = messages.map((e) => e.serverId!).toList();
+      _socket.emit(_messageBulkRead, {
+        "server_ids": ids,
+      });
+    }
+    return;
+  }
+
+  @override
+  Future<void> onBulkRead(Map<String, dynamic> json) async {
+    final data = json['data'];
+    final ids = data['message_ids'] as List<int>;
+    if (ids.isNotEmpty) {
+      await _databaseRepository.updateMessagesStatusByServerId(
+          ids, MessageStatus.read);
+    }
+    return;
   }
 
   // ********************** DELETE MESSAGE ****************************************************

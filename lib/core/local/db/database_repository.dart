@@ -45,6 +45,8 @@ abstract class DatabaseRepository {
 
   /// Updates a list of messages on the `messages` table.
   Future<void> updateAllMessages(List<MessageModel> messages);
+  Future<void> updateMessagesStatusByServerId(
+      List<int> serverIds, String status);
 
 // * * * * * * * * * * * * * DELETE * * * * * * * * * * * *
 
@@ -93,6 +95,12 @@ abstract class DatabaseRepository {
   Future<List<MessageModel>> getUnreadMessagesByChatId({
     required String chatId,
     required String contactId,
+  });
+
+  Future<List<MessageModel>> getMessagesWithReceiverByStatus({
+    required String sender,
+    required String receiver,
+    required String status,
   });
 
   /// getall unsent messages

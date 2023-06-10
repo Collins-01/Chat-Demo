@@ -16,12 +16,13 @@ abstract class IChatService {
   Future<void> onMessageRead(Map<String, dynamic> json);
 
   /// This method is called when a message get delivered successfully to the client.
-  Future<void> onMessageDelivered(Map<String, dynamic> json);
+  Future<void> onMessageDeliveredAck(Map<String, dynamic> json);
 
   /// This method is called when a message gets read the receiver
   Future<void> onMessageSent(Map<String, dynamic> json);
 
   Future<void> onMessageDeleted(Map<String, dynamic> json);
+  Future<void> onBulkRead(Map<String, dynamic> json);
 
 // * * * * * * * * * * * * * * * * * EMIT * * * * * * * * *
   /// Used to send a message to the
@@ -35,6 +36,8 @@ abstract class IChatService {
   Future<void> emitMessageDelivered(int severId);
   Future<void> emitDeleteMessage(int severId);
 
+  /// When a the chat view is opened with a particular contact, send the ids of all messages with delivered
+  /// status to the server so the status can be changed to read, and it is emitted to the sender.
   Future<void> emitBulkRead(String receiverId);
 
   /// Returns conversation for this user from the server

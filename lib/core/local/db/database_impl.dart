@@ -323,4 +323,35 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
     );
     return data.isEmpty ? null : ContactModel.fromDB(data[0]);
   }
+
+  @override
+  Future<List<MessageModel>> getMessagesWithReceiverByStatus({
+    required String sender,
+    required String receiver,
+    required String status,
+  }) async {
+    final response = await _streamDatabase.query(
+      DBConstants.messageTable,
+      where:
+          '${MessageField.receiver} = ? AND ${MessageField.sender} = ? AND ${MessageField.status} = ? ',
+      whereArgs: [receiver, sender, status],
+    );
+
+    return response.map((e) => MessageModel.fromDB(e)).toList();
+  }
+
+  @override
+  Future<void> updateMessagesStatusByServerId(
+      List<int> serverIds, String status) async {
+    for (var i = 0; i < serverIds.length; i++) {
+      final id = serverIds[i];
+      _logger.d("Update Status for message with ID :: $id to $status");
+      await _streamDatabase.rawUpdate(
+          'UPDATE ${DBConstants.messageTable} SET ${MessageField.status} = ? WHERE ${MessageField.serverId} = ?',
+          [
+            status,
+            id,
+          ]);
+    }
+  }
 }
