@@ -320,7 +320,10 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
             m.${MessageField.updatedAt} DESC;
           ''',
       [id, id, id, id],
-    ).mapToList((row) => MessageInfoModel.fromDB(row));
+    ).mapToList((row) {
+      _logger.d("Watching recent conversations :: ${row.toString()}");
+      return MessageInfoModel.fromDB(row);
+    });
   }
 
   @override
