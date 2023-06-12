@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-
+import 'package:harmony_chat_demo/views/widgets/app_text.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import '../../../core/models/models.dart';
 
 class MessageTile extends StatelessWidget {
@@ -21,10 +22,13 @@ class MessageTile extends StatelessWidget {
         ),
         child: Image.network(messageInfo.avatar),
       ),
-      title: Text("${messageInfo.lastName} ${messageInfo.firstName}"),
-      subtitle: Text(messageInfo.message ?? messageInfo.messageType!),
-      trailing: Text(
-        messageInfo.timestamp.toLocal().toString(),
+      title:
+          AppText.bodyLarge("${messageInfo.lastName} ${messageInfo.firstName}"),
+      subtitle: AppText.body(messageInfo.message ?? messageInfo.messageType!),
+      trailing: AppText.caption(
+        timeago.format(
+          messageInfo.timestamp,
+        ),
       ),
     );
   }
