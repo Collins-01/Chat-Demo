@@ -304,7 +304,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
             ${DBConstants.contactTable} AS c
             
             JOIN ${DBConstants.messageTable} AS m ON ( 
-              m.${MessageField.sender} = c.${ContactField.serverId} OR m.${MessageField.receiver} = ${ContactField.serverId}
+              m.${MessageField.sender} = ? OR m.${MessageField.receiver} = ?
             ) 
 
             WHERE  m.${MessageField.updatedAt} = ( 
@@ -312,14 +312,14 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
               SELECT MAX(${MessageField.updatedAt}) FROM ${DBConstants.messageTable} 
                WHERE
                 (
-                  m.${MessageField.sender} = c.${ContactField.serverId}
-                  OR m.${MessageField.receiver} = c.${ContactField.serverId}
+                  m.${MessageField.sender} = ?
+                  OR m.${MessageField.receiver} = ?
                 )
              )
               ORDER BY
             m.${MessageField.updatedAt} DESC;
           ''',
-      [],
+      [id, id, id, id],
     ).mapToList((row) => MessageInfoModel.fromDB(row));
   }
 
