@@ -67,7 +67,7 @@ class InputSectionViewModel extends ChangeNotifier {
         sender: myId,
         receiver: contact.serverId,
         mediaType: MediaType.image,
-        localMediaPath: response.path,
+        // localMediaPath: response.path,
         messageType: MessageType.image,
       );
       await _chatService.sendMessage(message, contact, response);

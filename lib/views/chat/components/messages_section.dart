@@ -10,6 +10,7 @@ import 'package:harmony_chat_demo/core/models/message_status.dart';
 import 'package:harmony_chat_demo/core/models/message_type.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/views/chat/viewmodels/message_section_viewmodel.dart';
+import 'package:harmony_chat_demo/views/widgets/app_text.dart';
 
 final IAuthService _authService = locator();
 
@@ -49,21 +50,48 @@ class MessagesSection extends ConsumerWidget {
                     (index) => Builder(
                       builder: (context) {
                         final message = snapshot.data![index];
-
+                        if (message.isDeleted) {
+                          return AppText.body("This message is deleted");
+                        }
                         switch (message.messageType) {
                           case MessageType.audio:
-                            return BubbleNormalAudio(
-                              isSender: message.sender == userId,
-                              color: const Color(0xFFE8E8EE),
-                              duration: model.duration?.inSeconds.toDouble(),
-                              position: model.position,
-                              isPlaying: model.isPlaying,
-                              isLoading: true,
-                              isPause: !model.isPlaying,
-                              onSeekChanged: (value) {},
-                              onPlayPauseButtonClick: () =>
-                                  model.onPlayPauseButtonClick(),
-                              sent: message.status == MessageStatus.sent,
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                BubbleNormalAudio(
+                                  isSender: message.sender == userId,
+                                  color: const Color(0xFFE8E8EE),
+                                  duration:
+                                      model.duration?.inSeconds.toDouble(),
+                                  position: model.position,
+                                  isPlaying: model.isPlaying,
+                                  isLoading: true,
+                                  isPause: !model.isPlaying,
+                                  onSeekChanged: (value) {},
+                                  onPlayPauseButtonClick: () =>
+                                      model.onPlayPauseButtonClick(),
+                                  sent: message.status == MessageStatus.sent,
+                                  delivered:
+                                      message.status == MessageStatus.delivered,
+                                  seen: message.status == MessageStatus.read,
+                                  tail: true,
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                message.isDownloadingMedia != null
+                                    ? AppText.caption(
+                                        (message.isDownloadingMedia!)
+                                            ? 'Downloading...'
+                                            : "")
+                                    : const SizedBox.shrink(),
+                                message.isUploadingMedia != null
+                                    ? AppText.caption(
+                                        (message.isUploadingMedia!)
+                                            ? 'Uploading...'
+                                            : "")
+                                    : const SizedBox.shrink(),
+                              ],
                             );
 
                           case MessageType.text:
@@ -81,15 +109,37 @@ class MessagesSection extends ConsumerWidget {
                             );
 
                           case MessageType.image:
-                            return BubbleNormalImage(
-                              id: message.id!,
-                              isSender: message.sender == userId,
-                              seen: message.status == MessageStatus.read,
-                              sent: message.status == MessageStatus.sent,
-                              image: Image.file(File(message.localMediaPath!)),
-                              color: Colors.purpleAccent,
-                              tail: true,
-                              delivered: true,
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                BubbleNormalImage(
+                                  id: message.id!,
+                                  isSender: message.sender == userId,
+                                  seen: message.status == MessageStatus.read,
+                                  sent: message.status == MessageStatus.sent,
+                                  image:
+                                      Image.file(File(message.localMediaPath!)),
+                                  color: Colors.purpleAccent,
+                                  tail: true,
+                                  delivered:
+                                      message.status == MessageStatus.delivered,
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                message.isDownloadingMedia != null
+                                    ? AppText.caption(
+                                        (message.isDownloadingMedia!)
+                                            ? 'Downloading...'
+                                            : "")
+                                    : const SizedBox.shrink(),
+                                message.isUploadingMedia != null
+                                    ? AppText.caption(
+                                        (message.isUploadingMedia!)
+                                            ? 'Uploading...'
+                                            : "")
+                                    : const SizedBox.shrink(),
+                              ],
                             );
 
                           default:

@@ -7,6 +7,7 @@ import 'package:harmony_chat_demo/core/models/message_info_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/core/models/message_status.dart';
+import 'package:harmony_chat_demo/core/network_service/network_client.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'dart:io';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
@@ -14,7 +15,6 @@ import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface
 import 'package:harmony_chat_demo/services/files/file_service_interface.dart';
 import 'package:harmony_chat_demo/utils/app_logger.dart';
 import 'package:socket_io_client/socket_io_client.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../models/message_type.dart';
 
@@ -49,7 +49,7 @@ class ChatServiceImpl implements IChatService {
 
   @override
   Future<void> init() async {
-    _socket = io('http://localhost:3000/messaging', {
+    _socket = io('${NetworkClient.baseUrl}/messaging', {
       'transports': ['websocket'],
       "forceNew": true,
       "extraHeaders": {
@@ -149,7 +149,6 @@ class ChatServiceImpl implements IChatService {
       _logger.e(
         "User Id not found in local db",
       );
-      // * Query the user from the server and save
     }
     await _databaseRepository.insertMessage(message);
     final savedMessage = await _databaseRepository.getMessageById(message.id!);
@@ -161,58 +160,91 @@ class ChatServiceImpl implements IChatService {
 
   void _sendAudioMessage(
       MessageModel message, ContactModel contact, File audioFile) async {
-    final receiverContact = await _contactService.getContact(contact
-        .id); //TODO: Check for the server id later. Use local contact id for now.
+    final receiverContact =
+        await _contactService.getContactByServerId(contact.serverId);
     if (receiverContact == null) {
       _logger.e(
         "receiverContact Id not found in local db",
       );
     }
     await _databaseRepository.insertMessage(message);
-    // * Change Media Uploading State to true
     var savedMsg = await _databaseRepository.getMessageById(message.id!);
-    _logger.d("Saved Message Fectched by Id :: ${savedMsg?.mapToDB()}");
-    final mediaUrl = await _fileService.uploadFile(audioFile, MediaType.audio);
-    if (mediaUrl != null) {
+    if (savedMsg == null) {
+      _logger.e(
+          "Message with id : ${message.id} Not found locally. Therefore, audio message can not be sent...",
+          functionName: '_sendAudioMessage');
+      return;
+    }
+    await _databaseRepository
+        .updateMessage(savedMsg.copyWith(isUploadingMedia: true));
+    try {
+      final uploadResponse =
+          await _fileService.uploadFile(audioFile, MediaType.audio);
       await _databaseRepository.updateMessage(
-        savedMsg!.copyWith(mediaUrl: mediaUrl),
+        savedMsg.copyWith(
+          mediaUrl: uploadResponse.mediaUrl,
+          mediaId: uploadResponse.mediaId,
+          isUploadingMedia: false,
+        ),
       );
       _socket.emit(
         _messageEvent,
-        () => savedMsg.copyWith(mediaUrl: mediaUrl),
+        () => {
+          ...savedMsg.mapToServerDB(),
+          'media_id': uploadResponse.mediaId,
+          'media_url': uploadResponse.mediaUrl,
+        },
       );
-    } else {
-      await _databaseRepository.updateMessage(
-        savedMsg!.copyWith(failedToUploadMedia: true),
-      );
+    } catch (e) {
+      await _databaseRepository.updateMessage(savedMsg.copyWith(
+          isUploadingMedia: false, failedToUploadMedia: true));
     }
   }
 
   void _sendImageMessage(
       MessageModel message, ContactModel contact, File imageFile) async {
-    final receiverContact = await _contactService.getContact(contact.id);
+    final receiverContact =
+        await _contactService.getContactByServerId(contact.serverId);
     if (receiverContact == null) {
       _logger.e(
-        "Receiver Contact Id not found in local db",
+        "receiverContact Id not found in local db",
       );
     }
-    await _databaseRepository.insertMessage(message);
-    // * Change Media Uploading State to true
+    final localMediaPath =
+        await _fileService.copyFileToApplicationDirectory(imageFile);
+    await _databaseRepository.insertMessage(
+      message.copyWith(localMediaPath: localMediaPath),
+    );
     var savedMsg = await _databaseRepository.getMessageById(message.id!);
-    _logger.d("Saved Message Fectched by Id :: ${savedMsg?.mapToDB()}");
-    final mediaUrl = await _fileService.uploadFile(imageFile, MediaType.image);
-    if (mediaUrl != null) {
+    if (savedMsg == null) {
+      _logger.e(
+          "Message with id : ${message.id} Not found locally. Therefore, image  message can not be sent...",
+          functionName: '_sendImageMessage');
+      return;
+    }
+    await _databaseRepository
+        .updateMessage(savedMsg.copyWith(isUploadingMedia: true));
+    try {
+      final uploadResponse =
+          await _fileService.uploadFile(imageFile, MediaType.image);
       await _databaseRepository.updateMessage(
-        savedMsg!.copyWith(mediaUrl: mediaUrl),
+        savedMsg.copyWith(
+          mediaUrl: uploadResponse.mediaUrl,
+          mediaId: uploadResponse.mediaId,
+          isUploadingMedia: false,
+        ),
       );
       _socket.emit(
         _messageEvent,
-        () => savedMsg.copyWith(mediaUrl: mediaUrl),
+        () => {
+          ...savedMsg.mapToServerDB(),
+          'media_id': uploadResponse.mediaId,
+          'media_url': uploadResponse.mediaUrl,
+        },
       );
-    } else {
-      await _databaseRepository.updateMessage(
-        savedMsg!.copyWith(failedToUploadMedia: true),
-      );
+    } catch (e) {
+      await _databaseRepository.updateMessage(savedMsg.copyWith(
+          isUploadingMedia: false, failedToUploadMedia: true));
     }
   }
 
@@ -237,8 +269,9 @@ class ChatServiceImpl implements IChatService {
   @override
   Future<void> onMessageSent(Map<String, dynamic> json) async {
     final data = json['data'];
-    final message = await _databaseRepository
-        .getMessageByLocalId(data['local_id'] as String);
+    final message = await _databaseRepository.getMessageByLocalId(
+      data['local_id'] as String,
+    );
     if (message != null) {
       await _databaseRepository.updateMessage(
         message.copyWith(
@@ -270,20 +303,31 @@ class ChatServiceImpl implements IChatService {
   @override
   Future<void> onMessageReceived(Map<String, dynamic> json) async {
     final data = json['data'];
-    final MessageModel message = MessageModel(
-      createdAt: DateTime.now(),
-      localId: data['localId'],
-      receiver: data['receiver'],
-      sender: data['sender'],
-      id: const Uuid().v4(),
-      updatedAt: DateTime.now(),
-      content: data['content'],
-      status: data['status'],
-      messageType: data['message_type'],
-      serverId: data['serverId'],
-    );
+    final MessageModel message = MessageModel.fromMap(data);
     await _databaseRepository.insertMessage(message);
     emitMessageDelivered(message.serverId!);
+    if (message.messageType != MessageType.text) {
+      final savedMessage =
+          await _databaseRepository.getMessageById(message.id!);
+      if (savedMessage == null) {
+        _logger.e("Saved Message not found: ");
+        return;
+      }
+      savedMessage.copyWith(isDownloadingMedia: true);
+      final localMediaPath = await _fileService.downloadFile(
+        message.mediaUrl!,
+      );
+      if (localMediaPath != null) {
+        savedMessage.copyWith(
+          isDownloadingMedia: false,
+          failedToDownloadMedia: false,
+          localMediaPath: localMediaPath,
+        );
+      }
+      savedMessage.copyWith(
+          isDownloadingMedia: false, failedToDownloadMedia: true);
+    }
+    return;
   }
   // ****************************** MESSAGE DELIVERED ****************************
 

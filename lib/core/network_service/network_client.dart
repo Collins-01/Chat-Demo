@@ -13,6 +13,8 @@ final IAuthService _authService = locator();
 enum FormDataType { post, patch }
 
 class NetworkClient {
+  static String baseUrl =
+      'http://${Platform.isAndroid ? '10.0.2.2' : 'localhost'}:3000';
   NetworkClient._();
   static final NetworkClient _instance = NetworkClient._();
   static NetworkClient get instance => _instance;
@@ -25,7 +27,7 @@ class NetworkClient {
   static Dio _createDio() {
     var dio = Dio(
       BaseOptions(
-        baseUrl: 'http://localhost:3000',
+        baseUrl: baseUrl,
         receiveTimeout: const Duration(seconds: 15), // 15 seconds
         connectTimeout: const Duration(seconds: 15),
         sendTimeout: const Duration(seconds: 30),
@@ -56,6 +58,7 @@ class NetworkClient {
   }
 
   static final Dio _dio = _createDio();
+  static Dio get dio => _dio;
 
   ///Makes a [GET] request and returns data of type[T]
   Future<T> get<T>(
@@ -395,27 +398,17 @@ class NetworkClient {
     /// for all the images you want to send
     /// the key would act as the parameter sent
     /// to the server
-    Map<String, File> files = const {},
+    Map<String, File> file = const {},
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) async {
     try {
-      Map<String, MultipartFile> multipartFiles = {};
-      await Future.forEach<MapEntry<String, File>>(
-        files.entries,
-        (item) async {
-          final mimeTypeData =
-              lookupMimeType(item.value.path, headerBytes: [0xFF, 0xD8])
-                  ?.split("/");
-          multipartFiles[item.key] = await MultipartFile.fromFile(
-            item.value.path,
-            // contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
-          );
-        },
-      );
+      final multipartFile =
+          await MultipartFile.fromFile(file.values.first.path);
+
       FormData formData = FormData.fromMap({
         ...body ?? {},
-        ...multipartFiles,
+        file.keys.first: multipartFile,
       });
       Response response;
       response = await _dio.post(

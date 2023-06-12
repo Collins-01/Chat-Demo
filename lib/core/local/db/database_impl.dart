@@ -282,13 +282,45 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
 
   @override
   Stream<List<MessageInfoModel>> getMyLastConversations(String id) async* {
-    yield* _streamDatabase
-        .createRawQuery(
-          [DBConstants.messageTable, DBConstants.contactTable],
-          DBConstants.getLastConversations,
-          [id],
-        )
-        .mapToList((row) => MessageInfoModel.fromDB(row));
+    yield* _streamDatabase.createRawQuery(
+      [DBConstants.messageTable, DBConstants.contactTable],
+      ''' 
+      SELECT 
+            c.${ContactField.id},
+            c.${ContactField.lastName},
+            c.${ContactField.firstName},
+            c.${ContactField.avatar},
+            c.${ContactField.serverId},
+            m.${MessageField.content},
+            m.${MessageField.updatedAt},
+            m.${MessageField.status},
+            m.${MessageField.messageType},
+            m.${MessageField.sender},
+            m.${MessageField.receiver},
+            m.${MessageField.id}
+            
+            FROM 
+
+            ${DBConstants.contactTable} AS c
+            
+            JOIN ${DBConstants.messageTable} AS m ON ( 
+              m.${MessageField.sender} = c.${ContactField.serverId} OR m.${MessageField.receiver} = ${ContactField.serverId}
+            ) 
+
+            WHERE  m.${MessageField.updatedAt} = ( 
+              
+              SELECT MAX(${MessageField.updatedAt}) FROM ${DBConstants.messageTable} 
+               WHERE
+                (
+                  m.${MessageField.sender} = c.${ContactField.serverId}
+                  OR m.${MessageField.receiver} = c.${ContactField.serverId}
+                )
+             )
+              ORDER BY
+            m.${MessageField.updatedAt} DESC;
+          ''',
+      [],
+    ).mapToList((row) => MessageInfoModel.fromDB(row));
   }
 
   @override

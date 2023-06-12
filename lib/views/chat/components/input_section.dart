@@ -43,6 +43,15 @@ class _InputSectionState extends ConsumerState<InputSection> {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
+          IconButton(
+            onPressed: () {
+              model.pickImage(widget.contactModel);
+            },
+            icon: const Icon(Icons.add),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
           Expanded(
             child: Container(
               height: 50,
@@ -72,45 +81,51 @@ class _InputSectionState extends ConsumerState<InputSection> {
                 model.sendMessage(widget.contactModel, controller.text.trim());
                 controller.clear();
               }
-
-              // if (!_isRecording && _showMic) {
-              //   model.recordAudio();
-              // }
-              // if (_isRecording) {
-              //   model.stopRecord(widget.contactModel);
-              // }
             },
-            child: Container(
-                height: 40,
-                width: 40,
-                decoration: const BoxDecoration(
+            child: controller.text.isEmpty
+                ? const SizedBox.shrink()
+                : AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeIn,
+                    height: 40,
+                    width: 40,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.send,
+                      color: Colors.white,
+                    ),
+                  ),
+          ),
+          StreamBuilder(
+            stream: model.isRecording,
+            initialData: false,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final isRecording = snapshot.data!;
+                return IconButton(
+                  onPressed: () {
+                    if (isRecording) {
+                      model.stopRecord(widget.contactModel);
+                    } else {
+                      model.stopRecord(widget.contactModel);
+                    }
+                  },
+                  icon: Icon(
+                    isRecording ? Icons.stop_rounded : Icons.mic,
+                    color: isRecording ? Colors.red : Colors.white,
+                  ),
+                );
+              } else {
+                return const Icon(
+                  Icons.mic,
                   color: Colors.blue,
-                  shape: BoxShape.circle,
-                ),
-                child: !_showMic
-                    ? const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                      )
-                    : StreamBuilder(
-                        stream: model.isRecording,
-                        initialData: false,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final isRecording = snapshot.data!;
-                            return Icon(
-                              isRecording ? Icons.stop_rounded : Icons.mic,
-                              color: isRecording ? Colors.red : Colors.white,
-                            );
-                          } else {
-                            return const Icon(
-                              Icons.mic,
-                              color: Colors.white,
-                            );
-                          }
-                        },
-                      )),
-          )
+                );
+              }
+            },
+          ),
         ],
       ),
     );

@@ -21,15 +21,21 @@ class MessageModel extends Equatable {
   final String? mediaType;
   final String? localMediaPath;
   final String? mediaUrl;
+  final bool isDeleted;
+  final String? mediaId;
+  // * Downloading Media
   final bool? isDownloadingMedia;
+  final bool? failedToDownloadMedia;
+  // * Uploading Media
+  final bool? isUploadingMedia;
   final bool? failedToUploadMedia;
-  final bool? isDeleted;
 
   const MessageModel({
     this.id = "",
+    this.mediaId,
     this.content = "",
     required this.localId,
-    this.serverId = 0,
+    this.serverId,
     required this.createdAt,
     required this.updatedAt,
     this.status = MessageStatus.unsent,
@@ -42,6 +48,8 @@ class MessageModel extends Equatable {
     this.isDownloadingMedia = false,
     this.failedToUploadMedia = false,
     this.isDeleted = false,
+    this.failedToDownloadMedia,
+    this.isUploadingMedia,
   });
 
   MessageModel copyWith({
@@ -61,6 +69,9 @@ class MessageModel extends Equatable {
     bool? isDownloadingMedia,
     bool? failedToUploadMedia,
     bool? isDeleted,
+    String? mediaId,
+    bool? failedToDownloadMedia,
+    bool? isUploadingMedia,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -79,6 +90,10 @@ class MessageModel extends Equatable {
       isDownloadingMedia: isDownloadingMedia ?? this.isDownloadingMedia,
       failedToUploadMedia: failedToUploadMedia ?? this.failedToUploadMedia,
       isDeleted: isDeleted ?? this.isDeleted,
+      mediaId: mediaId ?? this.mediaId,
+      failedToDownloadMedia:
+          failedToDownloadMedia ?? this.failedToDownloadMedia,
+      isUploadingMedia: isUploadingMedia ?? this.isUploadingMedia,
     );
   }
 
@@ -96,29 +111,26 @@ class MessageModel extends Equatable {
       'messageType': messageType,
       'mediaType': mediaType,
       'mediaUrl': mediaUrl,
+      'mediaId': mediaId,
     };
   }
 
-  factory MessageModel.fromMap(Map<String, dynamic> map) {
+  factory MessageModel.fromMap(Map<String, dynamic> data) {
     return MessageModel(
+      createdAt: DateTime
+          .now(), //TODO: Will convert to  Dart's defined DateTime later . [created_at]
+      localId: data['local_id'], //✅
+      receiver: data['receiver'], //✅
+      sender: data['sender'], //✅
       id: const Uuid().v4(),
-      content: map['content'] == null ? '' : map['content'] as String,
-      localId: map['localId'] as String,
-      serverId: map['serverId'],
-      createdAt: DateTime.now(),
-      // map['createdAt'] == null
-      //     ? DateTime.now()
-      //     : DateTime.parse(map['createdAt']),
-      updatedAt: DateTime.now(),
-      // map['updatedAt'] == null
-      //     ? DateTime.now()
-      //     : DateTime.parse(map['updatedAt']),
-      status: map['status'],
-      sender: map['sender']['id'] as String,
-      receiver: map['receiver']['id'] as String,
-      messageType: map['message_type'] as String,
-      // mediaType: map['mediaType'] as String,
-      mediaUrl: map['media'] == null ? null : map['media']['url'],
+      updatedAt: DateTime
+          .now(), //TODO: Will convert to Dart's defined DateTime.  later. [updated_at]
+      content: data['content'], //✅
+      status: data['status'], //✅
+      messageType: data['message_type'], //✅
+      serverId: data['server_id'], //✅
+      mediaUrl: data['media_url'], //✅
+      mediaId: data['media_id'],
     );
   }
 
@@ -128,29 +140,33 @@ class MessageModel extends Equatable {
       MessageModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   factory MessageModel.fromDB(Map<String, dynamic> source) => MessageModel(
-        createdAt: DateTime.parse(source[MessageField.createdAt]).toLocal(),
-        updatedAt: DateTime.parse(source[MessageField.updatedAt]).toLocal(),
-        localId: source[MessageField.localId],
-        receiver: source[MessageField.receiver],
-        sender: source[MessageField.sender],
-        content: source[MessageField.content],
-        id: source[MessageField.id],
-        localMediaPath: source[MessageField.localMediaPath],
-        mediaType: source[MessageField.mediaType],
-        mediaUrl: source[MessageField.mediaUrl],
-        messageType: source[MessageField.messageType],
-        serverId: source[MessageField.serverId],
-        status: source[MessageField.status],
-        isDownloadingMedia: source[MessageField.isDownloadingMedia] == null
-            ? null
-            : (source[MessageField.isDownloadingMedia] == 0 ? false : true),
-        failedToUploadMedia: source[MessageField.failedToUploadMedia] == null
-            ? null
-            : (source[MessageField.failedToUploadMedia] == 0 ? false : true),
-        isDeleted: source[MessageField.isDeleted] == null
-            ? null
-            : (source[MessageField.isDeleted] == 0 ? false : true),
-      );
+      createdAt: DateTime.parse(source[MessageField.createdAt]).toLocal(),
+      updatedAt: DateTime.parse(source[MessageField.updatedAt]).toLocal(),
+      localId: source[MessageField.localId],
+      receiver: source[MessageField.receiver],
+      sender: source[MessageField.sender],
+      content: source[MessageField.content],
+      id: source[MessageField.id],
+      localMediaPath: source[MessageField.localMediaPath],
+      mediaType: source[MessageField.mediaType],
+      mediaUrl: source[MessageField.mediaUrl],
+      messageType: source[MessageField.messageType],
+      serverId: source[MessageField.serverId],
+      status: source[MessageField.status],
+      mediaId: source[MessageField.mediaId],
+      isDeleted: (source[MessageField.isDeleted] == 0 ? false : true),
+      isDownloadingMedia: source[MessageField.isDownloadingMedia] == null
+          ? null
+          : (source[MessageField.isDownloadingMedia] == 0 ? false : true),
+      failedToUploadMedia: source[MessageField.failedToUploadMedia] == null
+          ? null
+          : (source[MessageField.failedToUploadMedia] == 0 ? false : true),
+      failedToDownloadMedia: source[MessageField.failedToDownloadMedia] == null
+          ? null
+          : (source[MessageField.failedToDownloadMedia] == 0 ? false : true),
+      isUploadingMedia: source[MessageField.isUploadingMedia] == null
+          ? null
+          : (source[MessageField.isUploadingMedia] == 0 ? false : true));
 
   Map<String, dynamic> mapToDB() => {
         MessageField.id: id,
@@ -166,13 +182,20 @@ class MessageModel extends Equatable {
         MessageField.receiver: receiver,
         MessageField.localMediaPath: localMediaPath,
         MessageField.mediaUrl: mediaUrl,
+        MessageField.isDeleted: (isDeleted ? 1 : 0),
+        MessageField.mediaId: mediaId,
+        // * Downloading Media
         MessageField.isDownloadingMedia:
             (isDownloadingMedia == null) ? null : (isDownloadingMedia! ? 1 : 0),
+        MessageField.failedToDownloadMedia: (failedToDownloadMedia == null)
+            ? null
+            : (failedToDownloadMedia! ? 1 : 0),
+        // * Uploading media.
+        MessageField.isUploadingMedia:
+            (isUploadingMedia == null) ? null : (isUploadingMedia! ? 1 : 0),
         MessageField.failedToUploadMedia: (failedToUploadMedia == null)
             ? null
             : (failedToUploadMedia! ? 1 : 0),
-        MessageField.isDeleted:
-            (isDeleted == null) ? null : (isDeleted! ? 1 : 0),
       };
 
   Map<String, dynamic> mapToServerDB() {
@@ -180,8 +203,9 @@ class MessageModel extends Equatable {
       'receiver_id': receiver,
       'content': content,
       'local_id': localId,
-      // 'media_type': 'text',
       'message_type': messageType,
+      // 'media_url': mediaUrl,
+      // 'media_id': mediaId,
     };
   }
 
@@ -203,5 +227,8 @@ class MessageModel extends Equatable {
         isDownloadingMedia,
         failedToUploadMedia,
         isDeleted,
+        mediaId,
+        failedToDownloadMedia,
+        isUploadingMedia,
       ];
 }

@@ -1,6 +1,6 @@
 class MessageField {
   /// message id for the creation on the local sql table. [int]
-  static String id = 'id';
+  static String id = 'message_id';
 
   /// contains the text content of the message [String]
   static String content = 'content';
@@ -46,4 +46,10 @@ class MessageField {
   static String failedToUploadMedia = 'failed_to_upload_media';
 
   static String isDeleted = 'is_deleted';
+
+  static String mediaId = 'media_id';
+
+  static String isUploadingMedia = 'is_uploading_media';
+
+  static String failedToDownloadMedia = 'failed_to_download_media';
 }

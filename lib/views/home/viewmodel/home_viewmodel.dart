@@ -20,7 +20,7 @@ class HomeViewModel extends ChangeNotifier {
       _messagesStream.add(event);
       _logger.i("New Message :: ${event.toString()}");
     }, onError: (e) {
-      _logger.e("Error Receiving contacts as stream :: ", error: e);
+      _logger.e("Error Getting Latest Conversation :: ", error: e);
     });
   }
   UserModel? user = _authService.user;

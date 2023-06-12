@@ -59,6 +59,7 @@ dependencies:
   flutter_secure_storage: ^4.2.1
   permission_handler: ^10.2.0
   just_audio: ^0.9.34
+  timeago: ^3.4.0
 
   
 
