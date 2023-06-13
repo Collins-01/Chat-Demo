@@ -31,7 +31,7 @@ class DBConstants {
         ${MessageField.status} VARCHAR(36) NOT NULL,
         ${MessageField.createdAt} DATETIME NOT NULL,
         ${MessageField.updatedAt} DATETIME NOT NULL,
-        ${MessageField.serverId} INT ,
+        ${MessageField.serverId} VARCHAR(36),
         ${MessageField.localId} VARCHAR(36) UNIQUE  NOT NULL ,
         ${MessageField.mediaId} VARCHAR(36),
         ${MessageField.mediaUrl} VARCHAR(255),

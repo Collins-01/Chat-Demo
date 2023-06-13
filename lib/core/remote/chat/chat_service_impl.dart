@@ -38,6 +38,7 @@ class ChatServiceImpl implements IChatService {
         _authService = authService ?? locator();
 
   final String _messageEvent = 'MESSAGE';
+  final String _unsentMessages = 'UNSENT_MESSAGES';
   final String _messageSentEvent = 'MESSAGE_SENT';
   final String _messageDelivered = 'DELIVERED';
   final String _messageDeliveredAck = 'DELIVERED_ACK';
@@ -46,6 +47,7 @@ class ChatServiceImpl implements IChatService {
   final String _messageDeleteEvent = 'DELETE_MESSAGE';
   final String _messageBulkRead = 'BULK_READ';
   final String _messageBulkReadAck = 'BULK_READ_ACK';
+  final String _onConnectMessagesEvent = 'ON_CONNECT_MESSAGES';
 
   @override
   Future<void> init() async {
@@ -56,12 +58,14 @@ class ChatServiceImpl implements IChatService {
         'authorization': _authService.accessToken!,
       }
     });
-    _socket.onConnect((data) {
+    _socket.onConnect((data) async {
       _logger.d("On Socket Connect: $data");
+      await queryAndSendUnsentMessages();
     });
     _socket.onReconnect(
-      (_) {
+      (_) async {
         _logger.d("Socket Reconnecting........");
+        await queryAndSendUnsentMessages();
       },
     );
     _socket.onDisconnect(
@@ -77,6 +81,11 @@ class ChatServiceImpl implements IChatService {
         _logger.i(data);
       },
     );
+
+    _socket.on(_onConnectMessagesEvent, (data) {
+      _logger.d("Received messages on socket connection");
+      receiveMessagesOnSocketConnect(data);
+    });
     /*
       This channel listens for incoming messages.
     */
@@ -138,9 +147,23 @@ class ChatServiceImpl implements IChatService {
   }
 
   @override
-  Future<void> queryAndSendUnsentMessages() {
-    // TODO: implement queryAndSendUnsentMessages
-    throw UnimplementedError();
+  Future<void> queryAndSendUnsentMessages() async {
+    final userId = _authService.user!.id;
+    final messages = await _databaseRepository.getAllUnsentMessages(userId);
+    if (messages.isNotEmpty) {
+      _socket.emit(_unsentMessages, [
+        ...messages.map((message) {
+          return {
+            'local_id': message.localId,
+            'message_type': message.messageType,
+            'content': message.content,
+            'receiver_id': message.receiver,
+          };
+        }).toList()
+      ]);
+    } else {
+      _logger.d("Yikes🥲! No unsent messages available for user");
+    }
   }
 
   void _sendTextMessage(MessageModel message, ContactModel contact) async {
@@ -304,8 +327,10 @@ class ChatServiceImpl implements IChatService {
   Future<void> onMessageReceived(Map<String, dynamic> json) async {
     final data = json['data'];
     final MessageModel message = MessageModel.fromMap(data);
-    await _databaseRepository.insertMessage(message);
-    emitMessageDelivered(message.serverId!);
+    await _databaseRepository.insertMessage(message).then((value) async {
+      await emitMessageDelivered(message.serverId!);
+    });
+
     if (message.messageType != MessageType.text) {
       final savedMessage =
           await _databaseRepository.getMessageById(message.id!);
@@ -332,7 +357,7 @@ class ChatServiceImpl implements IChatService {
   // ****************************** MESSAGE DELIVERED ****************************
 
   @override
-  Future<void> emitMessageDelivered(int serverId) async {
+  Future<void> emitMessageDelivered(String serverId) async {
     _socket.emit(_messageDelivered, {
       "id": serverId,
     });
@@ -356,7 +381,7 @@ class ChatServiceImpl implements IChatService {
 
 // ************************* MESSAGE READ  ************************************************
   @override
-  Future<void> emitMessageRead(int serverId) async {
+  Future<void> emitMessageRead(String serverId) async {
     final message =
         await _databaseRepository.getMessageByServerId(serverId.toString());
     if (message != null) {
@@ -370,7 +395,7 @@ class ChatServiceImpl implements IChatService {
   @override
   Future<void> onMessageRead(Map<String, dynamic> json) async {
     final data = json['data'];
-    final id = data['server_id'] as int;
+    final id = data['server_id'];
     final message =
         await _databaseRepository.getMessageByServerId(id.toString());
     if (message != null) {
@@ -400,7 +425,8 @@ class ChatServiceImpl implements IChatService {
   @override
   Future<void> onBulkRead(Map<String, dynamic> json) async {
     final data = json['data'];
-    final ids = data['message_ids'] as List<int>;
+    _logger.d("On Bulk Read Data ::: $data");
+    final ids = data['message_ids'] as List<String>;
     if (ids.isNotEmpty) {
       await _databaseRepository.updateMessagesStatusByServerId(
           ids, MessageStatus.read);
@@ -411,7 +437,7 @@ class ChatServiceImpl implements IChatService {
   // ********************** DELETE MESSAGE ****************************************************
 
   @override
-  Future<void> emitDeleteMessage(int serverId) async {
+  Future<void> emitDeleteMessage(String serverId) async {
     final message =
         await _databaseRepository.getMessageByServerId(serverId.toString());
     if (message != null) {
@@ -438,5 +464,25 @@ class ChatServiceImpl implements IChatService {
     }
     _logger.e(
         "Failed to delete message with serverId : $id, because id was not found locally");
+  }
+
+  @override
+  Future<void> receiveMessagesOnSocketConnect(Map<String, dynamic> json) async {
+    final data = json['data'] as List;
+    //
+    final messages = data.map((e) => MessageModel.fromMap(e)).toList();
+    for (var i = 0; i < messages.length; i++) {
+      final message = messages[i];
+      if (message.messageType == MessageType.text) {
+        await _databaseRepository.insertMessage(message);
+        final savedMessage =
+            await _databaseRepository.getMessageById(message.id!);
+        if (savedMessage != null) {
+          emitMessageDelivered(savedMessage.serverId!);
+        }
+        _logger.e("Message with ID: ${message.id} not found");
+      }
+      // TODO: Handle Downloading of messages
+    }
   }
 }

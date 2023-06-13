@@ -46,7 +46,7 @@ abstract class DatabaseRepository {
   /// Updates a list of messages on the `messages` table.
   Future<void> updateAllMessages(List<MessageModel> messages);
   Future<void> updateMessagesStatusByServerId(
-      List<int> serverIds, String status);
+      List<String> serverIds, String status);
 
 // * * * * * * * * * * * * * DELETE * * * * * * * * * * * *
 
@@ -66,6 +66,10 @@ abstract class DatabaseRepository {
 
   /// get message with [localId]
   Future<MessageModel?> getMessageByLocalId(String localId);
+
+  Future<List<MessageModel>> getAllUnsentMessages(
+    String userId,
+  );
 
   /// get message with [serverid]
   Future<MessageModel?> getMessageByServerId(String serverId);

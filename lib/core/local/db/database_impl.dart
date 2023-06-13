@@ -377,7 +377,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
 
   @override
   Future<void> updateMessagesStatusByServerId(
-      List<int> serverIds, String status) async {
+      List<String> serverIds, String status) async {
     for (var i = 0; i < serverIds.length; i++) {
       final id = serverIds[i];
       _logger.d("Update Status for message with ID :: $id to $status");
@@ -388,5 +388,24 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
             id,
           ]);
     }
+  }
+
+  @override
+  Future<List<MessageModel>> getAllUnsentMessages(String userId) async {
+    final data = await _streamDatabase.rawQuery(
+      '''
+        SELECT * FROM ${DBConstants.messageTable}
+        WHERE ${MessageField.status} = ? AND ${MessageField.sender} = ?
+     ''',
+      [
+        MessageStatus.unsent,
+        userId,
+      ],
+    );
+    if (data.isEmpty) {
+      return [];
+    }
+
+    return data.map((e) => MessageModel.fromDB(e)).toList();
   }
 }

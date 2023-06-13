@@ -11,7 +11,7 @@ class MessageModel extends Equatable {
   final String? id;
   final String? content;
   final String localId;
-  final int? serverId;
+  final String? serverId;
   final DateTime createdAt;
   final DateTime updatedAt;
   final String status;
@@ -56,7 +56,7 @@ class MessageModel extends Equatable {
     String? id,
     String? content,
     String? localId,
-    int? serverId,
+    String? serverId,
     DateTime? createdAt,
     DateTime? updatedAt,
     String? status,

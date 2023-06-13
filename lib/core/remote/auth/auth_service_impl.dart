@@ -6,7 +6,6 @@ import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
 import 'package:harmony_chat_demo/utils/utils.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../models/models.dart';
 
@@ -61,19 +60,19 @@ class AuthServiceImpl implements IAuthService {
       await _localCache.saveToken(token);
       await _localCache.saveUserData(_currentUser!.toMap());
 
-      final contacts = connections
-          .map(
-            (e) => ContactModel(
-              avatarUrl: e['avatar']['url'],
-              firstName: e['firstName'],
-              lastName: e['lastName'],
-              occupation: '',
-              id: const Uuid().v4(),
-              serverId: e['id'],
-            ),
-          )
-          .toList();
-      await _contactService.insertAllContacts(contacts);
+      // final contacts = connections
+      //     .map(
+      //       (e) => ContactModel(
+      //         avatarUrl: e['avatar']['url'],
+      //         firstName: e['firstName'],
+      //         lastName: e['lastName'],
+      //         occupation: '',
+      //         id: const Uuid().v4(),
+      //         serverId: e['id'],
+      //       ),
+      //     )
+      //     .toList();
+      // await _contactService.insertAllContacts(contacts);
     }
   }
 
