@@ -360,7 +360,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Future<List<MessageModel>> getMessagesWithReceiverByStatus({
+  Future<List<MessageModel>> getMessagesWithUserByStatus({
     required String sender,
     required String receiver,
     required String status,
@@ -378,16 +378,15 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   @override
   Future<void> updateMessagesStatusByServerId(
       List<String> serverIds, String status) async {
-    for (var i = 0; i < serverIds.length; i++) {
-      final id = serverIds[i];
-      _logger.d("Update Status for message with ID :: $id to $status");
-      await _streamDatabase.rawUpdate(
-          'UPDATE ${DBConstants.messageTable} SET ${MessageField.status} = ? WHERE ${MessageField.serverId} = ?',
-          [
-            status,
-            id,
-          ]);
-    }
+    // ${serverIds.map((_) => '?').join(', ')
+    await _database.rawUpdate(
+      '''
+        UPDATE ${DBConstants.messageTable} 
+        SET ${MessageField.status} = ? 
+        WHERE  ${MessageField.serverId} IN (${serverIds.map((_) => '?').join(', ')})
+      ''',
+      [status, ...serverIds],
+    );
   }
 
   @override

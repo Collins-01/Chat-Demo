@@ -50,6 +50,7 @@ class MessagesSection extends ConsumerWidget {
                     (index) => Builder(
                       builder: (context) {
                         final message = snapshot.data![index];
+                        bool isSender = message.sender == _authService.user!.id;
                         if (message.isDeleted) {
                           return AppText.body("This message is deleted");
                         }
@@ -59,7 +60,7 @@ class MessagesSection extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 BubbleNormalAudio(
-                                  isSender: message.sender == userId,
+                                  isSender: isSender,
                                   color: const Color(0xFFE8E8EE),
                                   duration:
                                       model.duration?.inSeconds.toDouble(),
@@ -70,10 +71,16 @@ class MessagesSection extends ConsumerWidget {
                                   onSeekChanged: (value) {},
                                   onPlayPauseButtonClick: () =>
                                       model.onPlayPauseButtonClick(),
-                                  sent: message.status == MessageStatus.sent,
-                                  delivered:
-                                      message.status == MessageStatus.delivered,
-                                  seen: message.status == MessageStatus.read,
+                                  sent: !isSender
+                                      ? false
+                                      : message.status == MessageStatus.sent,
+                                  delivered: !isSender
+                                      ? false
+                                      : message.status ==
+                                          MessageStatus.delivered,
+                                  seen: !isSender
+                                      ? false
+                                      : message.status == MessageStatus.read,
                                   tail: true,
                                 ),
                                 const SizedBox(
@@ -96,16 +103,19 @@ class MessagesSection extends ConsumerWidget {
 
                           case MessageType.text:
                             return BubbleNormal(
-                              seen: snapshot.data![index].status ==
-                                  MessageStatus.read,
-                              delivered: snapshot.data![index].status ==
-                                  MessageStatus.delivered,
+                              seen: !isSender
+                                  ? false
+                                  : message.status == MessageStatus.read,
+                              delivered: !isSender
+                                  ? false
+                                  : message.status == MessageStatus.delivered,
                               text: snapshot.data![index].content!,
-                              isSender: snapshot.data![index].sender == userId,
+                              isSender: isSender,
                               color: const Color(0xFFE8E8EE),
                               tail: true,
-                              sent: snapshot.data![index].status ==
-                                  MessageStatus.sent,
+                              sent: !isSender
+                                  ? false
+                                  : message.status == MessageStatus.sent,
                             );
 
                           case MessageType.image:
@@ -114,15 +124,22 @@ class MessagesSection extends ConsumerWidget {
                               children: [
                                 BubbleNormalImage(
                                   id: message.id!,
-                                  isSender: message.sender == userId,
-                                  seen: message.status == MessageStatus.read,
-                                  sent: message.status == MessageStatus.sent,
-                                  image:
-                                      Image.file(File(message.localMediaPath!)),
+                                  isSender: isSender,
+                                  seen: !isSender
+                                      ? false
+                                      : message.status == MessageStatus.read,
+                                  sent: !isSender
+                                      ? false
+                                      : message.status == MessageStatus.sent,
+                                  image: Image.file(
+                                    File(message.localMediaPath!),
+                                  ),
                                   color: Colors.purpleAccent,
                                   tail: true,
-                                  delivered:
-                                      message.status == MessageStatus.delivered,
+                                  delivered: !isSender
+                                      ? false
+                                      : message.status ==
+                                          MessageStatus.delivered,
                                 ),
                                 const SizedBox(
                                   height: 5,
@@ -137,23 +154,27 @@ class MessagesSection extends ConsumerWidget {
                                     ? AppText.caption(
                                         (message.isUploadingMedia!)
                                             ? 'Uploading...'
-                                            : "")
+                                            : "",
+                                      )
                                     : const SizedBox.shrink(),
                               ],
                             );
 
                           default:
                             return BubbleNormal(
-                              seen: snapshot.data![index].status ==
-                                  MessageStatus.read,
-                              delivered: snapshot.data![index].status ==
-                                  MessageStatus.delivered,
-                              text: snapshot.data![index].content!,
-                              isSender: snapshot.data![index].sender == userId,
+                              seen: !isSender
+                                  ? false
+                                  : message.status == MessageStatus.read,
+                              delivered: !isSender
+                                  ? false
+                                  : message.status == MessageStatus.delivered,
+                              text: message.content!,
+                              isSender: isSender,
                               color: const Color(0xFFE8E8EE),
                               tail: true,
-                              sent: snapshot.data![index].status ==
-                                  MessageStatus.sent,
+                              sent: !isSender
+                                  ? false
+                                  : message.status == MessageStatus.sent,
                             );
                         }
                       },

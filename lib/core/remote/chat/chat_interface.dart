@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:harmony_chat_demo/core/models/models.dart';
 
@@ -47,4 +48,6 @@ abstract class IChatService {
 
   Stream<List<MessageModel>> watchMessagesWithContact(ContactModel contact);
   Stream<List<MessageInfoModel>> getMyLastConversations();
+
+  StreamController<ContactModel?> get currentChat;
 }

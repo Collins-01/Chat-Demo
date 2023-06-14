@@ -22,10 +22,14 @@ class ChatView extends ConsumerStatefulWidget {
 class _ChatViewState extends ConsumerState<ChatView> {
   @override
   void initState() {
-    ref
-        .read(chatViewViewModel.notifier)
-        .onModelReady(widget.contactModel.serverId);
+    ref.read(chatViewViewModel.notifier).onModelReady(widget.contactModel);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    ref.read(chatViewViewModel.notifier).onModelDisposed();
+    super.dispose();
   }
 
   @override

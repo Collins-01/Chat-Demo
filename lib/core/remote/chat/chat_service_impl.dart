@@ -49,6 +49,9 @@ class ChatServiceImpl implements IChatService {
   final String _messageBulkReadAck = 'BULK_READ_ACK';
   final String _onConnectMessagesEvent = 'ON_CONNECT_MESSAGES';
 
+  final StreamController<ContactModel?> _currentChat =
+      StreamController<ContactModel?>.broadcast(sync: false);
+
   @override
   Future<void> init() async {
     _socket = io('${NetworkClient.baseUrl}/messaging', {
@@ -126,6 +129,13 @@ class ChatServiceImpl implements IChatService {
     _socket.on(_messageBulkReadAck, (data) {
       _logger.i("_messageBulkReadAck ==> ${data.toString()}");
       onBulkRead(data);
+    });
+    final currentChatStream = _currentChat.stream;
+    currentChatStream.listen((value) {
+      if (value != null) {
+        //Emit Read for messages with status 'delivered' using the contact's serverId as the receiverId
+        emitBulkRead(value.serverId);
+      }
     });
     _socket.connect();
     _logger.d("Socket Connected::: ${_socket.connected}");
@@ -327,9 +337,8 @@ class ChatServiceImpl implements IChatService {
   Future<void> onMessageReceived(Map<String, dynamic> json) async {
     final data = json['data'];
     final MessageModel message = MessageModel.onReceivedFromMap(data);
-    await _databaseRepository.insertMessage(message).then((value) async {
-      await emitMessageDelivered(message.serverId!);
-    });
+    await _databaseRepository.insertMessage(message);
+    await emitMessageDelivered(message.serverId!);
 
     if (message.messageType != MessageType.text) {
       final savedMessage =
@@ -408,16 +417,15 @@ class ChatServiceImpl implements IChatService {
 
   @override
   Future<void> emitBulkRead(String receiverId) async {
-    final messages = await _databaseRepository.getMessagesWithReceiverByStatus(
+    final messages = await _databaseRepository.getMessagesWithUserByStatus(
       sender: _authService.user!.id,
       receiver: receiverId,
       status: MessageStatus.delivered,
     );
     if (messages.isNotEmpty) {
       final ids = messages.map((e) => e.serverId!).toList();
-      _socket.emit(_messageBulkRead, {
-        "server_ids": ids,
-      });
+      _socket.emit(_messageBulkRead,
+          {"server_ids": ids, "sender_id": messages[0].sender});
     }
     return;
   }
@@ -485,4 +493,7 @@ class ChatServiceImpl implements IChatService {
       // TODO: Handle Downloading of messages
     }
   }
+
+  @override
+  StreamController<ContactModel?> get currentChat => _currentChat;
 }

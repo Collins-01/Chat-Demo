@@ -101,7 +101,7 @@ abstract class DatabaseRepository {
     required String contactId,
   });
 
-  Future<List<MessageModel>> getMessagesWithReceiverByStatus({
+  Future<List<MessageModel>> getMessagesWithUserByStatus({
     required String sender,
     required String receiver,
     required String status,
