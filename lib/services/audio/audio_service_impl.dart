@@ -26,11 +26,13 @@ class AudioServiceImpl implements IAudioService {
     final dir = await getApplicationDocumentsDirectory();
     final timeInMillisecs = DateTime.now().millisecondsSinceEpoch;
 
-    final path = "${dir.path}/media/VN_$timeInMillisecs.m4a";
+    final path =
+        "${dir.path}${MediaConstants.AUDIO_PATH}VN_$timeInMillisecs.m4a";
     _logger.i('Path to Audio file:: $path');
     return path;
   }
 
+  Duration? _duration;
   @override
   bool get isPlaying => throw UnimplementedError();
 
@@ -45,11 +47,12 @@ class AudioServiceImpl implements IAudioService {
   @override
   Future<void> playAudio() async {
     await _audioPlayer.stop();
-    var duration = await _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(
-        'https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3')));
+    var dur = await _audioPlayer.setUrl(_currentAudioPath);
     await _audioPlayer.play();
 
-    if (duration != null) {}
+    if (dur != null) {
+      _duration = dur;
+    }
     _logger.e("No Duration found for audio with path: $_currentAudioPath");
   }
 
@@ -60,7 +63,9 @@ class AudioServiceImpl implements IAudioService {
     if (isPermitted) {
       var path = await _recordingOutputPath;
       _currentAudioPath = path;
-      await Record.start(path: path);
+      await Record.start(
+        path: path,
+      );
       _isRecordingStream.add(true);
     }
     return;
@@ -85,5 +90,5 @@ class AudioServiceImpl implements IAudioService {
       _audioPlayer.createPositionStream().asBroadcastStream();
 
   @override
-  Duration? get duration => _audioPlayer.duration;
+  Duration? get duration => _duration;
 }

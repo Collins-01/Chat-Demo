@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:harmony_chat_demo/core/models/file_upload_model.dart';
+import 'package:harmony_chat_demo/core/models/message_type.dart';
 import 'package:harmony_chat_demo/core/network_service/network_client.dart';
 import 'dart:io';
 // ignore: depend_on_referenced_packages
@@ -14,7 +15,6 @@ class FileServiceImpl implements IFileService {
   @override
   Future<FileUploadModel> uploadFile(File file, String mediaType) async {
     try {
-      await Future.delayed(const Duration(seconds: 2));
       var result = await _client.uploadFile(
         uri: '/messaging/upload-file',
         body: {'type': mediaType},
@@ -33,19 +33,21 @@ class FileServiceImpl implements IFileService {
   }
 
   @override
-  Future<String?> downloadFile(String url) async {
+  Future<String?> downloadFile(String url, String type) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
       String fileName = DateTime.now().millisecondsSinceEpoch.toString();
       final fileExtension = url.split(".").last;
-      final filePath = '$dir/media/$fileName.$fileExtension';
+      final filePath = type == MessageType.audio
+          ? '$dir${MediaConstants.AUDIO_PATH}$fileName.$fileExtension'
+          : '$dir/media/$fileName.$fileExtension';
       final r = await NetworkClient.dio.get(
         url,
         options: Options(responseType: ResponseType.bytes),
       );
       File file = File(filePath);
       await file.writeAsBytes(r.data);
-      print('File downloaded and saved successfully.');
+      _logger.d('File downloaded and saved successfully.');
       return file.path;
     } catch (e) {
       _logger.e("Error Downloading file :: $e");

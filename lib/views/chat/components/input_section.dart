@@ -110,12 +110,12 @@ class _InputSectionState extends ConsumerState<InputSection> {
                     if (isRecording) {
                       model.stopRecord(widget.contactModel);
                     } else {
-                      model.stopRecord(widget.contactModel);
+                      model.recordAudio();
                     }
                   },
                   icon: Icon(
                     isRecording ? Icons.stop_rounded : Icons.mic,
-                    color: isRecording ? Colors.red : Colors.white,
+                    color: isRecording ? Colors.red : Colors.blue,
                   ),
                 );
               } else {

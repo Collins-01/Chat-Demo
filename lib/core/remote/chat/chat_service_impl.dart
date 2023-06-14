@@ -208,9 +208,10 @@ class ChatServiceImpl implements IChatService {
           functionName: '_sendAudioMessage');
       return;
     }
-    await _databaseRepository
-        .updateMessage(savedMsg.copyWith(isUploadingMedia: true));
+
     try {
+      await _databaseRepository
+          .updateMessage(savedMsg.copyWith(isUploadingMedia: true));
       final uploadResponse =
           await _fileService.uploadFile(audioFile, MediaType.audio);
       await _databaseRepository.updateMessage(
@@ -230,7 +231,9 @@ class ChatServiceImpl implements IChatService {
       );
     } catch (e) {
       await _databaseRepository.updateMessage(savedMsg.copyWith(
-          isUploadingMedia: false, failedToUploadMedia: true));
+        isUploadingMedia: false,
+        failedToUploadMedia: true,
+      ));
     }
   }
 
@@ -349,8 +352,7 @@ class ChatServiceImpl implements IChatService {
       }
       savedMessage.copyWith(isDownloadingMedia: true);
       final localMediaPath = await _fileService.downloadFile(
-        message.mediaUrl!,
-      );
+          message.mediaUrl!, message.messageType);
       if (localMediaPath != null) {
         savedMessage.copyWith(
           isDownloadingMedia: false,
