@@ -326,7 +326,7 @@ class ChatServiceImpl implements IChatService {
   @override
   Future<void> onMessageReceived(Map<String, dynamic> json) async {
     final data = json['data'];
-    final MessageModel message = MessageModel.fromMap(data);
+    final MessageModel message = MessageModel.onReceivedFromMap(data);
     await _databaseRepository.insertMessage(message).then((value) async {
       await emitMessageDelivered(message.serverId!);
     });

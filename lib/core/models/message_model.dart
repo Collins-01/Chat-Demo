@@ -134,6 +134,25 @@ class MessageModel extends Equatable {
     );
   }
 
+  factory MessageModel.onReceivedFromMap(Map<String, dynamic> data) {
+    return MessageModel(
+      createdAt: DateTime
+          .now(), //TODO: Will convert to  Dart's defined DateTime later . [created_at]
+      localId: data['local_id'], //✅
+      receiver: data['receiver'], //✅
+      sender: data['sender'], //✅
+      id: const Uuid().v4(),
+      updatedAt: DateTime
+          .now(), //TODO: Will convert to Dart's defined DateTime.  later. [updated_at]
+      content: data['content'], //✅
+      status: MessageStatus.delivered, //✅
+      messageType: data['message_type'], //✅
+      serverId: data['server_id'], //✅
+      mediaUrl: data['media_url'], //✅
+      mediaId: data['media_id'],
+    );
+  }
+
   String toJson() => json.encode(toMap());
 
   factory MessageModel.fromJson(String source) =>
