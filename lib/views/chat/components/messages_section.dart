@@ -1,14 +1,11 @@
-import 'dart:io';
-
-import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
-import 'package:harmony_chat_demo/core/models/message_status.dart';
 import 'package:harmony_chat_demo/core/models/message_type.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
+import 'package:harmony_chat_demo/views/chat/components/components.dart';
 import 'package:harmony_chat_demo/views/chat/viewmodels/message_section_viewmodel.dart';
 import 'package:harmony_chat_demo/views/widgets/app_text.dart';
 
@@ -16,8 +13,10 @@ final IAuthService _authService = locator();
 
 // ignore: must_be_immutable
 class MessagesSection extends ConsumerWidget {
+  ScrollController? controller;
   final ContactModel contactModel;
-  MessagesSection(this.contactModel, {Key? key}) : super(key: key);
+  MessagesSection(this.contactModel, this.controller, {Key? key})
+      : super(key: key);
 
   bool isLoading = false;
   final userId = _authService.user!.id;
@@ -39,10 +38,11 @@ class MessagesSection extends ConsumerWidget {
             return const Text("Snapshot data is null");
           }
           if (snapshot.data!.isEmpty) {
-            return const Text("Snapshot data is empty");
+            return const Center(child: Text("Snapshot data is empty"));
           }
           return Expanded(
             child: SingleChildScrollView(
+              controller: controller,
               child: Column(
                 children: [
                   ...List.generate(
@@ -56,126 +56,25 @@ class MessagesSection extends ConsumerWidget {
                         }
                         switch (message.messageType) {
                           case MessageType.audio:
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                BubbleNormalAudio(
-                                  isSender: isSender,
-                                  color: const Color(0xFFE8E8EE),
-                                  duration:
-                                      model.duration?.inSeconds.toDouble(),
-                                  position: model.position,
-                                  isPlaying: model.isPlaying,
-                                  isLoading: true,
-                                  isPause: !model.isPlaying,
-                                  onSeekChanged: (value) {},
-                                  onPlayPauseButtonClick: () =>
-                                      model.onPlayPauseButtonClick(),
-                                  sent: !isSender
-                                      ? false
-                                      : message.status == MessageStatus.sent,
-                                  delivered: !isSender
-                                      ? false
-                                      : message.status ==
-                                          MessageStatus.delivered,
-                                  seen: !isSender
-                                      ? false
-                                      : message.status == MessageStatus.read,
-                                  tail: true,
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                message.isDownloadingMedia != null
-                                    ? AppText.caption(
-                                        (message.isDownloadingMedia!)
-                                            ? 'Downloading...'
-                                            : "")
-                                    : const SizedBox.shrink(),
-                                message.isUploadingMedia != null
-                                    ? AppText.caption(
-                                        (message.isUploadingMedia!)
-                                            ? 'Uploading...'
-                                            : "")
-                                    : const SizedBox.shrink(),
-                              ],
+                            return AudioBubble(
+                              message: message,
+                              isSender: isSender,
+                              isPlaying: model.isPlaying,
+                              onPlayPauseButtonClick:
+                                  model.onPlayPauseButtonClick(),
                             );
 
                           case MessageType.text:
-                            return BubbleNormal(
-                              seen: !isSender
-                                  ? false
-                                  : message.status == MessageStatus.read,
-                              delivered: !isSender
-                                  ? false
-                                  : message.status == MessageStatus.delivered,
-                              text: snapshot.data![index].content!,
-                              isSender: isSender,
-                              color: const Color(0xFFE8E8EE),
-                              tail: true,
-                              sent: !isSender
-                                  ? false
-                                  : message.status == MessageStatus.sent,
-                            );
+                            return TextBubble(
+                                message: message, isSender: isSender);
 
                           case MessageType.image:
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                BubbleNormalImage(
-                                  id: message.id!,
-                                  isSender: isSender,
-                                  seen: !isSender
-                                      ? false
-                                      : message.status == MessageStatus.read,
-                                  sent: !isSender
-                                      ? false
-                                      : message.status == MessageStatus.sent,
-                                  image: Image.file(
-                                    File(message.localMediaPath!),
-                                  ),
-                                  color: Colors.purpleAccent,
-                                  tail: true,
-                                  delivered: !isSender
-                                      ? false
-                                      : message.status ==
-                                          MessageStatus.delivered,
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                message.isDownloadingMedia != null
-                                    ? AppText.caption(
-                                        (message.isDownloadingMedia!)
-                                            ? 'Downloading...'
-                                            : "")
-                                    : const SizedBox.shrink(),
-                                message.isUploadingMedia != null
-                                    ? AppText.caption(
-                                        (message.isUploadingMedia!)
-                                            ? 'Uploading...'
-                                            : "",
-                                      )
-                                    : const SizedBox.shrink(),
-                              ],
-                            );
+                            return ImageBubble(
+                                message: message, isSender: isSender);
 
                           default:
-                            return BubbleNormal(
-                              seen: !isSender
-                                  ? false
-                                  : message.status == MessageStatus.read,
-                              delivered: !isSender
-                                  ? false
-                                  : message.status == MessageStatus.delivered,
-                              text: message.content!,
-                              isSender: isSender,
-                              color: const Color(0xFFE8E8EE),
-                              tail: true,
-                              sent: !isSender
-                                  ? false
-                                  : message.status == MessageStatus.sent,
-                            );
+                            return TextBubble(
+                                message: message, isSender: isSender);
                         }
                       },
                     ),

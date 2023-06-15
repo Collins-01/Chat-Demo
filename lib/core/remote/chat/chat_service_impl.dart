@@ -246,11 +246,8 @@ class ChatServiceImpl implements IChatService {
         "receiverContact Id not found in local db",
       );
     }
-    final localMediaPath =
-        await _fileService.copyFileToApplicationDirectory(imageFile);
-    await _databaseRepository.insertMessage(
-      message.copyWith(localMediaPath: localMediaPath),
-    );
+
+    await _databaseRepository.insertMessage(message);
     var savedMsg = await _databaseRepository.getMessageById(message.id!);
     if (savedMsg == null) {
       _logger.e(
@@ -279,8 +276,11 @@ class ChatServiceImpl implements IChatService {
         },
       );
     } catch (e) {
+      _logger.e("Error uploading image file ::: $e");
       await _databaseRepository.updateMessage(savedMsg.copyWith(
-          isUploadingMedia: false, failedToUploadMedia: true));
+        isUploadingMedia: false,
+        failedToUploadMedia: true,
+      ));
     }
   }
 

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:harmony_chat_demo/core/models/file_upload_model.dart';
-import 'package:harmony_chat_demo/core/models/message_type.dart';
+import 'package:harmony_chat_demo/core/models/media_type.dart';
 import 'package:harmony_chat_demo/core/network_service/network_client.dart';
 import 'dart:io';
 // ignore: depend_on_referenced_packages
@@ -14,6 +14,7 @@ class FileServiceImpl implements IFileService {
   final _logger = appLogger(FileServiceImpl);
   @override
   Future<FileUploadModel> uploadFile(File file, String mediaType) async {
+    _logger.d("Uploading file from path::: ${file.path}");
     try {
       var result = await _client.uploadFile(
         uri: '/messaging/upload-file',
@@ -28,6 +29,7 @@ class FileServiceImpl implements IFileService {
         data,
       );
     } catch (e) {
+      _logger.e("Error Uploading file:: $e");
       rethrow;
     }
   }
@@ -36,19 +38,23 @@ class FileServiceImpl implements IFileService {
   Future<String?> downloadFile(String url, String type) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      final fileExtension = url.split(".").last;
-      final filePath = type == MessageType.audio
-          ? '$dir${MediaConstants.AUDIO_PATH}$fileName.$fileExtension'
-          : '$dir/media/$fileName.$fileExtension';
-      final r = await NetworkClient.dio.get(
-        url,
-        options: Options(responseType: ResponseType.bytes),
-      );
-      File file = File(filePath);
-      await file.writeAsBytes(r.data);
-      _logger.d('File downloaded and saved successfully.');
-      return file.path;
+      if (type == MediaType.image) {
+        final imagePath = dir.path + MediaConstants.IMAGE_PATH;
+        final fileExtension = url.split(".").last;
+        String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+        File newFile = File('$imagePath$fileName.$fileExtension');
+        final response = await NetworkClient.dio.get(
+          url,
+          options: Options(responseType: ResponseType.bytes),
+        );
+        var raf = newFile.openSync(mode: FileMode.write);
+
+        raf.writeFromSync(response.data);
+        await raf.close();
+        _logger.d('File downloaded and saved successfully.');
+        return newFile.path;
+      }
+      return null;
     } catch (e) {
       _logger.e("Error Downloading file :: $e");
       return null;

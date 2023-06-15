@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
-import 'package:harmony_chat_demo/views/chat/components/input_section.dart';
 import 'package:harmony_chat_demo/views/chat/viewmodels/chat_view_viewmodel.dart';
 
 import 'components/components.dart';
@@ -20,9 +19,19 @@ class ChatView extends ConsumerStatefulWidget {
 }
 
 class _ChatViewState extends ConsumerState<ChatView> {
+  ScrollController? controller;
   @override
   void initState() {
     ref.read(chatViewViewModel.notifier).onModelReady(widget.contactModel);
+    controller = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller!.animateTo(
+        controller!.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+
     super.initState();
   }
 
@@ -42,7 +51,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
       body: SafeArea(
         child: Column(
           children: [
-            MessagesSection(widget.contactModel),
+            MessagesSection(widget.contactModel, controller),
             InputSection(widget.contactModel),
           ],
         ),
