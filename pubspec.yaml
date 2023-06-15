@@ -60,6 +60,7 @@ dependencies:
   permission_handler: ^10.2.0
   just_audio: ^0.9.34
   timeago: ^3.4.0
+  http: ^0.13.5
 
   
 

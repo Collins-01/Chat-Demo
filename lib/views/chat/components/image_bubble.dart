@@ -21,19 +21,15 @@ class ImageBubble extends StatelessWidget {
     return Column(
       children: [
         //* This stack is for assumption that the images is being uploaded or failed to be uploaded
-        if (isSender)
-          SenderImageBubble(
-            isSender: isSender,
-            message: message,
-          ),
-        // * If it is not the sender.
-        // * Check if its downloading
-        // * Check if it has been downloaded already
-        // * Check if it failed to download
-        ReceiverImageBubble(
-          isSender: isSender,
-          message: message,
-        ),
+        isSender
+            ? SenderImageBubble(
+                isSender: isSender,
+                message: message,
+              )
+            : ReceiverImageBubble(
+                isSender: isSender,
+                message: message,
+              ),
         AppText.caption("${message.updatedAt.hour}:${message.updatedAt.minute}")
       ],
     );
