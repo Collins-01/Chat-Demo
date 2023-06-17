@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:harmony_chat_demo/core/local/cache/local.dart';
+import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/network_service/network_client.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
@@ -14,6 +15,7 @@ class AuthServiceImpl implements IAuthService {
   final _logger = appLogger(AuthServiceImpl);
   late final LocalCache _localCache;
   late final IContactService _contactService;
+  late final DatabaseRepository _databaseRepository;
   // late final IChatService _chatService;
   final String path = '/authentication/';
   final NetworkClient _networkClient = NetworkClient.instance;
@@ -23,9 +25,11 @@ class AuthServiceImpl implements IAuthService {
 
   AuthServiceImpl({
     LocalCache? localCache,
+    DatabaseRepository? databaseRepository,
     IContactService? contactService,
     IChatService? chatService,
   })  : _localCache = localCache ?? locator(),
+        _databaseRepository = databaseRepository ?? locator(),
         _contactService = contactService ?? locator();
   // _chatService = chatService ?? locator();
 
@@ -55,7 +59,8 @@ class AuthServiceImpl implements IAuthService {
     _accessToken = token;
     _refreshToken = refreshToken;
     _currentUser = UserModel.fromMap(user);
-
+    await _databaseRepository.deleteDB();
+    await _databaseRepository.initializeDB();
     if (_currentUser!.isBioCreated) {
       _logger.w("User created Bio");
       await _localCache.saveToken(token);
@@ -74,6 +79,8 @@ class AuthServiceImpl implements IAuthService {
           )
           .toList();
       await _contactService.insertAllContacts(contacts);
+
+      // * Insert Messages also...
     }
   }
 
@@ -121,6 +128,7 @@ class AuthServiceImpl implements IAuthService {
     if (user != null && token != null) {
       _accessToken = token;
       _currentUser = UserModel.fromMap(user);
+      await _databaseRepository.initializeDB();
       successCallback?.call();
     } else {
       errorCallback?.call();

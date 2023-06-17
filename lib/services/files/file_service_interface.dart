@@ -8,4 +8,6 @@ abstract class IFileService {
   Future<String?> downloadFile(String url, String type);
 
   Future<String> copyFileToApplicationDirectory(File file);
+
+  Future<String> saveFile(File file, String type);
 }

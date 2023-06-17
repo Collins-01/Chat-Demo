@@ -27,7 +27,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
     final documentDirectory = await getDatabasesPath();
     // Create a path for the database, with the name of the database from the db_constants.
     final path = join(documentDirectory, DBConstants.databaseName);
-    _logger.i("Path to created database ::: $path ");
+    // _logger.i("Path to created database ::: $path ");
     return openDatabase(path,
         version: DBConstants.dbVersion, onCreate: _onCreateDatabase);
   }
@@ -60,7 +60,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   Future<void> insertAllContacts(List<ContactModel> contacts) async {
     final batch = _streamDatabase.batch();
     for (var contact in contacts) {
-      _logger.i(contact.toString());
+      // _logger.i(contact.toString());
       batch.insert(DBConstants.contactTable, contact.mapToDB());
     }
     batch.commit(noResult: true);
@@ -321,7 +321,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
           ''',
       [id, id, id, id],
     ).mapToList((row) {
-      _logger.d("Watching recent conversations :: ${row.toString()}");
+      // _logger.d("Watching recent conversations :: ${row.toString()}");
       return MessageInfoModel.fromDB(row);
     });
   }

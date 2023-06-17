@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/services/audio/audio_service_interface.dart';
-import 'package:harmony_chat_demo/services/permissions/permission_interface.dart';
+import 'package:harmony_chat_demo/services/files/file_service_interface.dart';
 import 'package:harmony_chat_demo/utils/utils.dart';
 import 'package:just_audio/just_audio.dart';
 // ignore: depend_on_referenced_packages
@@ -13,16 +13,30 @@ import 'package:rxdart/subjects.dart';
 class AudioServiceImpl implements IAudioService {
   final _logger = appLogger(AudioServiceImpl);
 
-  late final IPermissionService _permissionService;
+  late final IFileService _fileService;
 
-  AudioServiceImpl({IPermissionService? permissionService})
-      : _permissionService = permissionService ?? locator();
+  AudioServiceImpl({IFileService? fileService})
+      : _fileService = fileService ?? locator();
 
   String _currentAudioPath = '';
   final _audioPlayer = AudioPlayer();
   final BehaviorSubject<bool> _isRecordingStream =
       BehaviorSubject.seeded(false);
+
+  _handleDirectoryCheck() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final fileDirectory = "$dir${MediaConstants.AUDIO_PATH}";
+    if (await Directory(fileDirectory).exists()) {
+      _logger.i("Directory exists: $fileDirectory");
+      return;
+    } else {
+      await Directory(fileDirectory).create(recursive: true);
+      _logger.d("Directory does not exist, creating audio directory........");
+    }
+  }
+
   Future<String> get _recordingOutputPath async {
+    await _handleDirectoryCheck();
     final dir = await getApplicationDocumentsDirectory();
     final timeInMillisecs = DateTime.now().millisecondsSinceEpoch;
 

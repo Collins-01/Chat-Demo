@@ -7,6 +7,9 @@ abstract class IChatService {
   /// It should initialize the Database and the Socket.
   Future<void> init();
 
+  Future<void> reUploadMedia(MessageModel message);
+  Future<void> reDownloadMedia(MessageModel message);
+
   ///[deleteDatabase] method is used to delete the database from the device.
 
 //* * * * * * * * * * * * * * * * * ON EVENTS  * * * * * * * * * * * *

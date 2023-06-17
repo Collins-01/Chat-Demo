@@ -217,8 +217,8 @@ class ChatServiceImpl implements IChatService {
       await _databaseRepository.updateMessage(
         savedMsg.copyWith(
           mediaUrl: uploadResponse.mediaUrl,
-          mediaId: uploadResponse.mediaId,
           isUploadingMedia: false,
+          mediaId: uploadResponse.mediaId,
         ),
       );
       _socket.emit(
@@ -246,7 +246,6 @@ class ChatServiceImpl implements IChatService {
         "receiverContact Id not found in local db",
       );
     }
-
     await _databaseRepository.insertMessage(message);
     var savedMsg = await _databaseRepository.getMessageById(message.id!);
     if (savedMsg == null) {
@@ -426,8 +425,13 @@ class ChatServiceImpl implements IChatService {
     );
     if (messages.isNotEmpty) {
       final ids = messages.map((e) => e.serverId!).toList();
-      _socket.emit(_messageBulkRead,
-          {"server_ids": ids, "sender_id": messages[0].sender});
+      _socket.emit(
+        _messageBulkRead,
+        {
+          "server_ids": ids,
+          "sender_id": messages[0].sender,
+        },
+      );
     }
     return;
   }
@@ -439,7 +443,9 @@ class ChatServiceImpl implements IChatService {
     final ids = data['message_ids'] as List<String>;
     if (ids.isNotEmpty) {
       await _databaseRepository.updateMessagesStatusByServerId(
-          ids, MessageStatus.read);
+        ids,
+        MessageStatus.read,
+      );
     }
     return;
   }
@@ -498,4 +504,26 @@ class ChatServiceImpl implements IChatService {
 
   @override
   StreamController<ContactModel?> get currentChat => _currentChat;
+
+  @override
+  Future<void> reDownloadMedia(MessageModel message) async {
+    // TODO: implement reDownloadMedia
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> reUploadMedia(MessageModel message) async {
+    final File file = File(message.localMediaPath!);
+    await _databaseRepository.updateMessage(
+      message.copyWith(failedToUploadMedia: false, isUploadingMedia: true),
+    );
+    try {
+      final response = await _fileService.uploadFile(file, message.mediaType!);
+    } catch (e) {
+      _logger.e("Error Re-Uploading File: $e");
+      await _databaseRepository.updateMessage(
+        message.copyWith(failedToUploadMedia: true, isUploadingMedia: false),
+      );
+    }
+  }
 }

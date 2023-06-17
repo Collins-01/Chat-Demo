@@ -45,6 +45,10 @@ class MessageSectionViewModel extends ChangeNotifier {
       await _audioService.playAudio();
     }
   }
+
+  void deleteMessage(String id) async {
+    await _chatService.emitDeleteMessage(id);
+  }
 }
 
 final messageSectionViewModel =

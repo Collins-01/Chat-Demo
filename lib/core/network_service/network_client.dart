@@ -28,9 +28,9 @@ class NetworkClient {
     var dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
-        receiveTimeout: const Duration(seconds: 15), // 15 seconds
-        connectTimeout: const Duration(seconds: 15),
-        sendTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 35), // 15 seconds
+        connectTimeout: const Duration(seconds: 35),
+        sendTimeout: const Duration(seconds: 60),
         headers: _headers,
       ),
     );

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 
 import '../navigations/navigations.dart';
 
-final DatabaseRepository _databaseRepository = locator();
 IAuthService _authService = locator();
 
 class SplashScreenView extends StatefulWidget {
@@ -17,10 +15,7 @@ class SplashScreenView extends StatefulWidget {
 
 class _SplashScreenViewState extends State<SplashScreenView> {
   _onInit() async {
-    await _databaseRepository.initializeDB();
-    // NavigationService.instance.navigateToReplace(NavigationRoutes.HOME);
     await _authService.onInit(successCallback: () async {
-      // await _databaseRepository.initializeDB();
       if (_authService.user!.isBioCreated) {
         NavigationService.instance.navigateToReplace(NavigationRoutes.HOME);
       } else {
@@ -28,8 +23,6 @@ class _SplashScreenViewState extends State<SplashScreenView> {
             .navigateToReplace(NavigationRoutes.CREATE_BIO);
       }
     }, errorCallback: () async {
-      // await _databaseRepository.initializeDB();
-
       NavigationService.instance.navigateToReplace(NavigationRoutes.LOGIN);
     });
   }

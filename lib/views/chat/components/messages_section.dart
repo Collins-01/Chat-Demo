@@ -65,8 +65,16 @@ class MessagesSection extends ConsumerWidget {
                             );
 
                           case MessageType.text:
-                            return TextBubble(
-                                message: message, isSender: isSender);
+                            return InkWell(
+                              onLongPress: () {
+                                if (message.serverId != null &&
+                                    message.sender == model.user.id) {
+                                  model.deleteMessage(message.serverId!);
+                                }
+                              },
+                              child: TextBubble(
+                                  message: message, isSender: isSender),
+                            );
 
                           case MessageType.image:
                             return ImageBubble(
