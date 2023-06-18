@@ -10,6 +10,8 @@ abstract class IChatService {
   Future<void> reUploadMedia(MessageModel message);
   Future<void> reDownloadMedia(MessageModel message);
 
+  Stream<List<MessageModel>> searchChat(String query, String receiver);
+
   ///[deleteDatabase] method is used to delete the database from the device.
 
 //* * * * * * * * * * * * * * * * * ON EVENTS  * * * * * * * * * * * *

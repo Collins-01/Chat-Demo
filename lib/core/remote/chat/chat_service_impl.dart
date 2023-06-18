@@ -537,4 +537,14 @@ class ChatServiceImpl implements IChatService {
       );
     }
   }
+
+  @override
+  Stream<List<MessageModel>> searchChat(String query, String receiver) async* {
+    final sender = _authService.user!.id;
+    yield* _databaseRepository.searchChat(
+      query,
+      sender: sender,
+      receiver: receiver,
+    );
+  }
 }

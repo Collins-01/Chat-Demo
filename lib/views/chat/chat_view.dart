@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
+import 'package:harmony_chat_demo/views/chat/search_chat_view.dart';
 import 'package:harmony_chat_demo/views/chat/viewmodels/chat_view_viewmodel.dart';
 
 import 'components/components.dart';
@@ -45,6 +46,19 @@ class _ChatViewState extends ConsumerState<ChatView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      SearchChatView(receiver: widget.contactModel.serverId),
+                ),
+              );
+            },
+            icon: const Icon(Icons.search),
+          ),
+        ],
         title: Text(
             "${widget.contactModel.lastName} ${widget.contactModel.firstName}"),
       ),

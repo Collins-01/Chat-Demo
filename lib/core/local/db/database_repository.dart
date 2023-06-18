@@ -61,6 +61,10 @@ abstract class DatabaseRepository {
 
   // * * * * * * * * * * * * * * * * * * * * *  QUERIES * * * * * * * * * * * * * * * *
 
+  ///Search for messages
+  Stream<List<MessageModel>> searchChat(String query,
+      {required String sender, required String receiver});
+
   /// get message with [id]
   Future<MessageModel?> getMessageById(String id);
 

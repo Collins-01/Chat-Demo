@@ -3,9 +3,18 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:harmony_chat_demo/core/local/constants/message_field.dart';
+import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/message_status.dart';
 import 'package:harmony_chat_demo/core/models/message_type.dart';
+import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:uuid/uuid.dart';
+
+extension XMessageModel on MessageModel {
+  bool get isMe {
+    IAuthService authService = locator();
+    return authService.user?.id == sender;
+  }
+}
 
 class MessageModel extends Equatable {
   final String? id;

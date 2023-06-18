@@ -408,4 +408,18 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
 
     return data.map((e) => MessageModel.fromDB(e)).toList();
   }
+
+  @override
+  Stream<List<MessageModel>> searchChat(String query,
+      {required String sender, required String receiver}) async* {
+    yield* _streamDatabase.createRawQuery(
+      [DBConstants.messageTable],
+      '''
+      SELECT * FROM ${DBConstants.messageTable}
+      WHERE 
+       ${MessageField.sender} = ?  AND ${MessageField.receiver} = ?  AND ${MessageField.content} LIKE '%?%';
+      ''',
+      [sender, receiver, query],
+    ).mapToList((row) => MessageModel.fromDB(row));
+  }
 }
