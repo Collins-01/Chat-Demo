@@ -3,14 +3,10 @@ import 'dart:io';
 
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
-import 'package:harmony_chat_demo/core/locator.dart';
-import 'package:harmony_chat_demo/services/files/file_service_interface.dart';
 
 import 'package:harmony_chat_demo/views/widgets/app_text.dart';
 
 import '../../../core/models/models.dart';
-
-IFileService _fileService = locator();
 
 class SenderImageBubble extends StatelessWidget {
   final MessageModel message;
@@ -50,15 +46,14 @@ class SenderImageBubble extends StatelessWidget {
         ),
         GestureDetector(
           onTap: () async {
-            await _fileService.downloadFile(message.mediaUrl!, MediaType.image);
             // * If it's failed to upload, re-upload else re-download
-            // if (message.failedToUploadMedia != null &&
-            //     message.failedToUploadMedia!) {
-            //   reUpload?.call();
-            // }
-            // if (message.isUploadingMedia != null && message.isUploadingMedia!) {
-            //   cancelUpload?.call();
-            // }
+            if (message.failedToUploadMedia != null &&
+                message.failedToUploadMedia!) {
+              reUpload?.call();
+            }
+            if (message.isUploadingMedia != null && message.isUploadingMedia!) {
+              cancelUpload?.call();
+            }
           },
           child: Builder(
             builder: (_) {

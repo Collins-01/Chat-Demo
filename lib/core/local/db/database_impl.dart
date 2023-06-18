@@ -298,13 +298,14 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
             m.${MessageField.sender},
             m.${MessageField.receiver},
             m.${MessageField.id}
+            (SELECT COUNT(*) FROM ${DBConstants.messageTable} WHERE ${MessageField.receiver} = ? AND ${MessageField.status} = ${MessageStatus.delivered}) AS unreadMessagesCount
             
             FROM 
 
             ${DBConstants.contactTable} AS c
             
             JOIN ${DBConstants.messageTable} AS m ON ( 
-              m.${MessageField.sender} = ? OR m.${MessageField.receiver} = ?
+              m.${MessageField.sender} = ?  OR  m.${MessageField.receiver} = ?
             ) 
 
             WHERE  m.${MessageField.updatedAt} = ( 
@@ -319,7 +320,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
               ORDER BY
             m.${MessageField.updatedAt} DESC;
           ''',
-      [id, id, id, id],
+      [id, id, id, id, id],
     ).mapToList((row) {
       // _logger.d("Watching recent conversations :: ${row.toString()}");
       return MessageInfoModel.fromDB(row);

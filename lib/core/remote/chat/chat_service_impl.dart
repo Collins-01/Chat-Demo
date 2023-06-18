@@ -454,8 +454,7 @@ class ChatServiceImpl implements IChatService {
 
   @override
   Future<void> emitDeleteMessage(String serverId) async {
-    final message =
-        await _databaseRepository.getMessageByServerId(serverId.toString());
+    final message = await _databaseRepository.getMessageByServerId(serverId);
     if (message != null) {
       await _databaseRepository
           .updateMessage(message.copyWith(isDeleted: true));
@@ -514,11 +513,23 @@ class ChatServiceImpl implements IChatService {
   @override
   Future<void> reUploadMedia(MessageModel message) async {
     final File file = File(message.localMediaPath!);
-    await _databaseRepository.updateMessage(
-      message.copyWith(failedToUploadMedia: false, isUploadingMedia: true),
-    );
+
     try {
+      await _databaseRepository.updateMessage(
+        message.copyWith(failedToUploadMedia: false, isUploadingMedia: true),
+      );
       final response = await _fileService.uploadFile(file, message.mediaType!);
+      _socket.emit(
+        _messageEvent,
+        () => {
+          ...message.mapToServerDB(),
+          'media_id': response.mediaId,
+          'media_url': response.mediaUrl,
+        },
+      );
+      await _databaseRepository.updateMessage(
+        message.copyWith(failedToUploadMedia: null, isUploadingMedia: false),
+      );
     } catch (e) {
       _logger.e("Error Re-Uploading File: $e");
       await _databaseRepository.updateMessage(

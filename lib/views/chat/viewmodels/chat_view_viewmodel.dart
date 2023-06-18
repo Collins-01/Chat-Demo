@@ -9,8 +9,8 @@ IChatService _chatService = locator();
 
 class ChatViewViewModel extends BaseViewModel {
   onModelReady(ContactModel contact) async {
-    await Future.delayed(const Duration(seconds: 1));
-    _chatService.emitBulkRead(contact.serverId);
+    await Future.delayed(const Duration(seconds: 2));
+    // _chatService.emitBulkRead(contact.serverId);
     _chatService.currentChat.add(contact);
   }
 

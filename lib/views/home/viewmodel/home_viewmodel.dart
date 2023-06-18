@@ -18,7 +18,7 @@ class HomeViewModel extends ChangeNotifier {
     initializeChatService();
     _chatService.getMyLastConversations().listen((event) {
       _messagesStream.add(event);
-      _logger.i("New Message :: ${event.toString()}");
+      // _logger.i("New Message :: ${event.toString()}");
     }, onError: (e) {
       _logger.e("Error Getting Latest Conversation :: ", error: e);
     });

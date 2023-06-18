@@ -78,7 +78,9 @@ class MessagesSection extends ConsumerWidget {
 
                           case MessageType.image:
                             return ImageBubble(
-                                message: message, isSender: isSender);
+                                reUpload: () => model.reUploadMedia(message),
+                                message: message,
+                                isSender: isSender);
 
                           default:
                             return TextBubble(

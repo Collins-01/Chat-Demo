@@ -10,10 +10,12 @@ import '../../../core/models/models.dart';
 class ImageBubble extends StatelessWidget {
   final MessageModel message;
   final bool isSender;
+  final void Function()? reUpload;
   const ImageBubble({
     Key? key,
     required this.message,
     required this.isSender,
+    this.reUpload,
   }) : super(key: key);
 
   @override
@@ -23,6 +25,7 @@ class ImageBubble extends StatelessWidget {
         //* This stack is for assumption that the images is being uploaded or failed to be uploaded
         isSender
             ? SenderImageBubble(
+                reUpload: reUpload,
                 isSender: isSender,
                 message: message,
               )

@@ -40,11 +40,20 @@ class MessageTile extends StatelessWidget {
       // ),
       title: AppText.bodyLarge(messageInfo.firstName),
       subtitle: AppText.body(messageInfo.message),
-      trailing: AppText.caption(
-        timeago.format(
-          messageInfo.timestamp,
+      trailing: Column(children: [
+        AppText.caption(
+          timeago.format(
+            messageInfo.timestamp,
+          ),
         ),
-      ),
+        messageInfo.isMe
+            ? AppText.caption(messageInfo.status)
+            : AppText.caption(
+                messageInfo.unreadMessages == 0
+                    ? ''
+                    : messageInfo.unreadMessages.toString(),
+              )
+      ]),
     );
   }
 }

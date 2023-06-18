@@ -49,6 +49,10 @@ class MessageSectionViewModel extends ChangeNotifier {
   void deleteMessage(String id) async {
     await _chatService.emitDeleteMessage(id);
   }
+
+  reUploadMedia(MessageModel message) async {
+    await _chatService.reDownloadMedia(message);
+  }
 }
 
 final messageSectionViewModel =
