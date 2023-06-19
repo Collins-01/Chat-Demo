@@ -20,50 +20,53 @@ class SearchChatView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var model = ref.watch(searchChatViewModel);
     return Scaffold(
-      body: Column(
-        children: [
-          TextField(
-            controller: searchController,
-            decoration: const InputDecoration(hintText: 'Search'),
-            onChanged: (value) {
-              _debouncer.run(() {
-                // * Call Method
-                model.searchChat(value, receiver);
-              });
-            },
-          ),
-          const SizedBox(
-            height: 50,
-          ),
-          Expanded(
-            child: StreamBuilder<List<MessageModel>>(
-              initialData: const [],
-              stream: model.messages,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text("Snapshot Error :: ${snapshot.error}");
-                }
-                if (!snapshot.hasData) {
-                  return const Text("Snapshot has no data");
-                }
-                if (snapshot.data == null) {
-                  return const Text("Snapshot data is null");
-                }
-                if (snapshot.data!.isEmpty) {
-                  return const Text("Snapshot data is empty");
-                }
-
-                return ListView.builder(
-                  itemBuilder: (context, index) {
-                    MessageModel message = snapshot.data![index];
-                    return TextBubble(message: message, isSender: message.isMe);
-                  },
-                  itemCount: snapshot.data!.length,
-                );
+      body: SafeArea(
+        child: Column(
+          children: [
+            TextField(
+              controller: searchController,
+              decoration: const InputDecoration(hintText: 'Search'),
+              onChanged: (value) {
+                _debouncer.run(() {
+                  // * Call Method
+                  model.searchChat(value, receiver);
+                });
               },
             ),
-          )
-        ],
+            const SizedBox(
+              height: 50,
+            ),
+            Expanded(
+              child: StreamBuilder<List<MessageModel>>(
+                initialData: const [],
+                stream: model.messages,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text("Snapshot Error :: ${snapshot.error}");
+                  }
+                  if (!snapshot.hasData) {
+                    return const Text("Snapshot has no data");
+                  }
+                  if (snapshot.data == null) {
+                    return const Text("Snapshot data is null");
+                  }
+                  if (snapshot.data!.isEmpty) {
+                    return const Text("Snapshot data is empty");
+                  }
+
+                  return ListView.builder(
+                    itemBuilder: (context, index) {
+                      MessageModel message = snapshot.data![index];
+                      return TextBubble(
+                          message: message, isSender: message.isMe);
+                    },
+                    itemCount: snapshot.data!.length,
+                  );
+                },
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

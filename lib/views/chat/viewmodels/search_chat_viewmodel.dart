@@ -15,6 +15,7 @@ class SearchChatViewModel extends BaseViewModel {
     _messages = const Stream.empty();
     final data = _chatService.searchChat(query, receiver);
     _messages = data;
+    notifyListeners();
   }
 }
 

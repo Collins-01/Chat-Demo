@@ -272,9 +272,10 @@ class ChatServiceImpl implements IChatService {
   @override
   Future<void> sendMessage(
       MessageModel message, ContactModel contact, File? file) async {
-    if (message.mediaType == MessageType.text) {
+    if (message.messageType == MessageType.text) {
       _sendTextMessage(message, contact);
     } else {
+      _logger.e("Message is not Text");
       _sendMediaMessage(message, contact, file!);
     }
   }
@@ -462,32 +463,30 @@ class ChatServiceImpl implements IChatService {
   @override
   Future<void> reDownloadMedia(MessageModel message) async {
     final savedMessage = await _databaseRepository.getMessageById(message.id!);
+    _logger
+        .d("Instance of message to re-download;::: ${savedMessage?.toMap()}");
     if (savedMessage != null) {
       await _databaseRepository
           .updateMessage(savedMessage.copyWith(isDownloadingMedia: true));
-      try {
-        final response = await _fileService.downloadFile(
-            savedMessage.mediaUrl!, savedMessage.messageType);
-        if (response != null) {
-          await _databaseRepository.updateMessage(
-            savedMessage.copyWith(
-                isDownloadingMedia: false, localMediaPath: response),
-          );
-          emitBulkRead(savedMessage.receiver);
-        }
+      final response = await _fileService.downloadFile(
+          savedMessage.mediaUrl!, savedMessage.messageType);
+      _logger.d("Response from downloading media file:::: $response",
+          functionName: "reDownloadMedia");
+      if (response != null) {
+        await _databaseRepository.updateMessage(
+          savedMessage.copyWith(
+              isDownloadingMedia: false, localMediaPath: response),
+        );
+        emitBulkRead(savedMessage.receiver);
+      } else {
         await _databaseRepository.updateMessage(
           savedMessage.copyWith(
               isDownloadingMedia: false, failedToDownloadMedia: true),
         );
-      } catch (e) {
-        await _databaseRepository.updateMessage(
-          savedMessage.copyWith(
-              isDownloadingMedia: false, failedToDownloadMedia: true),
-        );
-        _logger.e("Error Downloading media---> $e");
       }
+    } else {
+      _logger.e("Media Message to reDownload was not found...");
     }
-    _logger.e("Media Message to reDownload was not found...");
   }
 
   @override

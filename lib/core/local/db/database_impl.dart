@@ -422,7 +422,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
       '''
       SELECT * FROM ${DBConstants.messageTable}
       WHERE 
-       ${MessageField.sender} = ?  AND ${MessageField.receiver} = ?  AND ${MessageField.content} LIKE '%?%';
+       ${MessageField.sender} = ?  AND ${MessageField.receiver} = ? AND ${MessageField.isDeleted} = '0'  AND ${MessageField.content} LIKE '%?%';
       ''',
       [sender, receiver, query],
     ).mapToList((row) => MessageModel.fromDB(row));

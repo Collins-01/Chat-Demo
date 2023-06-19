@@ -53,6 +53,10 @@ class MessageSectionViewModel extends ChangeNotifier {
   reUploadMedia(MessageModel message) async {
     await _chatService.reUploadMedia(message);
   }
+
+  reDownloadMedia(MessageModel message) async {
+    await _chatService.reDownloadMedia(message);
+  }
 }
 
 final messageSectionViewModel =

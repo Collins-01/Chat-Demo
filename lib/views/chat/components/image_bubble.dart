@@ -11,11 +11,13 @@ class ImageBubble extends StatelessWidget {
   final MessageModel message;
   final bool isSender;
   final void Function()? reUpload;
+  final void Function()? reDownload;
   const ImageBubble({
     Key? key,
     required this.message,
     required this.isSender,
     this.reUpload,
+    this.reDownload,
   }) : super(key: key);
 
   @override
@@ -30,6 +32,7 @@ class ImageBubble extends StatelessWidget {
                 message: message,
               )
             : ReceiverImageBubble(
+                reDownload: reDownload,
                 isSender: isSender,
                 message: message,
               ),

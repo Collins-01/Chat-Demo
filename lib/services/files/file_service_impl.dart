@@ -55,10 +55,10 @@ class FileServiceImpl implements IFileService {
 
     switch (type) {
       case MediaType.audio:
-        return "${dir.path}/${MediaConstants.AUDIO_PATH}/";
+        return "${dir.path}${MediaConstants.AUDIO_PATH}";
 
       case MediaType.image:
-        return "${dir.path}/${MediaConstants.IMAGE_PATH}/";
+        return "${dir.path}${MediaConstants.IMAGE_PATH}";
       default:
         return '';
     }
@@ -95,21 +95,27 @@ class FileServiceImpl implements IFileService {
   Future<String?> downloadFile(String url, String type) async {
     try {
       await _checkPathForMedia(type);
-      final filePath = await _getDirectoryForFileType(type);
+      // final filePath = await _getDirectoryForFileType(type);
+      final dir = await getApplicationDocumentsDirectory();
+      final filePath = "${dir.path}/";
+      _logger.d("File path forfile to be downloaded ==== $filePath");
       final fileExtension = url.split(".").last;
       String fileName = DateTime.now().millisecondsSinceEpoch.toString();
       File newFile = File('$filePath$fileName.$fileExtension');
+      _logger.d("path to new file::: ${newFile.path}");
       final response = await http.get(
         Uri.parse(url),
       );
+
       var raf = newFile.openSync(mode: FileMode.write);
       raf.writeFromSync(response.bodyBytes);
       await raf.close();
-      _logger.d('File downloaded and saved successfully.');
+      _logger.d(
+          'File downloaded and saved successfully.:::: Path ${newFile.path}');
       return newFile.path;
     } catch (e) {
       _logger.e("Error Downloading file :: $e");
-      return null;
+      rethrow;
     }
   }
 
