@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
-import 'package:harmony_chat_demo/core/models/media_type.dart';
 import 'package:harmony_chat_demo/core/models/message_info_model.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
@@ -191,96 +190,47 @@ class ChatServiceImpl implements IChatService {
     _socket.emit(_messageEvent, savedMessage!.mapToServerDB());
   }
 
-  void _sendAudioMessage(
-      MessageModel message, ContactModel contact, File audioFile) async {
+  /*
+  Send Media Message to the backend server. Media could be image,audio,video or document.
+  */
+  void _sendMediaMessage(
+      MessageModel message, ContactModel contact, File file) async {
     final receiverContact =
         await _contactService.getContactByServerId(contact.serverId);
-    if (receiverContact == null) {
-      _logger.e(
-        "receiverContact Id not found in local db",
-      );
+    if (receiverContact != null) {
+      await _databaseRepository.insertMessage(message);
+      final savedMessage =
+          await _databaseRepository.getMessageById(message.id!);
+      if (savedMessage != null) {
+        await _databaseRepository.updateMessage(
+          savedMessage.copyWith(isUploadingMedia: true),
+        );
+        try {
+          final uploadResponse =
+              await _fileService.uploadFile(file, savedMessage.messageType);
+          await _databaseRepository.updateMessage(savedMessage.copyWith(
+            isUploadingMedia: false,
+            mediaUrl: uploadResponse.mediaUrl,
+            mediaId: uploadResponse.mediaId,
+          ));
+          _socket.emit(_messageEvent, {
+            ...savedMessage.mapToServerDB(),
+            'media_id': uploadResponse.mediaId,
+            'media_url': uploadResponse.mediaUrl,
+          });
+        } catch (e) {
+          await _databaseRepository.updateMessage(
+            savedMessage.copyWith(
+                isUploadingMedia: false, failedToUploadMedia: true),
+          );
+          _logger.e("Error Uploading Media ::::: $e");
+        }
+      }
+      _logger.e("Message with id ${message.id} was not saved",
+          functionName: "SendMediaMessage");
     }
-    await _databaseRepository.insertMessage(message);
-    var savedMsg = await _databaseRepository.getMessageById(message.id!);
-    if (savedMsg == null) {
-      _logger.e(
-          "Message with id : ${message.id} Not found locally. Therefore, audio message can not be sent...",
-          functionName: '_sendAudioMessage');
-      return;
-    }
-
-    try {
-      await _databaseRepository
-          .updateMessage(savedMsg.copyWith(isUploadingMedia: true));
-      final uploadResponse =
-          await _fileService.uploadFile(audioFile, MediaType.audio);
-      await _databaseRepository.updateMessage(
-        savedMsg.copyWith(
-          mediaUrl: uploadResponse.mediaUrl,
-          isUploadingMedia: false,
-          mediaId: uploadResponse.mediaId,
-        ),
-      );
-      _socket.emit(
-        _messageEvent,
-        () => {
-          ...savedMsg.mapToServerDB(),
-          'media_id': uploadResponse.mediaId,
-          'media_url': uploadResponse.mediaUrl,
-        },
-      );
-    } catch (e) {
-      await _databaseRepository.updateMessage(savedMsg.copyWith(
-        isUploadingMedia: false,
-        failedToUploadMedia: true,
-      ));
-    }
-  }
-
-  void _sendImageMessage(
-      MessageModel message, ContactModel contact, File imageFile) async {
-    final receiverContact =
-        await _contactService.getContactByServerId(contact.serverId);
-    if (receiverContact == null) {
-      _logger.e(
-        "receiverContact Id not found in local db",
-      );
-    }
-    await _databaseRepository.insertMessage(message);
-    var savedMsg = await _databaseRepository.getMessageById(message.id!);
-    if (savedMsg == null) {
-      _logger.e(
-          "Message with id : ${message.id} Not found locally. Therefore, image  message can not be sent...",
-          functionName: '_sendImageMessage');
-      return;
-    }
-    await _databaseRepository
-        .updateMessage(savedMsg.copyWith(isUploadingMedia: true));
-    try {
-      final uploadResponse =
-          await _fileService.uploadFile(imageFile, MediaType.image);
-      await _databaseRepository.updateMessage(
-        savedMsg.copyWith(
-          mediaUrl: uploadResponse.mediaUrl,
-          mediaId: uploadResponse.mediaId,
-          isUploadingMedia: false,
-        ),
-      );
-      _socket.emit(
-        _messageEvent,
-        () => {
-          ...savedMsg.mapToServerDB(),
-          'media_id': uploadResponse.mediaId,
-          'media_url': uploadResponse.mediaUrl,
-        },
-      );
-    } catch (e) {
-      _logger.e("Error uploading image file ::: $e");
-      await _databaseRepository.updateMessage(savedMsg.copyWith(
-        isUploadingMedia: false,
-        failedToUploadMedia: true,
-      ));
-    }
+    _logger.e("receiverContact Id not found in local db",
+        functionName: "_sendMediaMessage");
   }
 
   @override
@@ -315,23 +265,17 @@ class ChatServiceImpl implements IChatService {
         ),
       );
     }
-    _logger.e("No Message found for localId ${data['local_id']}");
+    _logger.e("No Message found for localId ${data['local_id']}",
+        functionName: "onMessageSent");
   }
 
   @override
   Future<void> sendMessage(
       MessageModel message, ContactModel contact, File? file) async {
-    switch (message.messageType) {
-      case MessageType.text:
-        _sendTextMessage(message, contact);
-        break;
-      case MessageType.audio:
-        _sendAudioMessage(message, contact, file!);
-        break;
-      case MessageType.image:
-        _sendImageMessage(message, contact, file!);
-        break;
-      default:
+    if (message.mediaType == MessageType.text) {
+      _sendTextMessage(message, contact);
+    } else {
+      _sendMediaMessage(message, contact, file!);
     }
   }
 
@@ -342,26 +286,37 @@ class ChatServiceImpl implements IChatService {
     await _databaseRepository.insertMessage(message);
     await emitMessageDelivered(message.serverId!);
 
-    if (message.messageType != MessageType.text) {
+    if (message.messageType != MessageType.text && message.mediaUrl != null) {
       final savedMessage =
           await _databaseRepository.getMessageById(message.id!);
-      if (savedMessage == null) {
-        _logger.e("Saved Message not found: ");
+      if (savedMessage != null) {
+        await _databaseRepository.updateMessage(
+          savedMessage.copyWith(isDownloadingMedia: true),
+        );
+        try {
+          final localMediaPath = await _fileService.downloadFile(
+              message.mediaUrl!, message.messageType);
+          if (localMediaPath != null) {
+            await _databaseRepository.updateMessage(savedMessage.copyWith(
+              isDownloadingMedia: false,
+              failedToDownloadMedia: false,
+              localMediaPath: localMediaPath,
+            ));
+            emitBulkRead(savedMessage.receiver);
+          }
+          await _databaseRepository.updateMessage(savedMessage.copyWith(
+              isDownloadingMedia: false, failedToDownloadMedia: true));
+        } catch (e) {
+          await _databaseRepository.updateMessage(savedMessage.copyWith(
+              isDownloadingMedia: false, failedToDownloadMedia: true));
+          _logger.e("Error Downloadig Media Message:.... $e");
+        }
+
         return;
       }
-      savedMessage.copyWith(isDownloadingMedia: true);
-      final localMediaPath = await _fileService.downloadFile(
-          message.mediaUrl!, message.messageType);
-      if (localMediaPath != null) {
-        savedMessage.copyWith(
-          isDownloadingMedia: false,
-          failedToDownloadMedia: false,
-          localMediaPath: localMediaPath,
-        );
-      }
-      savedMessage.copyWith(
-          isDownloadingMedia: false, failedToDownloadMedia: true);
+      _logger.e("Saved Message not found: ");
     }
+    _logger.d("Message is of type TextMessage");
     return;
   }
   // ****************************** MESSAGE DELIVERED ****************************
@@ -440,10 +395,11 @@ class ChatServiceImpl implements IChatService {
   Future<void> onBulkRead(Map<String, dynamic> json) async {
     final data = json['data'];
     _logger.d("On Bulk Read Data ::: $data");
-    final ids = data['message_ids'] as List<String>;
+    final ids = data['message_ids'] as List;
+    final idString = ids.map((e) => e.toString()).toList();
     if (ids.isNotEmpty) {
       await _databaseRepository.updateMessagesStatusByServerId(
-        ids,
+        idString,
         MessageStatus.read,
       );
     }
@@ -459,7 +415,7 @@ class ChatServiceImpl implements IChatService {
       await _databaseRepository
           .updateMessage(message.copyWith(isDeleted: true));
       _socket.emit(_messageDeleteEvent, {
-        'id': message.id,
+        'id': message.serverId,
       });
     }
     _logger.e("Failed to find message with serverId :$serverId for deletion");
@@ -467,10 +423,9 @@ class ChatServiceImpl implements IChatService {
 
   @override
   Future<void> onMessageDeleted(Map<String, dynamic> json) async {
-    final data = json['data'];
-    final id = data['messsage_id'];
-    final message =
-        await _databaseRepository.getMessageByServerId(id.toString());
+    // final data = json['data'];
+    final id = json['messsage_id'] as String;
+    final message = await _databaseRepository.getMessageByServerId(id);
 
     if (message != null) {
       await _databaseRepository.updateMessage(
@@ -506,29 +461,58 @@ class ChatServiceImpl implements IChatService {
 
   @override
   Future<void> reDownloadMedia(MessageModel message) async {
-    // TODO: implement reDownloadMedia
-    throw UnimplementedError();
+    final savedMessage = await _databaseRepository.getMessageById(message.id!);
+    if (savedMessage != null) {
+      await _databaseRepository
+          .updateMessage(savedMessage.copyWith(isDownloadingMedia: true));
+      try {
+        final response = await _fileService.downloadFile(
+            savedMessage.mediaUrl!, savedMessage.messageType);
+        if (response != null) {
+          await _databaseRepository.updateMessage(
+            savedMessage.copyWith(
+                isDownloadingMedia: false, localMediaPath: response),
+          );
+          emitBulkRead(savedMessage.receiver);
+        }
+        await _databaseRepository.updateMessage(
+          savedMessage.copyWith(
+              isDownloadingMedia: false, failedToDownloadMedia: true),
+        );
+      } catch (e) {
+        await _databaseRepository.updateMessage(
+          savedMessage.copyWith(
+              isDownloadingMedia: false, failedToDownloadMedia: true),
+        );
+        _logger.e("Error Downloading media---> $e");
+      }
+    }
+    _logger.e("Media Message to reDownload was not found...");
   }
 
   @override
   Future<void> reUploadMedia(MessageModel message) async {
     final File file = File(message.localMediaPath!);
-
+    await _databaseRepository.updateMessage(
+      message.copyWith(failedToUploadMedia: false, isUploadingMedia: true),
+    );
     try {
-      await _databaseRepository.updateMessage(
-        message.copyWith(failedToUploadMedia: false, isUploadingMedia: true),
-      );
       final response = await _fileService.uploadFile(file, message.mediaType!);
+      await _databaseRepository.updateMessage(
+        message.copyWith(
+          failedToUploadMedia: false,
+          isUploadingMedia: false,
+          mediaUrl: response.mediaUrl,
+          mediaId: response.mediaId,
+        ),
+      );
       _socket.emit(
         _messageEvent,
-        () => {
+        {
           ...message.mapToServerDB(),
           'media_id': response.mediaId,
           'media_url': response.mediaUrl,
         },
-      );
-      await _databaseRepository.updateMessage(
-        message.copyWith(failedToUploadMedia: null, isUploadingMedia: false),
       );
     } catch (e) {
       _logger.e("Error Re-Uploading File: $e");

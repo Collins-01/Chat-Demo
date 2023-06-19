@@ -297,9 +297,11 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
             m.${MessageField.messageType},
             m.${MessageField.sender},
             m.${MessageField.receiver},
-            m.${MessageField.id}
-            (SELECT COUNT(*) FROM ${DBConstants.messageTable} WHERE ${MessageField.receiver} = ? AND ${MessageField.status} = ${MessageStatus.delivered}) AS unreadMessagesCount
-            
+            m.${MessageField.id},
+            (
+              SELECT COUNT(*) FROM ${DBConstants.messageTable} WHERE ${MessageField.receiver} = ? AND ${MessageField.status} = '${MessageStatus.delivered}' AND ${MessageField.isDeleted} = '0'
+            ) AS unreadMessagesCount
+
             FROM 
 
             ${DBConstants.contactTable} AS c
@@ -317,6 +319,8 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
                   OR m.${MessageField.receiver} = ?
                 )
              )
+              AND ${MessageField.isDeleted} = '0'
+              
               ORDER BY
             m.${MessageField.updatedAt} DESC;
           ''',
@@ -379,6 +383,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   @override
   Future<void> updateMessagesStatusByServerId(
       List<String> serverIds, String status) async {
+    _logger.d("Called --> updateMessagesStatusByServerId <-- ::");
     // ${serverIds.map((_) => '?').join(', ')
     await _database.rawUpdate(
       '''

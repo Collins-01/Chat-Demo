@@ -23,14 +23,14 @@ class _ChatViewState extends ConsumerState<ChatView> {
   ScrollController? controller;
   @override
   void initState() {
-    ref.read(chatViewViewModel.notifier).onModelReady(widget.contactModel);
     controller = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller!.animateTo(
-        controller!.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      ref.read(chatViewViewModel.notifier).onModelReady(widget.contactModel);
+      // controller!.animateTo(
+      //   controller!.position.maxScrollExtent,
+      //   duration: const Duration(milliseconds: 300),
+      //   curve: Curves.easeOut,
+      // );
     });
 
     super.initState();
@@ -38,36 +38,41 @@ class _ChatViewState extends ConsumerState<ChatView> {
 
   @override
   void dispose() {
-    ref.read(chatViewViewModel.notifier).onModelDisposed();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      SearchChatView(receiver: widget.contactModel.serverId),
-                ),
-              );
-            },
-            icon: const Icon(Icons.search),
-          ),
-        ],
-        title: Text(
-            "${widget.contactModel.lastName} ${widget.contactModel.firstName}"),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            MessagesSection(widget.contactModel, controller),
-            InputSection(widget.contactModel),
+    return WillPopScope(
+      onWillPop: () async {
+        ref.read(chatViewViewModel.notifier).removeUserFromCurrentChat();
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        SearchChatView(receiver: widget.contactModel.serverId),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.search),
+            ),
           ],
+          title: Text(
+              "${widget.contactModel.lastName} ${widget.contactModel.firstName}"),
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              MessagesSection(widget.contactModel, controller),
+              InputSection(widget.contactModel),
+            ],
+          ),
         ),
       ),
     );

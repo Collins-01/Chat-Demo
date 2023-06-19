@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:harmony_chat_demo/core/models/file_upload_model.dart';
 import 'package:harmony_chat_demo/core/network_service/network_client.dart';
 import 'dart:io';
@@ -66,6 +68,7 @@ class FileServiceImpl implements IFileService {
   Future<FileUploadModel> uploadFile(File file, String mediaType) async {
     _logger.d("Uploading file from path::: ${file.path}");
     try {
+      // var result = await _uploadFileWithHttp(file, mediaType);
       var result = await _client.uploadFile(
         uri: '/messaging/upload-file',
         body: {'type': mediaType},
@@ -74,10 +77,12 @@ class FileServiceImpl implements IFileService {
         },
       );
       _logger.d("Response from uploading file::: $result");
-      final data = result['data'];
+      final data = result['data'] as Map<String, dynamic>;
+      final url = data['url'] as String;
+      final id = data['id'] as String;
       return FileUploadModel(
-        mediaId: data['media_id'] as String,
-        mediaUrl: data['media_url'] as String,
+        mediaId: id,
+        mediaUrl: url,
         mediaType: mediaType,
       );
     } catch (e) {
@@ -130,5 +135,25 @@ class FileServiceImpl implements IFileService {
     File newFile = await file.copy("$pathForNewFile$fileName.$fileExtension");
     _logger.d("Newly copied path:: ${newFile.path}");
     return newFile.path;
+  }
+
+  _uploadFileWithHttp(File file, String mediaType) async {
+    try {
+      var request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+            "${NetworkClient.baseUrl}/messaging/upload-file",
+          ));
+
+      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+      request.fields['type'] = mediaType;
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+      final data = json.decode(responseBody) as Map<String, dynamic>;
+      return data;
+    } catch (e) {
+      _logger.e("Error Uploading File:::------:::::: $e");
+      rethrow;
+    }
   }
 }
