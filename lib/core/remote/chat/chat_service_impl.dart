@@ -475,7 +475,10 @@ class ChatServiceImpl implements IChatService {
       if (response != null) {
         await _databaseRepository.updateMessage(
           savedMessage.copyWith(
-              isDownloadingMedia: false, localMediaPath: response),
+            isDownloadingMedia: false,
+            localMediaPath: response,
+            failedToDownloadMedia: false,
+          ),
         );
         emitBulkRead(savedMessage.receiver);
       } else {
