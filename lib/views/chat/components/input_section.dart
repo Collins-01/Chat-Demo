@@ -65,22 +65,20 @@ class _InputSectionState extends ConsumerState<InputSection> {
                 controller.clear();
               }
             },
-            child: controller.text.isEmpty
-                ? const SizedBox.shrink()
-                : AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeIn,
-                    height: 40,
-                    width: 40,
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.send,
-                      color: Colors.white,
-                    ),
-                  ),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeIn,
+              height: 40,
+              width: 40,
+              decoration: const BoxDecoration(
+                color: Colors.blue,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.send,
+                color: Colors.white,
+              ),
+            ),
           ),
           controller.text.isNotEmpty
               ? const SizedBox.shrink()

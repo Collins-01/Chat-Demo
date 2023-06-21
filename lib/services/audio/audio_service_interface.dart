@@ -7,7 +7,7 @@ abstract class IAudioService {
   Future<File?> stopRecord();
   // bool get isRecording;
 
-  Future<void> playAudio();
+  Future<void> playAudio(String url);
   Future<void> pauseAudio();
 
   // bool get isPlaying;
@@ -15,6 +15,10 @@ abstract class IAudioService {
   ValueNotifier<bool> get isRecordingAudio;
 
   bool get isPlayingAudio;
+
+  // * Streams
   Stream<Duration> get position;
+  Stream<bool> get isPlayingStream;
+  Stream<Duration?> get durationStream;
   Duration? get duration;
 }

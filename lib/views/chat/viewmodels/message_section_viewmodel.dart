@@ -33,11 +33,14 @@ class MessageSectionViewModel extends ChangeNotifier {
     // _chatService
   }
 
-  onPlayPauseButtonClick() async {
+  Stream<Duration?> get durationStream => _audioService.durationStream;
+  Stream<bool> get isPlayingStream => _audioService.isPlayingStream;
+
+  onPlayPauseButtonClick(String url) async {
     if (_isPlaying) {
       await _audioService.pauseAudio();
     } else {
-      await _audioService.playAudio();
+      await _audioService.playAudio(url);
     }
   }
 
@@ -55,6 +58,14 @@ class MessageSectionViewModel extends ChangeNotifier {
 
   reDownloadMedia(MessageModel message) async {
     await _chatService.reDownloadMedia(message);
+  }
+
+  playAudio(String url) async {
+    await _audioService.playAudio(url);
+  }
+
+  stopAudio() async {
+    await _audioService.pauseAudio();
   }
 }
 

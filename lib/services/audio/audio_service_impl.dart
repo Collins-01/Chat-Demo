@@ -52,9 +52,9 @@ class AudioServiceImpl implements IAudioService {
   }
 
   @override
-  Future<void> playAudio() async {
-    await _audioPlayer.stop();
-    var dur = await _audioPlayer.setUrl(_currentAudioPath);
+  Future<void> playAudio(String url) async {
+    // await _audioPlayer.stop();
+    var dur = await _audioPlayer.setFilePath(url);
     await _audioPlayer.play();
     if (dur != null) {
       _duration = dur;
@@ -89,7 +89,7 @@ class AudioServiceImpl implements IAudioService {
   ValueNotifier<bool> get isRecordingAudio => _isRecordingAudio;
 
   @override
-  bool get isPlayingAudio => _audioPlayer.playerState.playing;
+  bool get isPlayingAudio => _audioPlayer.playing;
 
   @override
   Stream<Duration> get position =>
@@ -97,4 +97,10 @@ class AudioServiceImpl implements IAudioService {
 
   @override
   Duration? get duration => _duration;
+
+  @override
+  Stream<Duration?> get durationStream => _audioPlayer.durationStream;
+
+  @override
+  Stream<bool> get isPlayingStream => _audioPlayer.playingStream;
 }

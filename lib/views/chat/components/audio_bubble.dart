@@ -1,5 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:chat_bubbles/chat_bubbles.dart';
+import 'package:chat_bubbles/bubbles/bubble_normal_audio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:harmony_chat_demo/core/models/models.dart';
@@ -33,9 +33,9 @@ class AudioBubble extends StatelessWidget {
           position: position,
           isPlaying: isPlaying,
           isLoading: true,
-          isPause: !isPlaying,
+          // isPause: !isPlaying,
           onSeekChanged: (value) {},
-          onPlayPauseButtonClick: onPlayPauseButtonClick,
+          onPlayPauseButtonClick: () {},
           sent: !isSender ? false : message.status == MessageStatus.sent,
           delivered:
               !isSender ? false : message.status == MessageStatus.delivered,

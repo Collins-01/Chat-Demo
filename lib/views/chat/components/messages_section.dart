@@ -1,13 +1,15 @@
+import 'package:chat_bubbles/bubbles/bubble_normal_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
-import 'package:harmony_chat_demo/core/models/contact_model.dart';
-import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/message_type.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/views/chat/components/components.dart';
 import 'package:harmony_chat_demo/views/chat/viewmodels/message_section_viewmodel.dart';
 import 'package:harmony_chat_demo/views/widgets/app_text.dart';
+import 'package:multiple_stream_builder/multiple_stream_builder.dart';
+
+import '../../../core/models/models.dart';
 
 final IAuthService _authService = locator();
 
@@ -50,7 +52,7 @@ class MessagesSection extends ConsumerWidget {
                   ...List.generate(
                     snapshot.data!.length,
                     (index) => Builder(
-                      builder: (context) {
+                      builder: (_) {
                         final message = snapshot.data![index];
                         bool isSender = message.sender == _authService.user!.id;
                         if (message.isDeleted) {
@@ -58,18 +60,77 @@ class MessagesSection extends ConsumerWidget {
                         }
                         switch (message.messageType) {
                           case MessageType.audio:
-                            return AudioBubble(
-                              message: message,
-                              isSender: isSender,
-                              isPlaying: model.isPlaying,
-                              onPlayPauseButtonClick:
-                                  model.onPlayPauseButtonClick(),
-                            );
+                            // return BubbleNormalAudio(
+                            //   isSender: isSender,
+                            //   color: const Color(0xFFE8E8EE),
+                            //   duration: model.duration?.inSeconds.toDouble(),
+                            //   position: model.position,
+                            //   isPlaying: model.isPlaying,
+                            //   isLoading: true,
+                            //   isPause: !model.isPlaying,
+                            //   onSeekChanged: (value) {},
+                            //   onPlayPauseButtonClick: () {
+                            //     print("Isplaying::: ${model.isPlaying}");
+                            //     model.playAudio(message.localMediaPath!);
+                            //   },
+                            //   sent: !isSender
+                            //       ? false
+                            //       : message.status == MessageStatus.sent,
+                            //   delivered: !isSender
+                            //       ? false
+                            //       : message.status == MessageStatus.delivered,
+                            //   seen: !isSender
+                            //       ? false
+                            //       : message.status == MessageStatus.read,
+                            //   tail: true,
+                            // );
+                            // AppText.body(message.localMediaPath ?? 'Null');
+                            return StreamBuilder2<Duration?, bool>(
+                                streams: StreamTuple2(model.durationStream,
+                                    model.isPlayingStream),
+                                initialData: InitialDataTuple2(
+                                    const Duration(seconds: 0), false),
+                                builder: (context, snapshots) {
+                                  return BubbleNormalAudio(
+                                    isSender: isSender,
+                                    color: const Color(0xFFE8E8EE),
+                                    duration:
+                                        model.duration?.inSeconds.toDouble(),
+                                    position: model.position,
+                                    isPlaying: snapshots.snapshot2.data!,
+                                    isLoading: false,
+                                    isPause: !snapshots.snapshot2.data!,
+                                    onSeekChanged: (value) {},
+                                    onPlayPauseButtonClick: () {
+                                      print(
+                                          "Media Local Url : ${message.localMediaPath}");
+                                      print(
+                                          "Media Remote Url : ${message.mediaUrl}");
+                                      if (snapshots.snapshot2.data!) {
+                                        model.stopAudio();
+                                      } else {
+                                        model
+                                            .playAudio(message.localMediaPath!);
+                                      }
+                                    },
+                                    sent: !isSender
+                                        ? false
+                                        : message.status == MessageStatus.sent,
+                                    delivered: !isSender
+                                        ? false
+                                        : message.status ==
+                                            MessageStatus.delivered,
+                                    seen: !isSender
+                                        ? false
+                                        : message.status == MessageStatus.read,
+                                    tail: true,
+                                  );
+                                });
 
                           case MessageType.text:
                             return InkWell(
                               onLongPress: () {
-                                scaffoldKey.currentState!.showBottomSheet(
+                                scaffoldKey.currentState?.showBottomSheet(
                                   (context) {
                                     return Container(
                                       margin: const EdgeInsets.only(
