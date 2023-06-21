@@ -1,18 +1,20 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 abstract class IAudioService {
   Future<void> startRecord();
   Future<File?> stopRecord();
-  bool get isRecording;
+  // bool get isRecording;
 
   Future<void> playAudio();
   Future<void> pauseAudio();
 
-  bool get isPlaying;
+  // bool get isPlaying;
 
-  Stream<bool> get isRecordingStream;
+  ValueNotifier<bool> get isRecordingAudio;
 
-  Stream<bool> get isPlayingAudioStream;
+  bool get isPlayingAudio;
   Stream<Duration> get position;
   Duration? get duration;
 }

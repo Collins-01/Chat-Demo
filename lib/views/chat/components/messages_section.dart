@@ -14,8 +14,10 @@ final IAuthService _authService = locator();
 // ignore: must_be_immutable
 class MessagesSection extends ConsumerWidget {
   ScrollController? controller;
+  final GlobalKey<ScaffoldState> scaffoldKey;
   final ContactModel contactModel;
-  MessagesSection(this.contactModel, this.controller, {Key? key})
+  MessagesSection(this.contactModel, this.controller, this.scaffoldKey,
+      {Key? key})
       : super(key: key);
 
   bool isLoading = false;
@@ -67,10 +69,61 @@ class MessagesSection extends ConsumerWidget {
                           case MessageType.text:
                             return InkWell(
                               onLongPress: () {
-                                if (message.serverId != null &&
-                                    message.sender == model.user.id) {
-                                  model.deleteMessage(message.serverId!);
-                                }
+                                scaffoldKey.currentState!.showBottomSheet(
+                                  (context) {
+                                    return Container(
+                                      margin: const EdgeInsets.only(
+                                          top: 20, bottom: 20),
+                                      height: 150,
+                                      width: MediaQuery.of(context).size.width,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.transparent,
+                                      ),
+                                      child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            TextButton(
+                                              onPressed: () {
+                                                model.deleteMessageForMe(
+                                                    message.id!);
+                                                Navigator.pop(context);
+                                              },
+                                              child: AppText.bodyLarge(
+                                                "Delete For me",
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                            message.serverId == null
+                                                ? const SizedBox.shrink()
+                                                : TextButton(
+                                                    onPressed: () {
+                                                      if (message.serverId !=
+                                                              null &&
+                                                          message.sender ==
+                                                              model.user.id) {
+                                                        model.deleteMessage(
+                                                            message.serverId!);
+                                                        Navigator.pop(context);
+                                                      }
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: AppText.bodyLarge(
+                                                      "Delete For Everyone",
+                                                    ),
+                                                  ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: AppText.bodyLarge(
+                                                "Cancel",
+                                              ),
+                                            ),
+                                          ]),
+                                    );
+                                  },
+                                );
                               },
                               child: TextBubble(
                                   message: message, isSender: isSender),

@@ -13,17 +13,12 @@ IAuthService _authService = locator();
 IAudioService _audioService = locator();
 
 class MessageSectionViewModel extends ChangeNotifier {
-  bool _isPlaying = false;
+  final bool _isPlaying = false;
   bool get isPlaying => _isPlaying;
   Duration? get duration => _audioService.duration;
   double _position = 0.0;
   double get position => _position;
   MessageSectionViewModel() {
-    _audioService.isPlayingAudioStream.listen((value) {
-      _isPlaying = value;
-      notifyListeners();
-    });
-
     _audioService.position.listen((value) {
       _position = value.inSeconds.toDouble();
       notifyListeners();
@@ -44,6 +39,10 @@ class MessageSectionViewModel extends ChangeNotifier {
     } else {
       await _audioService.playAudio();
     }
+  }
+
+  void deleteMessageForMe(String id) async {
+    await _chatService.deleteMessageForMe(id);
   }
 
   void deleteMessage(String id) async {

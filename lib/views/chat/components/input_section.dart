@@ -13,26 +13,9 @@ class InputSection extends ConsumerStatefulWidget {
 
 class _InputSectionState extends ConsumerState<InputSection> {
   final TextEditingController controller = TextEditingController();
-  bool _showMic = true;
-  bool _isRecording = false;
+
   @override
   void initState() {
-    controller.addListener(() {
-      if (controller.text.isNotEmpty) {
-        setState(() {
-          _showMic = false;
-        });
-      } else {
-        setState(() {
-          _showMic = true;
-        });
-      }
-    });
-    ref.read(inputSectionViewModel).isRecording.listen((event) {
-      setState(() {
-        _isRecording = event;
-      });
-    });
     super.initState();
   }
 
@@ -99,33 +82,26 @@ class _InputSectionState extends ConsumerState<InputSection> {
                     ),
                   ),
           ),
-          StreamBuilder(
-            stream: model.isRecording,
-            initialData: false,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                final isRecording = snapshot.data!;
-                return IconButton(
-                  onPressed: () {
-                    if (isRecording) {
-                      model.stopRecord(widget.contactModel);
-                    } else {
-                      model.recordAudio();
-                    }
+          controller.text.isNotEmpty
+              ? const SizedBox.shrink()
+              : ValueListenableBuilder(
+                  valueListenable: model.isRecording,
+                  builder: (context, isRecording, child) {
+                    return IconButton(
+                      onPressed: () {
+                        if (isRecording) {
+                          model.stopRecord(widget.contactModel);
+                        } else {
+                          model.recordAudio();
+                        }
+                      },
+                      icon: Icon(
+                        isRecording ? Icons.stop_rounded : Icons.mic,
+                        color: isRecording ? Colors.red : Colors.blue,
+                      ),
+                    );
                   },
-                  icon: Icon(
-                    isRecording ? Icons.stop_rounded : Icons.mic,
-                    color: isRecording ? Colors.red : Colors.blue,
-                  ),
-                );
-              } else {
-                return const Icon(
-                  Icons.mic,
-                  color: Colors.blue,
-                );
-              }
-            },
-          ),
+                ),
         ],
       ),
     );

@@ -21,6 +21,7 @@ class ChatView extends ConsumerStatefulWidget {
 
 class _ChatViewState extends ConsumerState<ChatView> {
   ScrollController? controller;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     controller = ScrollController();
@@ -69,7 +70,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
         body: SafeArea(
           child: Column(
             children: [
-              MessagesSection(widget.contactModel, controller),
+              MessagesSection(widget.contactModel, controller, _scaffoldKey),
               InputSection(widget.contactModel),
             ],
           ),

@@ -533,4 +533,14 @@ class ChatServiceImpl implements IChatService {
       receiver: receiver,
     );
   }
+
+  @override
+  Future<void> deleteMessageForMe(String id) async {
+    final message = await _databaseRepository.getMessageById(id);
+    if (message != null) {
+      await _databaseRepository
+          .updateMessage(message.copyWith(isDeleted: true));
+    }
+    _logger.e("Can not delete message because it does not exist...");
+  }
 }

@@ -10,7 +10,6 @@ import 'package:harmony_chat_demo/core/models/media_type.dart';
 import 'package:harmony_chat_demo/core/models/message_model.dart';
 import 'package:harmony_chat_demo/core/models/message_type.dart';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
-import 'package:harmony_chat_demo/services/files/file_service_interface.dart';
 import 'package:harmony_chat_demo/utils/utils.dart';
 import 'package:uuid/uuid.dart';
 import '../../../services/audio/audio.dart';
@@ -19,7 +18,7 @@ final IChatService _chatService = locator();
 final IFilePickerService _filePickerService = locator();
 final IAudioService _audioService = locator();
 final IAuthService _authService = locator();
-final IFileService _fileService = locator();
+// final IFileService _fileService = locator();
 
 class InputSectionViewModel extends ChangeNotifier {
   final _logger = appLogger(InputSectionViewModel);
@@ -56,7 +55,7 @@ class InputSectionViewModel extends ChangeNotifier {
     _logger.i("No Audio file path found");
   }
 
-  Stream<bool> get isRecording => _audioService.isRecordingStream;
+  ValueNotifier<bool> get isRecording => _audioService.isRecordingAudio;
   pickImage(ContactModel contact) async {
     var response = await _filePickerService.pickImage(true);
     if (response != null) {

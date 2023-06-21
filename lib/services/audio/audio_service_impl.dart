@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/services/audio/audio_service_interface.dart';
 import 'package:harmony_chat_demo/services/files/file_service_interface.dart';
@@ -8,7 +9,6 @@ import 'package:just_audio/just_audio.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
-import 'package:rxdart/subjects.dart';
 
 class AudioServiceImpl implements IAudioService {
   final _logger = appLogger(AudioServiceImpl);
@@ -20,38 +20,31 @@ class AudioServiceImpl implements IAudioService {
 
   String _currentAudioPath = '';
   final _audioPlayer = AudioPlayer();
-  final BehaviorSubject<bool> _isRecordingStream =
-      BehaviorSubject.seeded(false);
+  final ValueNotifier<bool> _isRecordingAudio = ValueNotifier(false);
 
-  _handleDirectoryCheck() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final fileDirectory = "$dir${MediaConstants.AUDIO_PATH}";
-    if (await Directory(fileDirectory).exists()) {
-      _logger.i("Directory exists: $fileDirectory");
-      return;
-    } else {
-      await Directory(fileDirectory).create(recursive: true);
-      _logger.d("Directory does not exist, creating audio directory........");
-    }
-  }
+  // _handleDirectoryCheck() async {
+  //   final dir = await getApplicationDocumentsDirectory();
+  //   final fileDirectory = "$dir${MediaConstants.AUDIO_PATH}";
+  //   if (await Directory(fileDirectory).exists()) {
+  //     _logger.i("Directory exists: $fileDirectory");
+  //     return;
+  //   } else {
+  //     await Directory(fileDirectory).create(recursive: true);
+  //     _logger.d("Directory does not exist, creating audio directory........");
+  //   }
+  // }
 
   Future<String> get _recordingOutputPath async {
-    await _handleDirectoryCheck();
+    // await _handleDirectoryCheck();
     final dir = await getApplicationDocumentsDirectory();
     final timeInMillisecs = DateTime.now().millisecondsSinceEpoch;
 
-    final path =
-        "${dir.path}${MediaConstants.AUDIO_PATH}VN_$timeInMillisecs.m4a";
-    _logger.i('Path to Audio file:: $path');
+    final path = "${dir.path}/Voice_Note_$timeInMillisecs.m4a";
+    _logger.d('Path to Audio file:: $path');
     return path;
   }
 
   Duration? _duration;
-  @override
-  bool get isPlaying => throw UnimplementedError();
-
-  @override
-  bool get isRecording => false;
 
   @override
   Future<void> pauseAudio() async {
@@ -63,7 +56,6 @@ class AudioServiceImpl implements IAudioService {
     await _audioPlayer.stop();
     var dur = await _audioPlayer.setUrl(_currentAudioPath);
     await _audioPlayer.play();
-
     if (dur != null) {
       _duration = dur;
     }
@@ -80,24 +72,24 @@ class AudioServiceImpl implements IAudioService {
       await Record.start(
         path: path,
       );
-      _isRecordingStream.add(true);
+      _isRecordingAudio.value = true;
     }
+    _logger.e("Record Permission not enabled");
     return;
   }
 
   @override
   Future<File?> stopRecord() async {
     await Record.stop();
-    _isRecordingStream.add(false);
+    _isRecordingAudio.value = false;
     return File(_currentAudioPath);
   }
 
   @override
-  Stream<bool> get isRecordingStream => _isRecordingStream.asBroadcastStream();
+  ValueNotifier<bool> get isRecordingAudio => _isRecordingAudio;
 
   @override
-  Stream<bool> get isPlayingAudioStream =>
-      _audioPlayer.playingStream.asBroadcastStream();
+  bool get isPlayingAudio => _audioPlayer.playerState.playing;
 
   @override
   Stream<Duration> get position =>
