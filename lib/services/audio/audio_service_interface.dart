@@ -13,6 +13,7 @@ abstract class IAudioService {
   // bool get isPlaying;
 
   ValueNotifier<bool> get isRecordingAudio;
+  ValueNotifier<String> get currentAudioId;
 
   bool get isPlayingAudio;
 
@@ -21,4 +22,6 @@ abstract class IAudioService {
   Stream<bool> get isPlayingStream;
   Stream<Duration?> get durationStream;
   Duration? get duration;
+
+  setAudioId(String id);
 }

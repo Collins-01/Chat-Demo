@@ -24,6 +24,7 @@ class MessageSectionViewModel extends ChangeNotifier {
       notifyListeners();
     });
   }
+  ValueNotifier<String> get currentAudioId => _audioService.currentAudioId;
   Stream<List<MessageModel>> messagesStream(ContactModel contact) =>
       _chatService.watchMessagesWithContact(contact);
 
@@ -66,6 +67,10 @@ class MessageSectionViewModel extends ChangeNotifier {
 
   stopAudio() async {
     await _audioService.pauseAudio();
+  }
+
+  setCurrentAudioId(String id) {
+    _audioService.setAudioId(id);
   }
 }
 

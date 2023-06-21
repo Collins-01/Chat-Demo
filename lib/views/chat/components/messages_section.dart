@@ -60,72 +60,88 @@ class MessagesSection extends ConsumerWidget {
                         }
                         switch (message.messageType) {
                           case MessageType.audio:
-                            // return BubbleNormalAudio(
-                            //   isSender: isSender,
-                            //   color: const Color(0xFFE8E8EE),
-                            //   duration: model.duration?.inSeconds.toDouble(),
-                            //   position: model.position,
-                            //   isPlaying: model.isPlaying,
-                            //   isLoading: true,
-                            //   isPause: !model.isPlaying,
-                            //   onSeekChanged: (value) {},
-                            //   onPlayPauseButtonClick: () {
-                            //     print("Isplaying::: ${model.isPlaying}");
-                            //     model.playAudio(message.localMediaPath!);
-                            //   },
-                            //   sent: !isSender
-                            //       ? false
-                            //       : message.status == MessageStatus.sent,
-                            //   delivered: !isSender
-                            //       ? false
-                            //       : message.status == MessageStatus.delivered,
-                            //   seen: !isSender
-                            //       ? false
-                            //       : message.status == MessageStatus.read,
-                            //   tail: true,
-                            // );
-                            // AppText.body(message.localMediaPath ?? 'Null');
-                            return StreamBuilder2<Duration?, bool>(
-                                streams: StreamTuple2(model.durationStream,
-                                    model.isPlayingStream),
-                                initialData: InitialDataTuple2(
-                                    const Duration(seconds: 0), false),
-                                builder: (context, snapshots) {
-                                  return BubbleNormalAudio(
-                                    isSender: isSender,
-                                    color: const Color(0xFFE8E8EE),
-                                    duration:
-                                        model.duration?.inSeconds.toDouble(),
-                                    position: model.position,
-                                    isPlaying: snapshots.snapshot2.data!,
-                                    isLoading: false,
-                                    isPause: !snapshots.snapshot2.data!,
-                                    onSeekChanged: (value) {},
-                                    onPlayPauseButtonClick: () {
-                                      print(
-                                          "Media Local Url : ${message.localMediaPath}");
-                                      print(
-                                          "Media Remote Url : ${message.mediaUrl}");
-                                      if (snapshots.snapshot2.data!) {
-                                        model.stopAudio();
-                                      } else {
+                            return ValueListenableBuilder<String>(
+                                valueListenable: model.currentAudioId,
+                                builder: (context, currentId, child) {
+                                  if (currentId == message.localId) {
+                                    return StreamBuilder2<Duration?, bool>(
+                                        streams: StreamTuple2(
+                                            model.durationStream,
+                                            model.isPlayingStream),
+                                        initialData: InitialDataTuple2(
+                                            const Duration(seconds: 0), false),
+                                        builder: (context, snapshots) {
+                                          return BubbleNormalAudio(
+                                            isSender: isSender,
+                                            color: const Color(0xFFE8E8EE),
+                                            duration: snapshots
+                                                .snapshot1.data?.inSeconds
+                                                .toDouble(),
+                                            position: model.position,
+                                            isPlaying:
+                                                snapshots.snapshot2.data!,
+                                            isLoading: false,
+                                            isPause: !snapshots.snapshot2.data!,
+                                            onSeekChanged: (value) {},
+                                            onPlayPauseButtonClick: () {
+                                              model.setCurrentAudioId(
+                                                  message.localId);
+
+                                              if (snapshots.snapshot2.data!) {
+                                                model.stopAudio();
+                                              } else {
+                                                model.playAudio(
+                                                    message.localMediaPath!);
+                                              }
+                                            },
+                                            sent: !isSender
+                                                ? false
+                                                : message.status ==
+                                                    MessageStatus.sent,
+                                            delivered: !isSender
+                                                ? false
+                                                : message.status ==
+                                                    MessageStatus.delivered,
+                                            seen: !isSender
+                                                ? false
+                                                : message.status ==
+                                                    MessageStatus.read,
+                                            tail: true,
+                                          );
+                                        });
+                                  } else {
+                                    return BubbleNormalAudio(
+                                      isSender: isSender,
+                                      color: const Color(0xFFE8E8EE),
+                                      // position: model.position,
+                                      // isPlaying: model.isPlaying,
+                                      isLoading: true,
+                                      // isPause: !model.isPlaying,
+                                      onSeekChanged: (value) {},
+                                      onPlayPauseButtonClick: () {
+                                        model
+                                            .setCurrentAudioId(message.localId);
                                         model
                                             .playAudio(message.localMediaPath!);
-                                      }
-                                    },
-                                    sent: !isSender
-                                        ? false
-                                        : message.status == MessageStatus.sent,
-                                    delivered: !isSender
-                                        ? false
-                                        : message.status ==
-                                            MessageStatus.delivered,
-                                    seen: !isSender
-                                        ? false
-                                        : message.status == MessageStatus.read,
-                                    tail: true,
-                                  );
+                                      },
+                                      sent: !isSender
+                                          ? false
+                                          : message.status ==
+                                              MessageStatus.sent,
+                                      delivered: !isSender
+                                          ? false
+                                          : message.status ==
+                                              MessageStatus.delivered,
+                                      seen: !isSender
+                                          ? false
+                                          : message.status ==
+                                              MessageStatus.read,
+                                      tail: true,
+                                    );
+                                  }
                                 });
+
+                          // AppText.body(message.localMediaPath ?? 'Null');
 
                           case MessageType.text:
                             return InkWell(

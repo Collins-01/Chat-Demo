@@ -21,6 +21,7 @@ class AudioServiceImpl implements IAudioService {
   String _currentAudioPath = '';
   final _audioPlayer = AudioPlayer();
   final ValueNotifier<bool> _isRecordingAudio = ValueNotifier(false);
+  final ValueNotifier<String> _currentAudioId = ValueNotifier("");
 
   // _handleDirectoryCheck() async {
   //   final dir = await getApplicationDocumentsDirectory();
@@ -103,4 +104,12 @@ class AudioServiceImpl implements IAudioService {
 
   @override
   Stream<bool> get isPlayingStream => _audioPlayer.playingStream;
+
+  @override
+  ValueNotifier<String> get currentAudioId => _currentAudioId;
+
+  @override
+  setAudioId(String id) {
+    _currentAudioId.value = id;
+  }
 }
