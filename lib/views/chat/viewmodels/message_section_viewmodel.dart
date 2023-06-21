@@ -7,6 +7,7 @@ import 'package:harmony_chat_demo/core/models/user_model.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
 import 'package:harmony_chat_demo/services/audio/audio.dart';
+import 'package:just_audio/just_audio.dart';
 
 IChatService _chatService = locator();
 IAuthService _authService = locator();
@@ -24,6 +25,8 @@ class MessageSectionViewModel extends ChangeNotifier {
       notifyListeners();
     });
   }
+  Stream<ProcessingState> get processingStateStream =>
+      _audioService.playingProcessingState;
   ValueNotifier<String> get currentAudioId => _audioService.currentAudioId;
   Stream<List<MessageModel>> messagesStream(ContactModel contact) =>
       _chatService.watchMessagesWithContact(contact);

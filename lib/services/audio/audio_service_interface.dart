@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 
 abstract class IAudioService {
   Future<void> startRecord();
@@ -24,4 +25,6 @@ abstract class IAudioService {
   Duration? get duration;
 
   setAudioId(String id);
+
+  Stream<ProcessingState> get playingProcessingState;
 }

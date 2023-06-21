@@ -112,4 +112,8 @@ class AudioServiceImpl implements IAudioService {
   setAudioId(String id) {
     _currentAudioId.value = id;
   }
+
+  @override
+  Stream<ProcessingState> get playingProcessingState =>
+      _audioPlayer.processingStateStream;
 }

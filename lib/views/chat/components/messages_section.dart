@@ -7,6 +7,7 @@ import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/views/chat/components/components.dart';
 import 'package:harmony_chat_demo/views/chat/viewmodels/message_section_viewmodel.dart';
 import 'package:harmony_chat_demo/views/widgets/app_text.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 
 import '../../../core/models/models.dart';
@@ -64,12 +65,18 @@ class MessagesSection extends ConsumerWidget {
                                 valueListenable: model.currentAudioId,
                                 builder: (context, currentId, child) {
                                   if (currentId == message.localId) {
-                                    return StreamBuilder2<Duration?, bool>(
-                                        streams: StreamTuple2(
-                                            model.durationStream,
-                                            model.isPlayingStream),
-                                        initialData: InitialDataTuple2(
-                                            const Duration(seconds: 0), false),
+                                    return StreamBuilder3<Duration?, bool,
+                                            ProcessingState>(
+                                        streams: StreamTuple3(
+                                          model.durationStream,
+                                          model.isPlayingStream,
+                                          model.processingStateStream,
+                                        ),
+                                        initialData: InitialDataTuple3(
+                                          const Duration(seconds: 0),
+                                          false,
+                                          ProcessingState.idle,
+                                        ),
                                         builder: (context, snapshots) {
                                           return BubbleNormalAudio(
                                             isSender: isSender,
@@ -80,8 +87,13 @@ class MessagesSection extends ConsumerWidget {
                                             position: model.position,
                                             isPlaying:
                                                 snapshots.snapshot2.data!,
-                                            isLoading: false,
-                                            isPause: !snapshots.snapshot2.data!,
+                                            isLoading:
+                                                snapshots.snapshot3.data! ==
+                                                    ProcessingState.loading,
+                                            isPause: !snapshots
+                                                    .snapshot2.data! ||
+                                                snapshots.snapshot3.data! ==
+                                                    ProcessingState.completed,
                                             onSeekChanged: (value) {},
                                             onPlayPauseButtonClick: () {
                                               model.setCurrentAudioId(
