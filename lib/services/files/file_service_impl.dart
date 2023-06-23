@@ -13,8 +13,8 @@ import "package:http/http.dart" as http;
 import '../../core/models/models.dart';
 
 class FileServiceImpl implements IFileService {
-  final NetworkClient _client = NetworkClient.instance;
   final _logger = appLogger(FileServiceImpl);
+  final _timeOut = const Duration(minutes: 2);
 
   _checkPathForMedia(String type) async {
     final dir = await getApplicationDocumentsDirectory();
@@ -69,13 +69,7 @@ class FileServiceImpl implements IFileService {
     _logger.d("Uploading file from path::: ${file.path}");
     try {
       // var result = await _uploadFileWithHttp(file, mediaType);
-      var result = await _client.uploadFile(
-        uri: '/messaging/upload-file',
-        body: {'type': mediaType},
-        file: {
-          'file': file,
-        },
-      );
+      var result = await _uploadFileWithHttp(file, mediaType);
       _logger.d("Response from uploading file::: $result");
       final data = result['data'] as Map<String, dynamic>;
       final url = data['url'] as String;
@@ -103,9 +97,11 @@ class FileServiceImpl implements IFileService {
       String fileName = DateTime.now().millisecondsSinceEpoch.toString();
       File newFile = File('$filePath$fileName.$fileExtension');
       _logger.d("path to new file::: ${newFile.path}");
-      final response = await http.get(
-        Uri.parse(url),
-      );
+      final response = await http
+          .get(
+            Uri.parse(url),
+          )
+          .timeout(_timeOut);
 
       var raf = newFile.openSync(mode: FileMode.write);
       raf.writeFromSync(response.bodyBytes);
@@ -143,17 +139,18 @@ class FileServiceImpl implements IFileService {
     return newFile.path;
   }
 
-  _uploadFileWithHttp(File file, String mediaType) async {
+  Future<dynamic> _uploadFileWithHttp(File file, String mediaType) async {
     try {
       var request = http.MultipartRequest(
-          'POST',
-          Uri.parse(
-            "${NetworkClient.baseUrl}/messaging/upload-file",
-          ));
+        'POST',
+        Uri.parse(
+          "${NetworkClient.baseUrl}/messaging/upload-file",
+        ),
+      );
 
       request.files.add(await http.MultipartFile.fromPath('file', file.path));
       request.fields['type'] = mediaType;
-      var response = await request.send();
+      var response = await request.send().timeout(_timeOut);
       var responseBody = await response.stream.bytesToString();
       final data = json.decode(responseBody) as Map<String, dynamic>;
       return data;

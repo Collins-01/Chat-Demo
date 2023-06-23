@@ -78,77 +78,158 @@ class MessagesSection extends ConsumerWidget {
                                           ProcessingState.idle,
                                         ),
                                         builder: (context, snapshots) {
-                                          return BubbleNormalAudio(
-                                            isSender: isSender,
-                                            color: const Color(0xFFE8E8EE),
-                                            duration: snapshots
-                                                .snapshot1.data?.inSeconds
-                                                .toDouble(),
-                                            position: model.position,
-                                            isPlaying:
-                                                snapshots.snapshot2.data!,
-                                            isLoading:
-                                                snapshots.snapshot3.data! ==
-                                                    ProcessingState.loading,
-                                            isPause: !snapshots
-                                                    .snapshot2.data! ||
-                                                snapshots.snapshot3.data! ==
-                                                    ProcessingState.completed,
-                                            onSeekChanged: (value) {},
-                                            onPlayPauseButtonClick: () {
-                                              model.setCurrentAudioId(
-                                                  message.localId);
+                                          return Row(
+                                            children: [
+                                              BubbleNormalAudio(
+                                                isSender: isSender,
+                                                color: const Color(0xFFE8E8EE),
+                                                duration: snapshots
+                                                    .snapshot1.data?.inSeconds
+                                                    .toDouble(),
+                                                position: model.position,
+                                                isPlaying:
+                                                    snapshots.snapshot2.data!,
+                                                isLoading: snapshots
+                                                            .snapshot3.data! ==
+                                                        ProcessingState
+                                                            .loading ||
+                                                    (message.isDownloadingMedia !=
+                                                            null &&
+                                                        message
+                                                            .isDownloadingMedia!) ||
+                                                    (message.isUploadingMedia !=
+                                                            null &&
+                                                        message
+                                                            .isUploadingMedia!),
+                                                isPause: !snapshots
+                                                        .snapshot2.data! ||
+                                                    snapshots.snapshot3.data! ==
+                                                        ProcessingState
+                                                            .completed,
+                                                onSeekChanged: (value) {},
+                                                onPlayPauseButtonClick: () {
+                                                  model.setCurrentAudioId(
+                                                      message.localId);
 
-                                              if (snapshots.snapshot2.data!) {
-                                                model.stopAudio();
-                                              } else {
-                                                model.playAudio(
-                                                    message.localMediaPath!);
-                                              }
-                                            },
-                                            sent: !isSender
-                                                ? false
-                                                : message.status ==
-                                                    MessageStatus.sent,
-                                            delivered: !isSender
-                                                ? false
-                                                : message.status ==
-                                                    MessageStatus.delivered,
-                                            seen: !isSender
-                                                ? false
-                                                : message.status ==
-                                                    MessageStatus.read,
-                                            tail: true,
+                                                  if (snapshots
+                                                      .snapshot2.data!) {
+                                                    model.stopAudio();
+                                                  } else {
+                                                    model.playAudio(message
+                                                        .localMediaPath!);
+                                                  }
+                                                },
+                                                sent: !isSender
+                                                    ? false
+                                                    : message.status ==
+                                                        MessageStatus.sent,
+                                                delivered: !isSender
+                                                    ? false
+                                                    : message.status ==
+                                                        MessageStatus.delivered,
+                                                seen: !isSender
+                                                    ? false
+                                                    : message.status ==
+                                                        MessageStatus.read,
+                                                tail: true,
+                                              ),
+                                              (message.failedToDownloadMedia !=
+                                                              null &&
+                                                          message
+                                                              .failedToDownloadMedia!) ||
+                                                      (message.failedToUploadMedia !=
+                                                              null &&
+                                                          message
+                                                              .failedToUploadMedia!)
+                                                  ? IconButton(
+                                                      onPressed: () {
+                                                        if (message.failedToDownloadMedia !=
+                                                                null &&
+                                                            message
+                                                                .failedToDownloadMedia!) {
+                                                          model.reDownloadMedia(
+                                                              message);
+                                                        }
+                                                        if (message.failedToUploadMedia !=
+                                                                null &&
+                                                            message
+                                                                .failedToUploadMedia!) {
+                                                          model.reUploadMedia(
+                                                              message);
+                                                        }
+                                                      },
+                                                      icon: const Icon(
+                                                        Icons.error_outline,
+                                                        color: Colors.red,
+                                                      ),
+                                                    )
+                                                  : const SizedBox.shrink()
+                                            ],
                                           );
                                         });
                                   } else {
-                                    return BubbleNormalAudio(
-                                      isSender: isSender,
-                                      color: const Color(0xFFE8E8EE),
-                                      // position: model.position,
-                                      // isPlaying: model.isPlaying,
-                                      isLoading: true,
-                                      // isPause: !model.isPlaying,
-                                      onSeekChanged: (value) {},
-                                      onPlayPauseButtonClick: () {
-                                        model
-                                            .setCurrentAudioId(message.localId);
-                                        model
-                                            .playAudio(message.localMediaPath!);
-                                      },
-                                      sent: !isSender
-                                          ? false
-                                          : message.status ==
-                                              MessageStatus.sent,
-                                      delivered: !isSender
-                                          ? false
-                                          : message.status ==
-                                              MessageStatus.delivered,
-                                      seen: !isSender
-                                          ? false
-                                          : message.status ==
-                                              MessageStatus.read,
-                                      tail: true,
+                                    return Row(
+                                      children: [
+                                        BubbleNormalAudio(
+                                          isSender: isSender,
+                                          color: const Color(0xFFE8E8EE),
+                                          // position: model.position,
+                                          // isPlaying: model.isPlaying,
+                                          isLoading: true,
+                                          // isPause: !model.isPlaying,
+                                          onSeekChanged: (value) {},
+                                          onPlayPauseButtonClick: () {
+                                            model.setCurrentAudioId(
+                                                message.localId);
+                                            model.playAudio(
+                                                message.localMediaPath!);
+                                          },
+                                          sent: !isSender
+                                              ? false
+                                              : message.status ==
+                                                  MessageStatus.sent,
+                                          delivered: !isSender
+                                              ? false
+                                              : message.status ==
+                                                  MessageStatus.delivered,
+                                          seen: !isSender
+                                              ? false
+                                              : message.status ==
+                                                  MessageStatus.read,
+                                          tail: true,
+                                        ),
+                                        (message.failedToDownloadMedia !=
+                                                        null &&
+                                                    message
+                                                        .failedToDownloadMedia!) ||
+                                                (message.failedToUploadMedia !=
+                                                        null &&
+                                                    message
+                                                        .failedToUploadMedia!)
+                                            ? IconButton(
+                                                onPressed: () {
+                                                  if (message.failedToDownloadMedia !=
+                                                          null &&
+                                                      message
+                                                          .failedToDownloadMedia!) {
+                                                    model.reDownloadMedia(
+                                                        message);
+                                                  }
+                                                  if (message.failedToUploadMedia !=
+                                                          null &&
+                                                      message
+                                                          .failedToUploadMedia!) {
+                                                    model
+                                                        .reUploadMedia(message);
+                                                  }
+                                                },
+                                                icon: const Icon(
+                                                  Icons.error_outline,
+                                                  color: Colors.red,
+                                                ),
+                                              )
+                                            : const SizedBox.shrink()
+                                      ],
                                     );
                                   }
                                 });

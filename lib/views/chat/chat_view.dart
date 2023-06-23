@@ -50,6 +50,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
         return true;
       },
       child: Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
           actions: [
             IconButton(

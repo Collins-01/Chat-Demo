@@ -8,6 +8,7 @@ import 'package:harmony_chat_demo/core/models/contact_model.dart';
 import 'package:harmony_chat_demo/core/models/message_status.dart';
 import 'package:harmony_chat_demo/core/network_service/network_client.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
+import 'package:harmony_chat_demo/core/remote/chat/chat_exception.dart';
 import 'dart:io';
 import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
@@ -223,7 +224,10 @@ class ChatServiceImpl implements IChatService {
             savedMessage.copyWith(
                 isUploadingMedia: false, failedToUploadMedia: true),
           );
+
           _logger.e("Error Uploading Media ::::: $e");
+          throw ChatException(
+              message: e.toString(), title: "Failed to Upload Media");
         }
       }
       _logger.e("Message with id ${message.id} was not saved",
@@ -311,6 +315,8 @@ class ChatServiceImpl implements IChatService {
           await _databaseRepository.updateMessage(savedMessage.copyWith(
               isDownloadingMedia: false, failedToDownloadMedia: true));
           _logger.e("Error Downloadig Media Message:.... $e");
+          throw ChatException(
+              message: e.toString(), title: "Failed to Donwload Media");
         }
 
         return;
