@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:isolate';
 
+import 'package:harmony_chat_demo/core/background_service_handlers/background_service_handlers.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/message_info_model.dart';
@@ -23,7 +25,9 @@ class ChatServiceImpl implements IChatService {
   final IContactService _contactService;
   final IFileService _fileService;
   final IAuthService _authService;
+  final _fileBackgroundService = locator<FileBackgroundServiceHandler>();
   final _logger = const AppLogger(ChatServiceImpl);
+  Isolate? _downloadIsolate;
 
   late Socket _socket;
 
@@ -207,8 +211,8 @@ class ChatServiceImpl implements IChatService {
           savedMessage.copyWith(isUploadingMedia: true),
         );
         try {
-          final uploadResponse =
-              await _fileService.uploadFile(file, savedMessage.messageType);
+          final uploadResponse = await _fileBackgroundService
+              .startUploadBackgroundTask(file, savedMessage.messageType);
           await _databaseRepository.updateMessage(savedMessage.copyWith(
             isUploadingMedia: false,
             mediaUrl: uploadResponse.mediaUrl,
@@ -299,8 +303,9 @@ class ChatServiceImpl implements IChatService {
           savedMessage.copyWith(isDownloadingMedia: true),
         );
         try {
-          final localMediaPath = await _fileService.downloadFile(
-              message.mediaUrl!, message.messageType);
+          final localMediaPath =
+              await _fileBackgroundService.startDownloadBackgroundTask(
+                  message.mediaUrl!, message.messageType);
           if (localMediaPath != null) {
             await _databaseRepository.updateMessage(savedMessage.copyWith(
               isDownloadingMedia: false,

@@ -14,6 +14,7 @@ import 'package:harmony_chat_demo/services/files/file_service_interface.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/permissions/permissions.dart';
+import 'background_service_handlers/background_service_handlers.dart';
 import 'local/cache/cache.dart';
 import 'local/db/database_impl.dart';
 import 'local/db/database_repository.dart';
@@ -41,5 +42,9 @@ Future<void> setUpLocaator() async {
   locator
       .registerLazySingleton<IPermissionService>(() => PermissionServiceImpl());
 
+  // * File Service
   locator.registerLazySingleton<IFileService>(() => FileServiceImpl());
+
+// * Background Service
+  locator.registerLazySingleton(() => FileBackgroundServiceHandler());
 }
