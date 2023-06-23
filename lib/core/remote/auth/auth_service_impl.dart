@@ -1,53 +1,143 @@
-import 'package:harmony_chat_demo/core/models/user_model.dart';
+import 'package:flutter/material.dart';
+import 'package:harmony_chat_demo/core/local/cache/local.dart';
+import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
+import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/network_service/network_client.dart';
 import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
+import 'package:harmony_chat_demo/core/remote/chat/chat_interface.dart';
+import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
+import 'package:harmony_chat_demo/utils/utils.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../models/models.dart';
 
 class AuthServiceImpl implements IAuthService {
+  final _logger = appLogger(AuthServiceImpl);
+  late final LocalCache _localCache;
+  late final IContactService _contactService;
+  late final DatabaseRepository _databaseRepository;
+  // late final IChatService _chatService;
+  final String path = '/authentication/';
   final NetworkClient _networkClient = NetworkClient.instance;
-  final UserModel _currentUser = UserModel(
-    avatar:
-        'https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80',
-    email: 'oriakhicolls01@gmail.com',
-    firstName: 'Collins',
-    lastName: 'Oriakhi',
-    id: '001',
-  );
+  UserModel? _currentUser;
+  String? _accessToken;
+  String? _refreshToken;
+
+  AuthServiceImpl({
+    LocalCache? localCache,
+    DatabaseRepository? databaseRepository,
+    IContactService? contactService,
+    IChatService? chatService,
+  })  : _localCache = localCache ?? locator(),
+        _databaseRepository = databaseRepository ?? locator(),
+        _contactService = contactService ?? locator();
+  // _chatService = chatService ?? locator();
+
   @override
 
   /// When a user logs in, a list of the user's connections(contacts) will be returned alongside with the user's
   /// credentials, for local storage.
   ///
-  Future<void> login(String username, String password) {
-    // TODO: implement login
-    throw UnimplementedError();
+  Future<void> login(String username, String password) async {
+    var response = await _networkClient.post(
+      '${path}login',
+      body: {
+        'email': username,
+        'password': password,
+      },
+    );
+
+    // _logger.d(
+    //   "Response from Login ${response.toString()}",
+    //   functionName: 'login',
+    // );
+    var token = response['data']['access_token'];
+    var refreshToken = response['data']['refresh_token'];
+    var user = response['data']['current_user'];
+    _logger.d(user);
+    var connections = response['data']['connections'] as List;
+    _accessToken = token;
+    _refreshToken = refreshToken;
+    _currentUser = UserModel.fromMap(user);
+    await _databaseRepository.deleteDB();
+    await _databaseRepository.initializeDB();
+    if (_currentUser!.isBioCreated) {
+      _logger.w("User created Bio");
+      await _localCache.saveToken(token);
+      await _localCache.saveUserData(_currentUser!.toMap());
+
+      final contacts = connections
+          .map(
+            (e) => ContactModel(
+              avatarUrl: e['avatar']['url'],
+              firstName: e['firstName'],
+              lastName: e['lastName'],
+              occupation: '',
+              id: const Uuid().v4(),
+              serverId: e['id'],
+            ),
+          )
+          .toList();
+      await _contactService.insertAllContacts(contacts);
+
+      // * Insert Messages also...
+    }
   }
 
   @override
   UserModel? get user => _currentUser;
 
   @override
-  Future<void> logout() {
-    // TODO: implement logout
-    throw UnimplementedError();
+  Future<void> logout() async {}
+
+  @override
+  Future<void> register(String email, String password) async {
+    var response = await _networkClient.post(
+      '${path}register',
+      body: {
+        'email': email,
+        'password': password,
+      },
+    );
+    _logger.i("Response from Login", error: response, functionName: 'login');
   }
 
   @override
-  Future<void> register(String email, String password) {
-    // TODO: implement register
-    throw UnimplementedError();
+  Future<void> verifyOtp(String email, String code) async {
+    var response = await _networkClient.post(
+      '${path}otp/verify',
+      body: {
+        'email': email,
+        'code': code,
+      },
+    );
+    _logger.i(response.toString());
   }
 
   @override
-  Future<void> verifyOtp(String email, String code) {
-    // TODO: implement verifyOtp
-    throw UnimplementedError();
+  String? get accessToken => _accessToken;
+
+  @override
+  String? get refreshToken => _refreshToken;
+
+  @override
+  Future<void> onInit(
+      {VoidCallback? successCallback, VoidCallback? errorCallback}) async {
+    var token = await _localCache.getToken();
+    var user = _localCache.getUserData();
+    if (user != null && token != null) {
+      _accessToken = token;
+      _currentUser = UserModel.fromMap(user);
+      await _databaseRepository.initializeDB();
+      successCallback?.call();
+    } else {
+      errorCallback?.call();
+    }
   }
 
   @override
-  // TODO: implement accessToken
-  String? get accessToken => throw UnimplementedError();
-
-  @override
-  // TODO: implement refreshToken
-  String? get refreshToken => throw UnimplementedError();
+  Future<void> updateUserInfo(Map<String, dynamic> json) async {
+    _currentUser = UserModel.fromMap(json);
+    await _localCache.saveUserData(_currentUser!.toMap());
+  }
 }

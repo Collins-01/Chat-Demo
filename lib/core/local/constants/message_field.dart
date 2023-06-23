@@ -1,6 +1,6 @@
 class MessageField {
   /// message id for the creation on the local sql table. [int]
-  static String id = 'id';
+  static String id = 'message_id';
 
   /// contains the text content of the message [String]
   static String content = 'content';
@@ -18,7 +18,7 @@ class MessageField {
   static String updatedAt = 'updated_at';
 
   /// Describes the id for the message generated on the server. [uuidv4]
-  static String serverId = 'sever_id';
+  static String serverId = 'server_id';
 
   /// Describes the local id of the message [uuidv4]
   static String localId = 'local_id';
@@ -40,4 +40,16 @@ class MessageField {
 
   /// Used to indicate the status of a particular message [`sent` ,`failed` , `delivered`, `received`]
   static String status = 'status';
+
+  static String isDownloadingMedia = 'is_downloading_media';
+
+  static String failedToUploadMedia = 'failed_to_upload_media';
+
+  static String isDeleted = 'is_deleted';
+
+  static String mediaId = 'media_id';
+
+  static String isUploadingMedia = 'is_uploading_media';
+
+  static String failedToDownloadMedia = 'failed_to_download_media';
 }

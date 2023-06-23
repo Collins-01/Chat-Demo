@@ -12,7 +12,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   final _logger = const AppLogger(DatabaseRepositoryImpl);
 
   late BriteDatabase _streamDatabase;
-  // late Database _database;
+  late Database _database;
 
   _onCreateDatabase(Database db, int verserion) async {
     // Creates a `contacts` table in the newly created database.
@@ -27,7 +27,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
     final documentDirectory = await getDatabasesPath();
     // Create a path for the database, with the name of the database from the db_constants.
     final path = join(documentDirectory, DBConstants.databaseName);
-    _logger.i("Path to created database ::: $path ");
+    // _logger.i("Path to created database ::: $path ");
     return openDatabase(path,
         version: DBConstants.dbVersion, onCreate: _onCreateDatabase);
   }
@@ -43,6 +43,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   @override
   Future<void> initializeDB() async {
     final db = await _initializeDatabase();
+    _database = db;
     _streamDatabase = BriteDatabase(db);
   }
 
@@ -59,7 +60,7 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   Future<void> insertAllContacts(List<ContactModel> contacts) async {
     final batch = _streamDatabase.batch();
     for (var contact in contacts) {
-      _logger.i(contact.toString());
+      // _logger.i(contact.toString());
       batch.insert(DBConstants.contactTable, contact.mapToDB());
     }
     batch.commit(noResult: true);
@@ -190,15 +191,25 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Future<MessageModel?> getMessageById(String id) {
-    // TODO: implement getMessageById
-    throw UnimplementedError();
+  Future<MessageModel?> getMessageById(String id) async {
+    final data = await _database.query(DBConstants.messageTable,
+        where: '${MessageField.id} = ?', whereArgs: [id]);
+    if (data.isEmpty) {
+      _logger.e("No message with id = $id found locally");
+      return null;
+    }
+    return MessageModel.fromDB(data[0]);
   }
 
   @override
-  Future<MessageModel?> getMessageByLocalId(String localId) {
-    // TODO: implement getMessageByLocalId
-    throw UnimplementedError();
+  Future<MessageModel?> getMessageByLocalId(String localId) async {
+    final data = await _database.query(DBConstants.messageTable,
+        where: '${MessageField.localId} = ?', whereArgs: [localId]);
+    if (data.isEmpty) {
+      _logger.e("No message with localId = $localId found locally");
+      return null;
+    }
+    return MessageModel.fromDB(data[0]);
   }
 
   @override
@@ -233,8 +244,8 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
       DBConstants.messageTable,
       where: "${MessageField.sender} = ? or ${MessageField.receiver} = ?",
       whereArgs: [
-        contact.id,
-        contact.id,
+        contact.serverId,
+        contact.serverId,
       ],
       orderBy: MessageField.updatedAt,
     )
@@ -271,12 +282,149 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
 
   @override
   Stream<List<MessageInfoModel>> getMyLastConversations(String id) async* {
-    yield* _streamDatabase
-        .createRawQuery(
-          [DBConstants.messageTable, DBConstants.contactTable],
-          DBConstants.getLastConversations,
-          [id],
-        )
-        .mapToList((row) => MessageInfoModel.fromDB(row));
+    yield* _streamDatabase.createRawQuery(
+      [DBConstants.messageTable, DBConstants.contactTable],
+      ''' 
+      SELECT 
+            c.${ContactField.id},
+            c.${ContactField.lastName},
+            c.${ContactField.firstName},
+            c.${ContactField.avatar},
+            c.${ContactField.serverId},
+            m.${MessageField.content},
+            m.${MessageField.updatedAt},
+            m.${MessageField.status},
+            m.${MessageField.messageType},
+            m.${MessageField.sender},
+            m.${MessageField.receiver},
+            m.${MessageField.id},
+            (
+              SELECT COUNT(*) FROM ${DBConstants.messageTable} WHERE ${MessageField.receiver} = ? AND ${MessageField.status} = '${MessageStatus.delivered}' AND ${MessageField.isDeleted} = '0'
+            ) AS unreadMessagesCount
+
+            FROM 
+
+            ${DBConstants.contactTable} AS c
+            
+            JOIN ${DBConstants.messageTable} AS m ON ( 
+              m.${MessageField.sender} = ?  OR  m.${MessageField.receiver} = ?
+            ) 
+
+            WHERE  m.${MessageField.updatedAt} = ( 
+              
+              SELECT MAX(${MessageField.updatedAt}) FROM ${DBConstants.messageTable} 
+               WHERE
+                (
+                  m.${MessageField.sender} = ?
+                  OR m.${MessageField.receiver} = ?
+                )
+             )
+              AND ${MessageField.isDeleted} = '0'
+              
+              ORDER BY
+            m.${MessageField.updatedAt} DESC;
+          ''',
+      [id, id, id, id, id],
+    ).mapToList((row) {
+      // _logger.d("Watching recent conversations :: ${row.toString()}");
+      return MessageInfoModel.fromDB(row);
+    });
+  }
+
+  @override
+  Future<MessageModel?> getMessageByServerId(String serverId) async {
+    final data = await _database.query(DBConstants.messageTable,
+        where: '${MessageField.serverId} = ?', whereArgs: [serverId]);
+    if (data.isEmpty) {
+      _logger.e("No message with ServerId = $serverId found locally");
+      return null;
+    }
+    return MessageModel.fromDB(data[0]);
+  }
+
+  @override
+  Future<List<MessageModel>> getAllDeliveredMessagesWithUser(
+      String receiverId) async {
+    final data = _streamDatabase.createQuery(
+      DBConstants.messageTable,
+      where: '${MessageField.receiver} = ? AND ${MessageField.status} = ?',
+      whereArgs: [receiverId, MessageStatus.delivered],
+    );
+    return [];
+  }
+
+  @override
+  Future<ContactModel?> getContactByServerId(String serverId) async {
+    final data = await _streamDatabase.query(
+      DBConstants.contactTable,
+      where: "${ContactField.serverId} = ?",
+      whereArgs: [serverId],
+      limit: 1,
+    );
+    return data.isEmpty ? null : ContactModel.fromDB(data[0]);
+  }
+
+  @override
+  Future<List<MessageModel>> getMessagesWithUserByStatus({
+    required String sender,
+    required String receiver,
+    required String status,
+  }) async {
+    final response = await _streamDatabase.query(
+      DBConstants.messageTable,
+      where:
+          '${MessageField.receiver} = ? AND ${MessageField.sender} = ? AND ${MessageField.status} = ? ',
+      whereArgs: [receiver, sender, status],
+    );
+
+    return response.map((e) => MessageModel.fromDB(e)).toList();
+  }
+
+  @override
+  Future<void> updateMessagesStatusByServerId(
+      List<String> serverIds, String status) async {
+    _logger.d("Called --> updateMessagesStatusByServerId <-- ::");
+    // ${serverIds.map((_) => '?').join(', ')
+    await _database.rawUpdate(
+      '''
+        UPDATE ${DBConstants.messageTable} 
+        SET ${MessageField.status} = ? 
+        WHERE  ${MessageField.serverId} IN (${serverIds.map((_) => '?').join(', ')})
+      ''',
+      [status, ...serverIds],
+    );
+  }
+
+  @override
+  Future<List<MessageModel>> getAllUnsentMessages(String userId) async {
+    final data = await _streamDatabase.rawQuery(
+      '''
+        SELECT * FROM ${DBConstants.messageTable}
+        WHERE ${MessageField.status} = ? AND ${MessageField.sender} = ?
+     ''',
+      [
+        MessageStatus.unsent,
+        userId,
+      ],
+    );
+    if (data.isEmpty) {
+      return [];
+    }
+
+    return data.map((e) => MessageModel.fromDB(e)).toList();
+  }
+
+  @override
+  Stream<List<MessageModel>> searchChat(String query,
+      {required String sender, required String receiver}) async* {
+    yield* _streamDatabase.createRawQuery(
+      [DBConstants.messageTable],
+      '''
+      SELECT * FROM ${DBConstants.messageTable}
+      WHERE 
+       ${MessageField.sender} = ?  AND ${MessageField.receiver} = ? AND ${MessageField.isDeleted} = '0'  AND ${MessageField.content} LIKE '%?%';
+      ''',
+      [sender, receiver, query],
+    ).mapToList((row) => MessageModel.fromDB(row));
   }
 }

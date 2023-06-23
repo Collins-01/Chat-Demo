@@ -1,6 +1,6 @@
 class ContactField {
   /// User assigned id from the server
-  static String id = 'id';
+  static String id = 'contact_id';
 
   /// First name of the user.
   static String firstName = 'first_name';

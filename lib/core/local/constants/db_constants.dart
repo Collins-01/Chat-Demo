@@ -14,13 +14,13 @@ class DBConstants {
     ${ContactField.lastName} VARCHAR(255) NOT NULL,
     ${ContactField.avatar} VARCHAR(255) NOT NULL,
     ${ContactField.serverId} VARCHAR(255) NOT NULL,
-    ${ContactField.bio} VARCHAR(255) NOT NULL,
-    ${ContactField.occupation} VARCHAR(255) NOT NULL,
-    ${ContactField.createdAt} DATETIME NOT NULL
+    ${ContactField.occupation} VARCHAR(255) NOT NULL
+    
 )
 
     ''';
-
+  // ${ContactField.bio} VARCHAR(255) NOT NULL,
+// ${ContactField.createdAt} DATETIME NOT NULL
   static String createMessagesTable = '''
 
     CREATE TABLE $messageTable (
@@ -31,13 +31,21 @@ class DBConstants {
         ${MessageField.status} VARCHAR(36) NOT NULL,
         ${MessageField.createdAt} DATETIME NOT NULL,
         ${MessageField.updatedAt} DATETIME NOT NULL,
-        ${MessageField.serverId} INT ,
-        ${MessageField.localId} VARCHAR(36) NOT NULL,
+        ${MessageField.serverId} VARCHAR(36),
+        ${MessageField.localId} VARCHAR(36) UNIQUE  NOT NULL ,
+        ${MessageField.mediaId} VARCHAR(36),
         ${MessageField.mediaUrl} VARCHAR(255),
         ${MessageField.localMediaPath} VARCHAR(255),
         ${MessageField.chatId} VARCHAR(36),
         ${MessageField.sender} VARCHAR(36) NOT NULL,
-        ${MessageField.receiver} VARCHAR(36) NOT NULL
+        ${MessageField.receiver} VARCHAR(36) NOT NULL,
+        ${MessageField.isDownloadingMedia}  INT ,
+        ${MessageField.failedToUploadMedia}  INT ,
+        ${MessageField.isDeleted}  INT ,
+        ${MessageField.isUploadingMedia}  INT ,
+        ${MessageField.failedToDownloadMedia}  INT 
+        
+
 )
 
 

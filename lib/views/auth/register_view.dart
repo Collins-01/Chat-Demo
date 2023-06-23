@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:harmony_chat_demo/views/auth/auth.dart';
 import 'package:harmony_chat_demo/views/auth/viewmodels/register_viewmodel.dart';
 import 'package:harmony_chat_demo/views/widgets/app_text.dart';
 
@@ -29,7 +30,7 @@ class _ResgisterViewState extends ConsumerState<ResgisterView> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AppText.heading1("LOGIN "),
+                AppText.heading1("REGISTER "),
                 // const Text("Login"),
                 AuthTextField(
                   hintText: 'example@gmail.com',
@@ -44,13 +45,24 @@ class _ResgisterViewState extends ConsumerState<ResgisterView> {
                 const SizedBox(
                   height: 50,
                 ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (_) => const LoginView(),
+                      ),
+                    );
+                  },
+                  child: AppText.body("Have have an account already? Login"),
+                ),
                 AppLongButton(
-                  title: 'LOGIN',
+                  title: 'REGISTER',
                   onTap: () {
                     if (!_formKey.currentState!.validate()) {
                       return;
                     }
-                    // model.login(emailController.text, passwordController.text);
+                    model.register(
+                        emailController.text, passwordController.text);
                   },
                 )
               ],

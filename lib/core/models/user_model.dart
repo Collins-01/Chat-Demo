@@ -2,17 +2,19 @@
 import 'dart:convert';
 
 class UserModel {
-  final String firstName;
-  final String lastName;
+  final String? firstName;
+  final String? lastName;
   final String email;
   final String id;
-  final String avatar;
+  final String? avatar;
+  final bool isBioCreated;
   UserModel({
-    required this.firstName,
-    required this.lastName,
+    this.firstName,
+    this.lastName,
     required this.email,
     required this.id,
-    required this.avatar,
+    this.avatar,
+    this.isBioCreated = false,
   });
 
   UserModel copyWith({
@@ -21,6 +23,7 @@ class UserModel {
     String? email,
     String? id,
     String? avatar,
+    bool? isBioCreated,
   }) {
     return UserModel(
       firstName: firstName ?? this.firstName,
@@ -28,6 +31,7 @@ class UserModel {
       email: email ?? this.email,
       id: id ?? this.id,
       avatar: avatar ?? this.avatar,
+      isBioCreated: isBioCreated ?? this.isBioCreated,
     );
   }
 
@@ -38,16 +42,18 @@ class UserModel {
       'email': email,
       'id': id,
       'avatar': avatar,
+      'isBioCreated': isBioCreated,
     };
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      firstName: map['firstName'] as String,
-      lastName: map['lastName'] as String,
+      firstName: map['firstName'] != null ? map['firstName'] as String : null,
+      lastName: map['lastName'] != null ? map['lastName'] as String : null,
       email: map['email'] as String,
       id: map['id'] as String,
-      avatar: map['avatar'] as String,
+      avatar: map['avatar'] != null ? map['avatar']['url'] as String : null,
+      isBioCreated: map['isBioCreated'] as bool,
     );
   }
 
@@ -58,7 +64,7 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(firstName: $firstName, lastName: $lastName, email: $email, id: $id, avatar: $avatar)';
+    return 'UserModel(firstName: $firstName, lastName: $lastName, email: $email, id: $id, avatar: $avatar, isBioCreated: $isBioCreated)';
   }
 
   @override
@@ -69,7 +75,8 @@ class UserModel {
         other.lastName == lastName &&
         other.email == email &&
         other.id == id &&
-        other.avatar == avatar;
+        other.avatar == avatar &&
+        other.isBioCreated == isBioCreated;
   }
 
   @override
@@ -78,6 +85,7 @@ class UserModel {
         lastName.hashCode ^
         email.hashCode ^
         id.hashCode ^
-        avatar.hashCode;
+        avatar.hashCode ^
+        isBioCreated.hashCode;
   }
 }

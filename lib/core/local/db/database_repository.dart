@@ -45,6 +45,8 @@ abstract class DatabaseRepository {
 
   /// Updates a list of messages on the `messages` table.
   Future<void> updateAllMessages(List<MessageModel> messages);
+  Future<void> updateMessagesStatusByServerId(
+      List<String> serverIds, String status);
 
 // * * * * * * * * * * * * * DELETE * * * * * * * * * * * *
 
@@ -59,14 +61,29 @@ abstract class DatabaseRepository {
 
   // * * * * * * * * * * * * * * * * * * * * *  QUERIES * * * * * * * * * * * * * * * *
 
+  ///Search for messages
+  Stream<List<MessageModel>> searchChat(String query,
+      {required String sender, required String receiver});
+
   /// get message with [id]
   Future<MessageModel?> getMessageById(String id);
 
   /// get message with [localId]
   Future<MessageModel?> getMessageByLocalId(String localId);
 
+  Future<List<MessageModel>> getAllUnsentMessages(
+    String userId,
+  );
+
+  /// get message with [serverid]
+  Future<MessageModel?> getMessageByServerId(String serverId);
+
+  Future<List<MessageModel>> getAllDeliveredMessagesWithUser(String receiverId);
+
   /// get user with [id]
   Future<ContactModel?> getContact(String id);
+
+  Future<ContactModel?> getContactByServerId(String serverId);
 
   /// get list of all user contacts
   Future<List<ContactModel>> getContacts();
@@ -86,6 +103,12 @@ abstract class DatabaseRepository {
   Future<List<MessageModel>> getUnreadMessagesByChatId({
     required String chatId,
     required String contactId,
+  });
+
+  Future<List<MessageModel>> getMessagesWithUserByStatus({
+    required String sender,
+    required String receiver,
+    required String status,
   });
 
   /// getall unsent messages

@@ -2,14 +2,19 @@ import 'package:faker/faker.dart';
 import 'package:harmony_chat_demo/core/local/db/database_repository.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
 import 'package:harmony_chat_demo/core/models/contact_model.dart';
+import 'package:harmony_chat_demo/core/remote/auth/auth_service_interface.dart';
 import 'package:harmony_chat_demo/core/remote/contacts/contact_service_interface.dart';
-import 'package:uuid/uuid.dart';
 
 class ContactServiceImpl implements IContactService {
   final faker = Faker();
+  // final IAuthService _authService = locator();
   final DatabaseRepository _databaseRepository;
-  ContactServiceImpl({DatabaseRepository? databaseRepository})
+  ContactServiceImpl(
+      {DatabaseRepository? databaseRepository,
+      IAuthService? authService,
+      ContactServiceImpl? contactService})
       : _databaseRepository = databaseRepository ?? locator();
+
   @override
   Future<void> deleteContact(ContactModel contact) async {
     await _databaseRepository.deleteContact(contact);
@@ -33,21 +38,21 @@ class ContactServiceImpl implements IContactService {
   @override
   Future<void> insertAllContacts(List<ContactModel> contacts) async {
     // await Future.delayed(const Duration(seconds: 2),);
-    var list = [
-      ...List.generate(
-        10,
-        (index) => ContactModel(
-          id: const Uuid().v4().toString(),
-          bio: faker.lorem.sentence(),
-          occupation: faker.job.title(),
-          lastName: faker.person.lastName(),
-          firstName: faker.person.firstName(),
-          avatarUrl: faker.image.image(),
-          createdAt: DateTime.now(),
-        ),
-      )
-    ];
-    return _databaseRepository.insertAllContacts(list);
+    // var list = [
+    //   ...List.generate(
+    //     10,
+    //     (index) => ContactModel(
+    //       id: const Uuid().v4().toString(),
+    //       // bio: faker.lorem.sentence(),
+    //       occupation: faker.job.title(),
+    //       lastName: faker.person.lastName(),
+    //       firstName: faker.person.firstName(),
+    //       avatarUrl: faker.image.image(),
+    //       // createdAt: DateTime.now(),
+    //     ),
+    //   )
+    // ];
+    return _databaseRepository.insertAllContacts(contacts);
   }
 
   @override
@@ -70,6 +75,25 @@ class ContactServiceImpl implements IContactService {
   }
 
   @override
-  // TODO: implement userContactInfo
-  ContactModel get userContactInfo => throw UnimplementedError();
+  ContactModel? get userContactInfo {
+    return null;
+
+    // if (_authService.user != null) {
+    //   return ContactModel(
+    //     lastName: _authService.user!.lastName!,
+    //     firstName: _authService.user!.firstName!,
+    //     avatarUrl: _authService.user!.avatar!,
+    //     // createdAt: DateTime.now(),
+    //     occupation: '',
+    //     id: const Uuid().v4(),
+    //   );
+    // } else {
+    //   return null;
+    // }
+  }
+
+  @override
+  Future<ContactModel?> getContactByServerId(String serverId) async {
+    return _databaseRepository.getContactByServerId(serverId);
+  }
 }

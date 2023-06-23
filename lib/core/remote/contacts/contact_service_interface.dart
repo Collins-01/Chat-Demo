@@ -16,6 +16,8 @@ abstract class IContactService {
   /// Gets a contact from the local contacts table, using the  contact id [id]. Returns [null] if the contact does not exist.
   Future<ContactModel?> getContact(String id);
 
+  Future<ContactModel?> getContactByServerId(String serverId);
+
   /// Future to get all contacts from the locaal contacts table.
   Future<List<ContactModel>> getContacts();
 
@@ -25,5 +27,5 @@ abstract class IContactService {
   /// Returns an my locally saved contact model.
   Future<ContactModel> getMyContactInfo(String id);
 
-  ContactModel get userContactInfo;
+  ContactModel? get userContactInfo;
 }
