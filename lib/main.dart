@@ -31,6 +31,62 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const SplashScreenView(),
+
+      // Scaffold(
+      //   body: SafeArea(
+      //     child: Column(
+      //       children: [
+      //         Row(
+      //           children: [
+      //             Expanded(
+      //               child: BubbleNormalAudio(
+      //                 isSender: true,
+      //                 color: const Color(0xFFE8E8EE),
+      //                 // position: model.position,
+      //                 // isPlaying: model.isPlaying,
+      //                 isLoading: true,
+      //                 // isPause: !model.isPlaying,
+      //                 onSeekChanged: (value) {},
+      //                 onPlayPauseButtonClick: () {
+      //                   // model.setCurrentAudioId(message.localId);
+      //                   // model.playAudio(message.localMediaPath!);
+      //                 },
+      //                 sent: true,
+      //                 delivered: false,
+      //                 seen: true,
+      //                 tail: true,
+      //               ),
+      //             ),
+      //             IconButton(
+      //                 onPressed: () {},
+      //                 icon: const Icon(
+      //                   Icons.error_outline_outlined,
+      //                   color: Colors.red,
+      //                 ))
+      //           ],
+      //         ),
+      //         BubbleNormalAudio(
+      //           isSender: false,
+      //           color: const Color(0xFFE8E8EE),
+
+      //           // position: model.position,
+      //           // isPlaying: model.isPlaying,
+      //           isLoading: false,
+      //           // isPause: !model.isPlaying,
+      //           onSeekChanged: (value) {},
+      //           onPlayPauseButtonClick: () {
+      //             // model.setCurrentAudioId(message.localId);
+      //             // model.playAudio(message.localMediaPath!);
+      //           },
+      //           sent: true,
+      //           delivered: false,
+      //           seen: true,
+      //           tail: true,
+      //         ),
+      //       ],
+      //     ),
+      //   ),
+      // ),
       navigatorKey: NavigationService.instance.navigatorKey,
       onGenerateRoute: RouteGenerators.generateRoutes,
     );
