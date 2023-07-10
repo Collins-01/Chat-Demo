@@ -280,6 +280,14 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
         );
   }
 
+/*
+SELECT sender, receiver, MAX(timestamp) AS latest_timestamp
+FROM messages
+WHERE sender = 'your_username' OR receiver = 'your_username'
+GROUP BY sender, receiver
+ORDER BY latest_timestamp DESC;
+
+*/
   @override
   Stream<List<MessageInfoModel>> getMyLastConversations(String id) async* {
     yield* _streamDatabase.createRawQuery(

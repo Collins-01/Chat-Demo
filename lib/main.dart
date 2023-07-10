@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:harmony_chat_demo/core/locator.dart';
-import 'package:harmony_chat_demo/views/splash_screen_view.dart';
+import 'package:harmony_chat_demo/views/chat/components/audio_bubble.dart';
 
+import 'core/models/models.dart';
 import 'navigations/navigations.dart';
 
 void main() {
@@ -30,63 +31,39 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const SplashScreenView(),
+      home:
+          // const SplashScreenView(),
 
-      // Scaffold(
-      //   body: SafeArea(
-      //     child: Column(
-      //       children: [
-      //         Row(
-      //           children: [
-      //             Expanded(
-      //               child: BubbleNormalAudio(
-      //                 isSender: true,
-      //                 color: const Color(0xFFE8E8EE),
-      //                 // position: model.position,
-      //                 // isPlaying: model.isPlaying,
-      //                 isLoading: true,
-      //                 // isPause: !model.isPlaying,
-      //                 onSeekChanged: (value) {},
-      //                 onPlayPauseButtonClick: () {
-      //                   // model.setCurrentAudioId(message.localId);
-      //                   // model.playAudio(message.localMediaPath!);
-      //                 },
-      //                 sent: true,
-      //                 delivered: false,
-      //                 seen: true,
-      //                 tail: true,
-      //               ),
-      //             ),
-      //             IconButton(
-      //                 onPressed: () {},
-      //                 icon: const Icon(
-      //                   Icons.error_outline_outlined,
-      //                   color: Colors.red,
-      //                 ))
-      //           ],
-      //         ),
-      //         BubbleNormalAudio(
-      //           isSender: false,
-      //           color: const Color(0xFFE8E8EE),
-
-      //           // position: model.position,
-      //           // isPlaying: model.isPlaying,
-      //           isLoading: false,
-      //           // isPause: !model.isPlaying,
-      //           onSeekChanged: (value) {},
-      //           onPlayPauseButtonClick: () {
-      //             // model.setCurrentAudioId(message.localId);
-      //             // model.playAudio(message.localMediaPath!);
-      //           },
-      //           sent: true,
-      //           delivered: false,
-      //           seen: true,
-      //           tail: true,
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      // ),
+          Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              AudioBubble(
+                isSender: true,
+                message: MessageModel(
+                    createdAt: DateTime.now(),
+                    localId: '',
+                    receiver: '',
+                    sender: '',
+                    updatedAt: DateTime.now()),
+                onPlayPauseButtonClick: () {},
+                setCurrentAudioId: (String id) {},
+              ),
+              AudioBubble(
+                isSender: false,
+                message: MessageModel(
+                    createdAt: DateTime.now(),
+                    localId: '',
+                    receiver: '',
+                    sender: '',
+                    updatedAt: DateTime.now()),
+                onPlayPauseButtonClick: () {},
+                setCurrentAudioId: (String id) {},
+              ),
+            ],
+          ),
+        ),
+      ),
       navigatorKey: NavigationService.instance.navigatorKey,
       onGenerateRoute: RouteGenerators.generateRoutes,
     );

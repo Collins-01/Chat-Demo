@@ -366,7 +366,7 @@ class ChatServiceImpl implements IChatService {
         'id': serverId,
       });
     }
-    _logger.e("Message with ID :$serverId");
+    // _logger.e("Message with ID :$serverId");
   }
 
   @override
@@ -380,7 +380,7 @@ class ChatServiceImpl implements IChatService {
         message.copyWith(status: MessageStatus.read),
       );
     }
-    _logger.e("Message with server id $id Not found locally.");
+    // _logger.e("Message with server id $id Not found locally.");
   }
 
   @override
@@ -462,7 +462,7 @@ class ChatServiceImpl implements IChatService {
         if (savedMessage != null) {
           emitMessageDelivered(savedMessage.serverId!);
         }
-        _logger.e("Message with ID: ${message.id} not found");
+        // _logger.e("Message with ID: ${message.id} not found");
       }
       // TODO: Handle Downloading of messages
     }
